@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        tools:context="com.example.woko_app.LoginActivity">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/login_logo"
+            android:src="@drawable/logo_gross"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="50sp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="200sp">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="200sp"
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/login_username"
+                    android:id="@+id/txtUsername"
+                    android:layout_gravity="center_horizontal" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/etUsername_login"
+                    android:ems="10"
+                    android:hint="@string/login_hint"
+                    android:layout_marginLeft="10sp"
+                    android:textSize="18sp"
+                    android:inputType="text"
+                    android:text="mm" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20sp"
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/login_password"
+                    android:id="@+id/txtPassword"
+                    android:layout_marginLeft="50sp" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:ems="10"
+                    android:id="@+id/etPassword"
+                    android:layout_marginLeft="10sp"
+                    android:hint="********"
+                    android:textSize="18sp"
+                    android:text="1234" />
+            </LinearLayout>
+
+            <Button
+                style="@style/ButtonStyle"
+                android:text="@string/login_btn"
+                android:id="@+id/login_btn"
+                android:layout_marginTop="20sp"
+                android:layout_gravity="right"
+                android:layout_marginRight="65sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+

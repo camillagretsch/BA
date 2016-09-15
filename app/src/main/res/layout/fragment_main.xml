@@ -1,0 +1,105 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.MainFragment">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:weightSum="1"
+            android:id="@+id/new_AP">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtNew"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="80sp"
+                android:text="@string/home_new_protocol" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/fileicon"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20sp"
+                android:text="@string/file_icon"
+                android:textSize="60sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtFileName"
+                android:layout_marginTop="5sp"
+                android:layout_gravity="center_horizontal" />
+
+            <Button
+                style="@style/ButtonStyle"
+                android:text="@string/open_btn"
+                android:id="@+id/btnOpen"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20sp" />
+
+            <Button
+                style="@style/ButtonStyle"
+                android:text="@string/edit_btn"
+                android:id="@+id/btnEdit"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10sp" />
+
+            <Button
+                style="@style/ButtonStyle"
+                android:text="@string/duplicate_btn"
+                android:id="@+id/btnDuplicate"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10sp" />
+        </LinearLayout>
+
+        <View style="@style/VerticalDividerStyle"
+            android:layout_centerHorizontal="true" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:weightSum="1"
+            android:id="@+id/old_AP">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/home_old_protocol"
+                android:id="@+id/txtOld"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="80sp" />
+
+            <DatePicker
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@id/datePicker"
+                android:calendarViewShown="false"
+                android:datePickerMode="spinner"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10sp"/>
+
+            <Button
+                style="@style/ButtonStyle"
+                android:text="@string/search_btn"
+                android:id="@+id/btnSearch"
+                android:layout_marginTop="10sp"
+                android:layout_gravity="center_horizontal"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>
