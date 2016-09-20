@@ -15,11 +15,26 @@ import android.widget.Toast;
 import com.activeandroid.ActiveAndroid;
 import com.example.woko_app.models.AP;
 import com.example.woko_app.models.Apartment;
-import com.example.woko_app.models.Floor;
+import com.example.woko_app.models.BalconyState;
+import com.example.woko_app.models.BasementState;
+import com.example.woko_app.models.Bathroom;
+import com.example.woko_app.models.CupboardState;
+import com.example.woko_app.models.DoorState;
+import com.example.woko_app.models.FloorState;
+import com.example.woko_app.models.FridgeState;
 import com.example.woko_app.models.House;
+import com.example.woko_app.models.Kitchen;
+import com.example.woko_app.models.MattressState;
+import com.example.woko_app.models.OvenState;
+import com.example.woko_app.models.RadiatorState;
 import com.example.woko_app.models.Room;
+import com.example.woko_app.models.ShowerState;
+import com.example.woko_app.models.SocketState;
 import com.example.woko_app.models.User;
 import com.example.woko_app.R;
+import com.example.woko_app.models.VentilationState;
+import com.example.woko_app.models.WallState;
+import com.example.woko_app.models.WindowState;
 
 import java.util.List;
 
@@ -108,8 +123,35 @@ public class LoginActivity extends Activity {
         List<House> houses = House.initializeHouses(users);
         List<Apartment> apartments = Apartment.initializeApartments(houses);
         List<Room> rooms = Room.initializeRooms(apartments);
-        AP.initializeAPs(houses);
-        Floor.initializeRoomFloor(rooms);
+        Bathroom.initializeBathroom(apartments);
+        Kitchen.initializeKitchen(apartments);
+        List<AP> aps = AP.initializeAPs(houses);
+        FloorState.initializeRoomFloor(aps);
+        FloorState.initializeBathroomFloor(aps);
+        FloorState.initializeKitchenFloor(aps);
+        WallState.initializeRoomWall(aps);
+        WallState.initializeBathroomWall(aps);
+        WallState.initializeKitchenWall(aps);
+        DoorState.initializeRoomDoor(aps);
+        DoorState.initializeBathroomDoor(aps);
+        DoorState.initializeKitchenDoor(aps);
+        WindowState.initializeRoomWindow(aps);
+        WindowState.initializeBathroomWindow(aps);
+        WindowState.initializeKitchenWindow(aps);
+        SocketState.initializeRoomSocket(aps);
+        SocketState.initializeBathroomSocket(aps);
+        SocketState.initializeKitchenSocket(aps);
+        RadiatorState.initializeRoomRadiator(aps);
+        RadiatorState.initializeBathroomRadiator(aps);
+        RadiatorState.initializeKitchenRadiator(aps);
+        MattressState.initializeRoomMattress(aps);
+        ShowerState.initializeBathroomShower(aps);
+        FridgeState.initializeKitchenFridge(aps);
+        OvenState.initializeKitchenOven(aps);
+        VentilationState.initializeKitchenVentilation(aps);
+        CupboardState.initializeKitchenCupboard(aps);
+        BalconyState.initializeBalcony(aps);
+        BasementState.initializeBasement(aps);
     }
 
 }

@@ -45,6 +45,14 @@ public class Room extends Model{
         return getMany(AP.class, "room");
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     */
+    public static Room findById(long id) {
+        return new Select().from(Room.class).where("id = ?", id).executeSingle();
+    }
 
     /**
      * creates one or more rooms depends on the apartment type and save them to the table
@@ -65,14 +73,5 @@ public class Room extends Model{
             }
         }
         return rooms;
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public static Room findById(long id) {
-        return new Select().from(Room.class).where("id = ?", id).executeSingle();
     }
 }

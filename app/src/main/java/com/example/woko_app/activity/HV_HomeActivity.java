@@ -1,16 +1,19 @@
 package com.example.woko_app.activity;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -20,9 +23,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import com.example.woko_app.constants.APStatus;
+
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.R;
 import com.example.woko_app.ExpandableListAdapter;
@@ -68,6 +70,11 @@ public class HV_HomeActivity extends Activity {
     private FragmentManager fragmentManager;
     private Bundle bundle;
     private FragmentTransaction fragmentTransaction;
+    private MainFragment mainFragment;
+    private CreateProtocolFragment createProtocolFragment;
+    private DuplicateFragment duplicateFragment;
+    private ShowOldFragment showOldFragment;
+    private Fragment openFragment;
 
 
     @Override
@@ -175,7 +182,7 @@ public class HV_HomeActivity extends Activity {
      */
     private void setExpandableListView() {
 
-        ExpandableListView expandableListView = new ExpandableListView(this);
+        final ExpandableListView expandableListView = new ExpandableListView(this);
         expandableListView.setDividerHeight(3);
         expandableListView.setClickable(true);
 
@@ -185,6 +192,7 @@ public class HV_HomeActivity extends Activity {
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                v.setSelected(true);
                 Log.d("onClick:", "child at position: " + childPosition + " is chlicked");
 
                 currentApartment = currentHouse.getApartments().get(groupPosition);
@@ -202,10 +210,13 @@ public class HV_HomeActivity extends Activity {
                 return true;
             }
         });
-
         expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int groupPosition) {
+                if (openFragment != null) {
+                    fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.remove(openFragment).commit();
+                }
             }
         });
         sidebarContainer.addView(expandableListView);
@@ -233,6 +244,7 @@ public class HV_HomeActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                view.setSelected(true);
                 Log.d("onClick:", "child at position: " + position + " is chlicked");
                 currentApartment = currentHouse.getApartments().get(position);
 
@@ -251,7 +263,8 @@ public class HV_HomeActivity extends Activity {
     }
 
     public void callMainFragment() {
-        MainFragment mainFragment = new MainFragment(font);
+        mainFragment = new MainFragment(font);
+        openFragment = mainFragment;
         bundle = new Bundle();
         bundle.putLong("AP_ID", currentAP.getId());
         mainFragment.setArguments(bundle);
@@ -260,13 +273,15 @@ public class HV_HomeActivity extends Activity {
     }
 
     public void callCreateProtocolFragment() {
-        CreateProtocolFragment createProtocolFragment = new CreateProtocolFragment();
+        createProtocolFragment = new CreateProtocolFragment();
+        openFragment = createProtocolFragment;
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, createProtocolFragment, null).addToBackStack(null).commit();
     }
 
     public void callDuplicateFragment() {
-        DuplicateFragment duplicateFragment = new DuplicateFragment(font);
+        duplicateFragment = new DuplicateFragment(font);
+        openFragment = duplicateFragment;
         bundle = new Bundle();
         bundle.putLong("House", currentHouse.getId());
         bundle.putLong("Apartment", currentApartment.getId());
@@ -282,7 +297,8 @@ public class HV_HomeActivity extends Activity {
     }
 
     public void callShowOldFragment(int year) {
-        ShowOldFragment showOldFragment = new ShowOldFragment(font);
+        showOldFragment = new ShowOldFragment(font);
+        openFragment = showOldFragment;
         bundle = new Bundle();
         bundle.putLong("Apartment", currentApartment.getId());
         if (currentRoom != null) {

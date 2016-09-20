@@ -14,12 +14,15 @@ import android.widget.TextView;
 
 import com.example.woko_app.R;
 import com.example.woko_app.activity.HV_HomeActivity;
-import com.example.woko_app.constants.APStatus;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.models.AP;
 import com.example.woko_app.models.Apartment;
+import com.example.woko_app.models.Bathroom;
 import com.example.woko_app.models.House;
+import com.example.woko_app.models.Kitchen;
 import com.example.woko_app.models.Room;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -78,30 +81,28 @@ public class DuplicateFragment extends Fragment {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AP ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear());
-                ap.setApartment(currentApartment);
-                ap.setOldAP(oldAP);
+                AP ap;
                 if (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType())) {
-                    ap.setRoom(currentRoom);
+                    ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentRoom);
                     ap.setSharedApartmentName(currentHouse.getStreet(), currentHouse.getStreetNumber(), currentApartment.getApartmentNumber(), currentRoom.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
                 } else {
+                    ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentApartment.getRooms().get(0), Bathroom.findByApartment(currentApartment), Kitchen.findByApartment(currentApartment));
                     ap.setStudioName(currentHouse.getStreet(), currentHouse.getStreetNumber(), currentApartment.getApartmentNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
+
                 }
+                ap.setOldAP(oldAP);
                 ap.save();
+                if (oldAP != null) {
+                    ap.duplicateAP(ap, oldAP);
+                } else {
+                    ap.createNewAP(ap);
+                }
 
                 HV_HomeActivity hv_homeActivity = (HV_HomeActivity) getActivity();
-                if (null == oldAP) {
-                    hv_homeActivity.callEditActivity(ap.getId());
-                } else
-                    hv_homeActivity.callEditActivity(ap.getId());
+                hv_homeActivity.callEditActivity(ap.getId());
 
 
-                Log.d("neues Ap wurde erstellt", ap.getName());
-
-                if (null == oldAP) {
-                    Log.d("no old protocol", "not duplicated");
-                } else
-                    Log.d("old protocol", oldAP.getName());
+                Log.d("new AP", ap.getName());
             }
         });
 

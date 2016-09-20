@@ -20,7 +20,6 @@ import android.widget.TextView;
 
 import com.example.woko_app.ExpandableListAdapter;
 import com.example.woko_app.R;
-import com.example.woko_app.constants.APStatus;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
 import com.example.woko_app.models.AP;
@@ -29,11 +28,14 @@ import com.example.woko_app.models.House;
 import com.example.woko_app.models.Room;
 import com.example.woko_app.models.User;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class HV_EditActivity extends Activity {
 
-    private ArrayList<String> parentItems = new ArrayList<>();
+    private ArrayList<String> parentItems;
     private ArrayList<Object> childItems = new ArrayList<>();
 
     private Typeface font;
@@ -53,7 +55,7 @@ public class HV_EditActivity extends Activity {
     private String apStatus;
 
     private RelativeLayout sidebarContainer;
-    private TableLayout table;
+    private DataGridFragment dataGridFragment;
 
     private FragmentManager fragmentManager;
     private Bundle bundle;
@@ -104,10 +106,13 @@ public class HV_EditActivity extends Activity {
     public void generateSideView() {
         if (ApartmentType.SHARED_APARTMENT.equals(currentHouse.getApartments().get(0).getType())) {
             currentRoom = currentAP.getRoom();
-            setParentDataSharedApartment();
+            parentItems = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.shared_apartment_parent)));
+            setChildDataSharedApartment();
         } else {
-            setParentDataStudio();
+            parentItems = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.studio_parent)));
+            setChildDataStudio();
         }
+
         setExpandableListView();
     }
 
@@ -123,48 +128,72 @@ public class HV_EditActivity extends Activity {
         ExpandableListAdapter adapter = new ExpandableListAdapter(parentItems, childItems, R.layout.edit_expandablelist_parent, R.layout.edit_expandablelist_child, font);
         adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE), this);
         expandableListView.setAdapter(adapter);
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                v.setSelected(true);
+                Log.d("parent at position: ", String.valueOf(groupPosition) + " is clicked and child at position: " + String.valueOf(childPosition));
+                if (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 0) {
+                    callDatagridFargment(groupPosition, childPosition);
+                    btnNext.setVisibility(View.VISIBLE);
+                } else {
+                    if (groupPosition == 0) {
+                        callDatagridFargment(groupPosition, childPosition);
+                        btnNext.setVisibility(View.VISIBLE);
+                    } else if (groupPosition == 1 || groupPosition == 2) {
+                        callDatagridFargment(groupPosition, childPosition);
+                        btnBack.setVisibility(View.VISIBLE);
+                        btnNext.setVisibility(View.VISIBLE);
+                    }
+                }
+                return false;
+            }
+        });
+        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                v.setSelected(true);
+                if (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType())) {
 
+                } else {
+                    if (groupPosition == 3 ||groupPosition == 4) {
+                        callDatagridFargment(groupPosition, 1000);
+                        btnBack.setVisibility(View.VISIBLE);
+                        btnNext.setVisibility(View.VISIBLE);
+                    }
+                }
+                return false;
+            }
+        });
+        expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+            @Override
+            public void onGroupCollapse(int groupPosition) {
+                closeDataGridFragment();
+                btnBack.setVisibility(View.INVISIBLE);
+                btnNext.setVisibility(View.INVISIBLE);
+            }
+        });
         sidebarContainer.addView(expandableListView);
     }
 
     /**
-     * fills the list with the number of apartments
-     */
-    private void setParentDataStudio() {
-        parentItems.add(getResources().getString(R.string.kitchen));
-        parentItems.add(getResources().getString(R.string.bathroom));
-        parentItems.add(getResources().getString(R.string.room));
-        parentItems.add(getResources().getString(R.string.balcony));
-        parentItems.add(getResources().getString(R.string.basement));
-        parentItems.add(getResources().getString(R.string.personal_data));
-        parentItems.add(getResources().getString(R.string.save));
-        parentItems.add(getResources().getString(R.string.stop));
-        setChildDataStudio();
-    }
-
-    /**
-     * fills the list with the number of rooms
+     *
      */
     private void setChildDataStudio() {
 
         // kitchen
-        ArrayList<String> child = new ArrayList<>();
-        child.add(getResources().getString(R.string.fridge));
-        child.add(getResources().getString(R.string.oven));
-        child.add(getResources().getString(R.string.ventialtion));
-        child.add(getResources().getString(R.string.cutlery));
-        child.add(getResources().getString(R.string.cupboard));
-        addStandardToChild(child);
-        child.add(getResources().getString(R.string.radiator));
+        ArrayList<String> child = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.kitchen_children)));
+        child.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
         childItems.add(child);
 
         // bathroom
-        child = new ArrayList<>();
-        child.add(getResources().getString(R.string.toilet));
-        addStandardToChild(child);
+        child = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.bathroom_children)));
+        child.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
         childItems.add(child);
 
         // room
+        child = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.room_children)));
+        child.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
         setChildDataSharedApartment();
 
         // balcony
@@ -188,22 +217,11 @@ public class HV_EditActivity extends Activity {
         childItems.add(child);
     }
 
-    private void setParentDataSharedApartment() {
-        parentItems.add(getResources().getString(R.string.room));
-        parentItems.add(getResources().getString(R.string.personal_data));
-        parentItems.add(getResources().getString(R.string.save));
-        parentItems.add(getResources().getString(R.string.stop));
-        setChildDataSharedApartment();
-    }
-
     private void setChildDataSharedApartment() {
 
         // room
-        ArrayList<String> child = new ArrayList<>();
-        child.add(getResources().getString(R.string.matress));
-        child.add(getResources().getString(R.string.furniture));
-        addStandardToChild(child);
-        child.add(getResources().getString(R.string.radiator));
+        ArrayList<String> child = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.room_children)));
+        child.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
         childItems.add(child);
 
         // personal data
@@ -220,24 +238,21 @@ public class HV_EditActivity extends Activity {
     }
 
 
-    private ArrayList<String> addStandardToChild(ArrayList<String> child) {
-        child.add(getResources().getString(R.string.wall));
-        child.add(getResources().getString(R.string.floor));
-        child.add(getResources().getString(R.string.window));
-        child.add(getResources().getString(R.string.door));
-        child.add(getResources().getString(R.string.socket));
-        return child;
-    }
-
     public void callDatagridFargment(int parent, int child) {
-        DataGridFragment dataGridFragment = new DataGridFragment(font);
+        dataGridFragment = new DataGridFragment(font);
         bundle = new Bundle();
-
+        bundle.putLong("AP", currentAP.getId());
+        bundle.putInt("Parent", parent);
+        bundle.putInt("Child", child);
         dataGridFragment.setArguments(bundle);
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.datagrid_container, dataGridFragment, null).addToBackStack(null).commit();
     }
 
+    public void closeDataGridFragment() {
+        fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.remove(dataGridFragment).commit();
+    }
     /**
      * get the data form home activity
      */

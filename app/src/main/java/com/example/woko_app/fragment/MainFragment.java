@@ -18,16 +18,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.woko_app.R;
-import com.example.woko_app.activity.HV_EditActivity;
 import com.example.woko_app.activity.HV_HomeActivity;
-import com.example.woko_app.constants.APStatus;
 import com.example.woko_app.models.AP;
-import com.example.woko_app.models.House;
-import com.example.woko_app.models.User;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -97,6 +91,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d("Edit: ", currentAP.getApartment().getHouse().getHV().getName() + " edits AP with the id " + currentAP.getId());
+                currentAP.save();
                 rootActivity.callEditActivity(currentAP.getId());
             }
         });

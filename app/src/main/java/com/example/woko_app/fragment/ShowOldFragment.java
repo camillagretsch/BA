@@ -17,7 +17,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.woko_app.activity.HV_HomeActivity;
-import com.example.woko_app.constants.APStatus;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.models.AP;
 import com.example.woko_app.models.Apartment;
@@ -151,6 +150,7 @@ public class ShowOldFragment extends Fragment {
                 public void onClick(View v) {
                     Log.d("Button ID", String.valueOf(btnOpen.getId()));
                     currentAP = oldAPs.get(btnOpen.getId());
+                    currentAP.save();
                     Log.d("Edit: ", currentAP.getApartment().getHouse().getHV().getName() + " edits AP with the id " + currentAP.getId());
                     HV_HomeActivity hv_homeActivity = (HV_HomeActivity) getActivity();
                     hv_homeActivity.callEditActivity(currentAP.getId());

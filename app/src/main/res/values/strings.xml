@@ -19,31 +19,45 @@
 
     <!-- Edit Screens -->
     <string name="edit_title">Abnahmeprotokoll</string>
-    <string name="kitchen">&#xf0f5; Küche</string>
-    <string name="bathroom">Badezimmer</string>
-    <string name="room">&#xf236; Zimmer</string>
-    <string name="balcony">Balkon</string>
-    <string name="basement">Keller</string>
-    <string name="personal_data">&#xf007; Personalien</string>
-    <string name="save">&#xf0c7; Speichern</string>
-    <string name="stop">&#xf00d; Abbrechen</string>
-    <string name="fridge">Kühlschrank, Tiefkühlfach</string>
-    <string name="oven">Backofen, Herdplatte</string>
-    <string name="ventialtion">Dampfabzug</string>
-    <string name="cutlery">Pfannen, Geschirr, Besteck</string>
-    <string name="cupboard">Schränke</string>
-    <string name="wall">Wände, Decke</string>
-    <string name="floor">Bodem</string>
-    <string name="window">Fenster</string>
-    <string name="door">Tür</string>
-    <string name="socket">Lampen, Steckdosen</string>
-    <string name="radiator">Heizkörper, Ventil</string>
-    <string name="toilet">WC, Dusche, Lavabo</string>
-    <string name="matress">Bettwäsche, Matratze</string>
-    <string name="furniture">Mobiliar</string>
-
-    <!-- arrays -->
-    <string-array name="header_column_normal">
+    <array name="studio_parent">
+        <item>&#xf0f5; Küche</item>
+        <item>Badezimmer</item>
+        <item>&#xf236; Zimmer</item>
+        <item>Balkon</item>
+        <item>Keller</item>
+        <item>&#xf007; Personalien</item>
+        <item>&#xf0c7; Speichern</item>
+        <item>&#xf00d; Abbrechen</item>
+    </array>
+    <array name="shared_apartment_parent">
+        <item>&#xf236; Zimmer</item>
+        <item>&#xf007; Personalien</item>
+        <item>&#xf0c7; Speichern</item>
+        <item>&#xf00d; Abbrechen</item>
+    </array>
+    <array name="kitchen_children">
+        <item>Kühlschrank, Tiefkühlfach</item>
+        <item>Backofen, Herdplatte</item>
+        <item>Dampfabzug</item>
+        <item>Pfannen, Geschirr, Besteck</item>
+        <item>Schränke</item>
+    </array>
+    <array name="bathroom_children">
+        <item>WC, Dusche, Lavabo</item>
+    </array>
+    <array name="room_children">
+        <item>Bettwäsche, Matratze</item>
+        <item>Mobiliar</item>
+    </array>
+    <array name="children">
+        <item>Wände, Decke</item>
+        <item>Boden</item>
+        <item>Fenster</item>
+        <item>Tür</item>
+        <item>Lampen, Steckdosen</item>
+        <item>Heizkörper, Ventil</item>
+    </array>
+    <string-array name="header_variante1">
         <item></item>
         <item>Ja</item>
         <item>Nein</item>
@@ -51,86 +65,13 @@
         <item>Kommentar</item>
         <item>Foto</item>
     </string-array>
-    <string-array name="header_column_special">
+    <string-array name="header_variante2">
         <item></item>
         <item>Anzahl</item>
         <item>fehlend/defekt</item>
         <item>alter Eintrag</item>
         <item>Kommentar</item>
         <item>Foto</item>
-    </string-array>
-    <string-array name="fridge_list">
-        <item>Sind alle Esswaren entsorgt?</item>
-        <item>Starke Verschmutzungen sind gereinigt?</item>
-        <item>Wurden abgetaut und das Wasser aufgewischt?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="oven_list">
-        <item>Backofen ist gereingt?</item>
-        <item>Herd ist gereinigt?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="ventilation_list">
-        <item>Ist gereinigt?</item>
-        <item>Funktioniert?</item>
-        <item>Lämpchen sind intakt?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="cutlery_list">
-        <item>Gabel</item>
-        <item>Messer</item>
-        <item>Löffel</item>
-        <item>Brotmesser</item>
-        <item>Eimer</item>
-    </string-array>
-    <string-array name="cupboard_list">
-        <item>Sind gereinigt?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="wall_list">
-        <item>Sind alle Flecken entfernt?</item>
-        <item>Sind keine Löcher zu sehen?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="floor_list">
-        <item>Ist besenrein?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="window_list">
-        <item>Sind gereinigt?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="door_list">
-        <item>Sind alle Flecken entfernt?</item>
-        <item>Sind keine Löcher zu sehen?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="socket_list">
-        <item>Funktionieren?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="radiator_list">
-        <item>Heitzung ist angeschalten?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="toilet_list">
-        <item>Duschvorhang wurde gewaschen und aufgehängt?</item>
-        <item>Dusche ist in Ordnung?</item>
-        <item>WC ist in Ordnung?</item>
-        <item>Lavabo ist in Ordnung?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="matress_list">
-        <item>Wurden gewaschen ,getrocknet und gefaltet?</item>
-        <item>Matratzenschoner wurde bei 60 gewaschen?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
-    <string-array name="furniture_list">
-        <item>Bettgestell</item>
-    </string-array>
-    <string-array name="balcony_list">
-        <item>Ist besenrein?</item>
-        <item>Ist alles intakt?</item>
     </string-array>
     <string-array name="basement_list">
         <item>Ist besenrein?</item>

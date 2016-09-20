@@ -7,7 +7,7 @@
     android:padding="15sp"
     android:textColor="@color/black"
     android:textSize="25sp"
-    android:background="@color/grey_dark"
+    android:background="@drawable/parent_selected"
     android:clickable="false"
     android:focusable="false"
     android:focusableInTouchMode="false">

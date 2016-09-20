@@ -88,8 +88,15 @@
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/datagrid_container"
-                android:layout_above="@+id/btnNext">
+                android:layout_above="@+id/btnNext"
+                android:scrollbars="vertical">
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/datagrid_container"
+                    android:fillViewport="true"
+                    android:scrollbars="horizontal"/>
 
             </ScrollView>
 
@@ -98,14 +105,16 @@
                 android:text="@string/back_btn"
                 android:id="@+id/btnBack"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"/>
+                android:layout_alignParentLeft="true"
+                android:visibility="invisible"/>
 
             <Button
                 style="@style/ButtonStyle"
                 android:text="@string/next_btn"
                 android:id="@+id/btnNext"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"/>
+                android:layout_alignParentRight="true"
+                android:visibility="invisible"/>
 
         </RelativeLayout>
 

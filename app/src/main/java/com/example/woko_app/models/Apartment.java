@@ -27,6 +27,12 @@ public class Apartment extends Model {
     @Column(name = "rooms", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private List<Room> rooms = new ArrayList<>();
 
+    @Column(name = "bathroom", onUpdate = Column.ForeignKeyAction.CASCADE)
+    private Bathroom bathroom;
+
+    @Column(name = "kitchen", onUpdate = Column.ForeignKeyAction.CASCADE)
+    private Kitchen kitchen;
+
     @Column(name = "AP", onUpdate = Column.ForeignKeyAction.CASCADE)
     private List<AP> APs = new ArrayList<>();
 
@@ -58,6 +64,18 @@ public class Apartment extends Model {
 
     public List<Room> getRooms() {
         return getMany(Room.class, "apartment");
+    }
+
+    public void setBathroom(Bathroom bathroom) {
+        this.bathroom = bathroom;
+    }
+
+    public Bathroom getBathroom() {
+        return bathroom;
+    }
+
+    public Kitchen getKitchen() {
+        return kitchen;
     }
 
     public List<AP> getAPs() {
