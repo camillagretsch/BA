@@ -1,9 +1,11 @@
 package com.example.woko_app.fragment;
 
 import android.app.Fragment;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -19,11 +22,13 @@ import com.activeandroid.query.Select;
 import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.models.AP;
+import com.example.woko_app.models.Apartment;
 import com.example.woko_app.models.BalconyState;
 import com.example.woko_app.models.BasementState;
 import com.example.woko_app.models.Bathroom;
 import com.example.woko_app.models.CupboardState;
 import com.example.woko_app.models.DoorState;
+import com.example.woko_app.models.EntryStateInterface;
 import com.example.woko_app.models.FloorState;
 import com.example.woko_app.models.FridgeState;
 import com.example.woko_app.models.MattressState;
@@ -37,6 +42,7 @@ import com.example.woko_app.models.WindowState;
 
 import java.security.interfaces.RSAKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observer;
 
@@ -56,13 +62,15 @@ public class DataGridFragment extends Fragment {
     private AP currentAP;
 
     private int parent;
-    private int child;
+    private String child;
 
     private List<String> rowNames = new ArrayList<>();
     private List<Boolean> check = new ArrayList<>();
     private List<Boolean> checkOld = new ArrayList<>();
     private List<String> comments = new ArrayList<>();
-    private String className;
+
+    private EntryStateInterface tableEntries;
+
     //TODO picture
 
     private Typeface font;
@@ -106,273 +114,109 @@ public class DataGridFragment extends Fragment {
         if (bundle != null) {
             currentAP = AP.findById(bundle.getLong("AP"));
             parent = bundle.getInt("Parent");
-            child = bundle.getInt("Child");
+            child = bundle.getString("Child");
         }
 
-        if (ApartmentType.SHARED_APARTMENT.equals(currentAP.getApartment().getType())) {
-           getRoomEntries();
-        } else  {
-            switch (parent) {
-                case 0:
-                    getKitchenEntries();
-                    break;
-                case 1:
-                    getBathroomEntries();
-                    break;
-                case 2:
-                    getRoomEntries();
-                    break;
-                case 3:
-                    getBalconyEntries();
-                    break;
-                case 4:
-                    getBasementEntries();
-                    break;
-            }
-        }
+        if (parent == 3) {
+            tableEntries = BalconyState.findByApartmentAndAP(currentAP.getApartment(), currentAP);
+            tableEntries.getEntries(this);
+        } else if (parent == 4) {
+            tableEntries = BasementState.findByApartmentAndAP(currentAP.getApartment(), currentAP);
+            tableEntries.getEntries(this);
+        } else
+            switchCaseEntries();
 
     }
 
-    public void getKitchenEntries() {
-        setHeaderVariante1();
-
+    private void switchCaseEntries() {
         switch (child) {
-            case 0:
-                FridgeState fridge = FridgeState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
-                className = fridge.getClass().getName();
-                rowNames = fridge.getRowNames();
-                check = FridgeState.createCheckList(fridge);
-                checkOld = FridgeState.createCheckOldList(fridge);
-                comments = FridgeState.createCommentsList(fridge);
-                setTableContentVariante1();
+            case "Kühlschrank, Tiefkühlfach":
+                tableEntries = FridgeState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
+                tableEntries.getEntries(this);
                 break;
-            case 1:
-                OvenState oven = OvenState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
-                rowNames = oven.getRowNames();
-                check = OvenState.createCheckList(oven);
-                checkOld = OvenState.createCheckOldList(oven);
-                comments = OvenState.createCommentsList(oven);
-                setTableContentVariante1();
+            case "Backofen, Herdplatte":
+                tableEntries = OvenState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
+                tableEntries.getEntries(this);
                 break;
-            case 2:
-                VentilationState ventilation = VentilationState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
-                rowNames = ventilation.getRowNames();
-                check = VentilationState.createCheckList(ventilation);
-                checkOld = VentilationState.createCheckOldList(ventilation);
-                comments = VentilationState.createCommentsList(ventilation);
-                setTableContentVariante1();
+            case "Dampfabzug":
+                tableEntries = VentilationState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
+                tableEntries.getEntries(this);
                 break;
-            case 3:
-                table.removeAllViews();
-                setHeaderVariante2();
+            case "Pfannen, Geschirr, Besteck":
+                // TODO
                 break;
-            case 4:
-                CupboardState cupboard = CupboardState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
-                rowNames = cupboard.getRowNames();
-                check = CupboardState.createCheckList(cupboard);
-                checkOld = CupboardState.createCheckOldList(cupboard);
-                comments = CupboardState.createCommentsList(cupboard);
-                setTableContentVariante1();
+            case "Schränke":
+                tableEntries = CupboardState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
+                tableEntries.getEntries(this);
                 break;
-            case 5:
-                WallState wall = WallState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
-                rowNames = wall.getRowNames();
-                check = WallState.createCheckList(wall);
-                checkOld = WallState.createCheckOldList(wall);
-                comments = WallState.createCommentsList(wall);
-                setTableContentVariante1();
+            case "WC, Dusche, Lavabo":
+                tableEntries = ShowerState.findByBathroomAndAP(currentAP.getBathroom(), currentAP);
+                tableEntries.getEntries(this);
                 break;
-            case 6:
-                FloorState floor = FloorState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
-                rowNames = floor.getRowNames();
-                check = FloorState.createCheckList(floor);
-                checkOld = FloorState.createCheckOldList(floor);
-                comments = FloorState.createCommentsList(floor);
-                setTableContentVariante1();
+            case "Bettwäsche, Matratze":
+                tableEntries = MattressState.findByRoomAndAP(currentAP.getRoom(), currentAP);
+                tableEntries.getEntries(this);
                 break;
-            case 7:
-                WindowState window = WindowState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
-                rowNames = window.getRowNames();
-                check = WindowState.createCheckList(window);
-                checkOld = WindowState.createCheckOldList(window);
-                comments = WindowState.createCommentsList(window);
-                setTableContentVariante1();
+            case "Mobiliar":
+                // TODO
                 break;
-            case 8:
-                DoorState door = DoorState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
-                rowNames = door.getRowNames();
-                check = DoorState.createCheckList(door);
-                checkOld = DoorState.createCheckOldList(door);
-                comments = DoorState.createCommentsList(door);
-                setTableContentVariante1();
+            case "Wände, Decke":
+                tableEntries = WallState.findByRoomAndAP(currentAP.getRoom(), currentAP);
+                tableEntries.getEntries(this);
                 break;
-            case 9:
-                SocketState socket = SocketState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
-                rowNames = socket.getRowNames();
-                check = SocketState.createCheckList(socket);
-                checkOld = SocketState.createCheckOldList(socket);
-                comments = SocketState.createCommentsList(socket);
-                setTableContentVariante1();
+            case "Boden":
+                tableEntries = FloorState.findByRoomAndAP(currentAP.getRoom(), currentAP);
+                tableEntries.getEntries(this);
                 break;
-            case 10:
-                RadiatorState radiator = RadiatorState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
-                rowNames = radiator.getRowNames();
-                check = RadiatorState.createCheckList(radiator);
-                checkOld = RadiatorState.createCheckOldList(radiator);
-                comments = RadiatorState.createCommentsList(radiator);
-                setTableContentVariante1();
+            case "Fenster":
+                tableEntries = WindowState.findByRoomAndAP(currentAP.getRoom(), currentAP);
+                tableEntries.getEntries(this);
+                break;
+            case "Tür":
+                tableEntries = DoorState.findByRoomAndAP(currentAP.getRoom(), currentAP);
+                tableEntries.getEntries(this);
+                break;
+            case "Lampen, Steckdosen":
+                tableEntries = SocketState.findByRoomAndAP(currentAP.getRoom(), currentAP);
+                tableEntries.getEntries(this);
+                break;
+            case "Heizkörper, Ventil":
+                tableEntries = RadiatorState.findByRoomAndAP(currentAP.getRoom(), currentAP);
+                tableEntries.getEntries(this);
                 break;
         }
     }
 
-    public void getBathroomEntries() {
-        setHeaderVariante1();
-
-        switch (child) {
-            case 0:
-                ShowerState shower = ShowerState.findByBathroomAndAP(currentAP.getBathroom(), currentAP);
-                rowNames = shower.getRowNames();
-                check = ShowerState.createCheckList(shower);
-                checkOld = ShowerState.createCheckOldList(shower);
-                comments = ShowerState.createCommentsList(shower);
-                setTableContentVariante1();
-                break;
-            case 1:
-                WallState wall = WallState.findByBathroomAndAP(currentAP.getBathroom(), currentAP);
-                rowNames = wall.getRowNames();
-                check = WallState.createCheckList(wall);
-                checkOld = WallState.createCheckOldList(wall);
-                comments = WallState.createCommentsList(wall);
-                setTableContentVariante1();
-                break;
-            case 2:
-                FloorState floor = FloorState.findByBathroomAndAP(currentAP.getBathroom(), currentAP);
-                rowNames = floor.getRowNames();
-                check = FloorState.createCheckList(floor);
-                checkOld = FloorState.createCheckOldList(floor);
-                comments = FloorState.createCommentsList(floor);
-                setTableContentVariante1();
-                break;
-            case 3:
-                WindowState window = WindowState.findByBathroomAndAP(currentAP.getBathroom(), currentAP);
-                rowNames = window.getRowNames();
-                check = WindowState.createCheckList(window);
-                checkOld = WindowState.createCheckOldList(window);
-                comments = WindowState.createCommentsList(window);
-                setTableContentVariante1();
-                break;
-            case 4:
-                DoorState door = DoorState.findByBathroomAndAP(currentAP.getBathroom(), currentAP);
-                rowNames = door.getRowNames();
-                check = DoorState.createCheckList(door);
-                checkOld = DoorState.createCheckOldList(door);
-                comments = DoorState.createCommentsList(door);
-                setTableContentVariante1();
-                break;
-            case 5:
-                SocketState socket = SocketState.findByBathroomAndAP(currentAP.getBathroom(), currentAP);
-                rowNames = socket.getRowNames();
-                check = SocketState.createCheckList(socket);
-                checkOld = SocketState.createCheckOldList(socket);
-                comments = SocketState.createCommentsList(socket);
-                setTableContentVariante1();
-                break;
-            case 6:
-                RadiatorState radiator = RadiatorState.findByBathroomAndAP(currentAP.getBathroom(), currentAP);
-                rowNames = radiator.getRowNames();
-                check = RadiatorState.createCheckList(radiator);
-                checkOld = RadiatorState.createCheckOldList(radiator);
-                comments = RadiatorState.createCommentsList(radiator);
-                setTableContentVariante1();
-                break;
-        }
+    public AP getCurrentAP() {
+        return currentAP;
     }
 
-    public void getRoomEntries() {
-        setHeaderVariante1();
-
-        switch (child) {
-            case 0:
-                MattressState mattress = MattressState.findByRoomAndAP(currentAP.getRoom(), currentAP);
-                rowNames = mattress.getRowNames();
-                check = MattressState.createCheckList(mattress);
-                checkOld = MattressState.createCheckOldList(mattress);
-                comments = MattressState.createCommentsList(mattress);
-                setTableContentVariante1();
-                break;
-            case 1:
-                table.removeAllViews();
-                setHeaderVariante2();
-                break;
-            case 2:
-                WallState wall = WallState.findByRoomAndAP(currentAP.getRoom(), currentAP);
-                rowNames = wall.getRowNames();
-                check = WallState.createCheckList(wall);
-                checkOld = WallState.createCheckOldList(wall);
-                comments = WallState.createCommentsList(wall);
-                setTableContentVariante1();
-                break;
-            case 3:
-                FloorState floor = FloorState.findByRoomAndAP(currentAP.getRoom(), currentAP);
-                rowNames = floor.getRowNames();
-                check = FloorState.createCheckList(floor);
-                checkOld = FloorState.createCheckOldList(floor);
-                comments = FloorState.createCommentsList(floor);
-                setTableContentVariante1();
-                break;
-            case 4:
-                WindowState window = WindowState.findByRoomAndAP(currentAP.getRoom(), currentAP);
-                rowNames = window.getRowNames();
-                check = WindowState.createCheckList(window);
-                checkOld = WindowState.createCheckOldList(window);
-                comments = WindowState.createCommentsList(window);
-                setTableContentVariante1();
-                break;
-            case 5:
-                DoorState door = DoorState.findByRoomAndAP(currentAP.getRoom(), currentAP);
-                rowNames = door.getRowNames();
-                check = DoorState.createCheckList(door);
-                checkOld = DoorState.createCheckOldList(door);
-                comments = DoorState.createCommentsList(door);
-                setTableContentVariante1();
-                break;
-            case 6:
-                SocketState socket = SocketState.findByRoomAndAP(currentAP.getRoom(), currentAP);
-                rowNames = socket.getRowNames();
-                check = SocketState.createCheckList(socket);
-                checkOld = SocketState.createCheckOldList(socket);
-                comments = SocketState.createCommentsList(socket);
-                setTableContentVariante1();
-                break;
-            case 7:
-                RadiatorState radiator = RadiatorState.findByRoomAndAP(currentAP.getRoom(), currentAP);
-                rowNames = radiator.getRowNames();
-                check = RadiatorState.createCheckList(radiator);
-                checkOld = RadiatorState.createCheckOldList(radiator);
-                comments = RadiatorState.createCommentsList(radiator);
-                setTableContentVariante1();
-                break;
-        }
+    public List<Boolean> getCheck() {
+        return check;
     }
 
-    public void getBalconyEntries() {
-        setHeaderVariante1();
-        BalconyState balcony = BalconyState.findByApartmentAndAP(currentAP.getApartment(), currentAP);
-        rowNames = balcony.getRowNames();
-        check = BalconyState.createCheckList(balcony);
-        checkOld = BalconyState.createCheckOldList(balcony);
-        comments = BalconyState.createCommentsList(balcony);
-        setTableContentVariante1();
+    public List<Boolean> getCheckOld() {
+        return checkOld;
     }
 
-    public void getBasementEntries() {
-        setHeaderVariante1();
-        BasementState basement = BasementState.findByApartmentAndAP(currentAP.getApartment(), currentAP);
-        rowNames = basement.getRowNames();
-        check = BasementState.createCheckList(basement);
-        checkOld = BasementState.createCheckOldList(basement);
-        comments = BasementState.createCommentsList(basement);
-        setTableContentVariante1();
+    public List<String> getComments() {
+        return comments;
+    }
+
+    public List<String> getRowNames() {
+        return rowNames;
+    }
+
+    public int getParent() {
+        return parent;
+    }
+
+    public void setTableEntries(EntryStateInterface tableEntries) {
+        this.tableEntries = tableEntries;
+    }
+
+    public EntryStateInterface getTableEntries() {
+        return tableEntries;
     }
 
     public void setHeaderVariante1() {
@@ -436,7 +280,7 @@ public class DataGridFragment extends Fragment {
             } if (c3.isChecked()) {
                 c4.setEnabled(true);
             }
-            if (check.get(i) == true) {
+            if (checkOld.get(i) == true) {
                 c4.setChecked(true);
             }
 
@@ -466,12 +310,6 @@ public class DataGridFragment extends Fragment {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                }
-            });
-            c5.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    
                 }
             });
         }

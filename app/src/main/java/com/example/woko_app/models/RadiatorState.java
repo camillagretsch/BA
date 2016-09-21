@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 18.09.16.
  */
 @Table(name = "RadiatorState")
-public class RadiatorState extends Model{
+public class RadiatorState extends Model implements EntryStateInterface {
 
     @Column(name = "isOn")
     private boolean isOn = true;
@@ -141,25 +143,75 @@ public class RadiatorState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(RadiatorState radiator) {
+    public List<Boolean> createCheckList(RadiatorState radiator) {
         return new ArrayList<>(Arrays.asList(radiator.isOn(), radiator.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(RadiatorState radiator) {
+    public List<String> createCommentsList(RadiatorState radiator) {
         return new ArrayList<>(Arrays.asList(radiator.getOnComment(), radiator.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(RadiatorState radiator) {
+    public List<Boolean> createCheckOldList(RadiatorState radiator) {
         return new ArrayList<>(Arrays.asList(radiator.isOnOld(), radiator.isDamageOld()));
     }
 
-    public static void duplicateRadiatorEntries(RadiatorState radiator, RadiatorState oldRadiator) {
-        radiator.setIsOn(oldRadiator.isOn());
-        radiator.setIsOnOld(oldRadiator.isOnOld());
-        radiator.setOnComment(oldRadiator.getOnComment());
-        radiator.setHasNoDamage(oldRadiator.hasNoDamage());
-        radiator.setIsDamageOld(oldRadiator.isDamageOld());
-        radiator.setDamageComment(oldRadiator.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        RadiatorState radiator = RadiatorState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
+
+        if (ApartmentType.STUDIO.equals(frag.getCurrentAP().getApartment().getType())) {
+            if (frag.getParent() == 0) {
+                radiator = RadiatorState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP());
+                frag.setTableEntries(RadiatorState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP()));
+            } else if (frag.getParent() == 1) {
+                radiator = RadiatorState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP());
+                frag.setTableEntries(RadiatorState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP()));
+            }
+        }
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(radiator.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(radiator));
+        frag.getCheckOld().addAll(createCheckOldList(radiator));
+        frag.getComments().addAll(createCommentsList(radiator));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        RadiatorState oldRadiator = RadiatorState.findByRoomAndAP(oldAP.getRoom(), oldAP);
+        this.copyOldEntries(oldRadiator);
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            RadiatorState radiator= new RadiatorState(ap.getKitchen(), ap);
+            oldRadiator = RadiatorState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
+            radiator.copyOldEntries(oldRadiator);
+            radiator.save();
+
+            radiator = new RadiatorState(ap.getBathroom(), ap);
+            oldRadiator = RadiatorState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
+            radiator.copyOldEntries(oldRadiator);
+            radiator.save();
+        }
+    }
+
+    public void copyOldEntries(RadiatorState oldRadiator) {
+        this.setIsOn(oldRadiator.isOn());
+        this.setIsOnOld(oldRadiator.isOnOld());
+        this.setOnComment(oldRadiator.getOnComment());
+        this.setHasNoDamage(oldRadiator.hasNoDamage());
+        this.setIsDamageOld(oldRadiator.isDamageOld());
+        this.setDamageComment(oldRadiator.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            RadiatorState radiator = new RadiatorState(ap.getKitchen(), ap);
+            radiator.save();
+
+            radiator = new RadiatorState(ap.getBathroom(), ap);
+            radiator.save();
+        }
     }
 
     public static RadiatorState findByRoomAndAP(Room room, AP ap) {

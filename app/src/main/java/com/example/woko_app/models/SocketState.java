@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 18.09.16.
  */
 @Table(name = "SocketState")
-public class SocketState extends Model{
+public class SocketState extends Model implements EntryStateInterface {
 
     @Column(name = "isWorking")
     private boolean isWorking = true;
@@ -143,25 +145,75 @@ public class SocketState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(SocketState socket) {
+    public List<Boolean> createCheckList(SocketState socket) {
         return new ArrayList<>(Arrays.asList(socket.isWorking(), socket.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(SocketState socket) {
+    public List<String> createCommentsList(SocketState socket) {
         return new ArrayList<>(Arrays.asList(socket.getWorkingComment(), socket.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(SocketState socket) {
+    public List<Boolean> createCheckOldList(SocketState socket) {
         return new ArrayList<>(Arrays.asList(socket.isWorkingOld(), socket.isDamageOld()));
     }
 
-    public static void duplicateSocketEntries(SocketState socket, SocketState oldSocket) {
-        socket.setIsWorking(oldSocket.isWorking());
-        socket.setIsWorkingOld(socket.isWorkingOld());
-        socket.setWorkingComment(oldSocket.getWorkingComment());
-        socket.setHasNoDamage(oldSocket.hasNoDamage());
-        socket.setIsDamageOld(oldSocket.isDamageOld());
-        socket.setDamageComment(oldSocket.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        SocketState socket = SocketState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
+
+        if (ApartmentType.STUDIO.equals(frag.getCurrentAP().getApartment().getType())) {
+            if (frag.getParent() == 0) {
+                socket = SocketState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP());
+                frag.setTableEntries(SocketState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP()));
+            } else if (frag.getParent() == 1) {
+                socket = SocketState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP());
+                frag.setTableEntries(SocketState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP()));
+            }
+        }
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(socket.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(socket));
+        frag.getCheckOld().addAll(createCheckOldList(socket));
+        frag.getComments().addAll(createCommentsList(socket));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        SocketState oldSocket = SocketState.findByRoomAndAP(oldAP.getRoom(), oldAP);
+        this.copyOldEntries(oldSocket);
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            SocketState socket = new SocketState(ap.getKitchen(), ap);
+            oldSocket = SocketState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
+            socket.copyOldEntries(oldSocket);
+            socket.save();
+
+            socket = new SocketState(ap.getBathroom(), ap);
+            oldSocket = SocketState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
+            socket.copyOldEntries(oldSocket);
+            socket.save();
+        }
+    }
+
+    public void copyOldEntries(SocketState oldSocket) {
+        this.setIsWorking(oldSocket.isWorking());
+        this.setIsWorkingOld(oldSocket.isWorkingOld());
+        this.setWorkingComment(oldSocket.getWorkingComment());
+        this.setHasNoDamage(oldSocket.hasNoDamage());
+        this.setIsDamageOld(oldSocket.isDamageOld());
+        this.setDamageComment(oldSocket.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            SocketState socket = new SocketState(ap.getKitchen(), ap);
+            socket.save();
+
+            socket = new SocketState(ap.getBathroom(), ap);
+            socket.save();
+        }
     }
 
     public static SocketState findByRoomAndAP(Room room, AP ap) {

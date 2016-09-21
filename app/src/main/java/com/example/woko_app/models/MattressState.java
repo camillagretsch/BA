@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 18.09.16.
  */
 @Table(name = "MattressState")
-public class MattressState extends Model{
+public class MattressState extends Model implements EntryStateInterface {
 
     @Column(name = "beddingIsClean")
     private boolean beddingIsClean = true;
@@ -146,27 +148,47 @@ public class MattressState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(MattressState mattress) {
+    public List<Boolean> createCheckList(MattressState mattress) {
         return new ArrayList<>(Arrays.asList(mattress.getBeddingIsClean(), mattress.getLinenIsClean(), mattress.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(MattressState mattress) {
+    public List<String> createCommentsList(MattressState mattress) {
         return new ArrayList<>(Arrays.asList(mattress.getBeddingComment(), mattress.getLinenComment(), mattress.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(MattressState mattress) {
+    public List<Boolean> createCheckOldList(MattressState mattress) {
         return new ArrayList<>(Arrays.asList(mattress.isBeddingOld(), mattress.isLinenOld(), mattress.isDamageOld()));
     }
-    public static void duplicateMattressEntries(MattressState mattress, MattressState oldMattress) {
-        mattress.setBeddingIsClean(oldMattress.getBeddingIsClean());
-        mattress.setIsBeddingOld(oldMattress.isBeddingOld());
-        mattress.setBeddingComment(oldMattress.getBeddingComment());
-        mattress.setLinenIsClean(oldMattress.getLinenIsClean());
-        mattress.setIsLinenOld(oldMattress.isLinenOld());
-        mattress.setLinenComment(oldMattress.getLinenComment());
-        mattress.setHasNoDamage(oldMattress.hasNoDamage());
-        mattress.setIsDamageOld(oldMattress.isDamageOld());
-        mattress.setDamageComment(oldMattress.getDamageComment());
+
+    public void getEntries(DataGridFragment frag) {
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(this.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(this));
+        frag.getCheckOld().addAll(createCheckOldList(this));
+        frag.getComments().addAll(createCommentsList(this));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        MattressState oldMattress = MattressState.findByRoomAndAP(oldAP.getRoom(), oldAP);
+        this.copyOldEntries(oldMattress);
+        this.save();
+    }
+
+    public void copyOldEntries(MattressState oldMattress) {
+        this.setBeddingIsClean(oldMattress.getBeddingIsClean());
+        this.setIsBeddingOld(oldMattress.isBeddingOld());
+        this.setBeddingComment(oldMattress.getBeddingComment());
+        this.setLinenIsClean(oldMattress.getLinenIsClean());
+        this.setIsLinenOld(oldMattress.isLinenOld());
+        this.setLinenComment(oldMattress.getLinenComment());
+        this.setHasNoDamage(oldMattress.hasNoDamage());
+        this.setIsDamageOld(oldMattress.isDamageOld());
+        this.setDamageComment(oldMattress.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        this.save();
     }
 
     public static MattressState findByRoomAndAP(Room room, AP ap) {
@@ -183,7 +205,7 @@ public class MattressState extends Model{
             mattress.setBeddingIsClean(true);
             mattress.setLinenIsClean(true);
             mattress.setHasNoDamage(false);
-            mattress.setDamageComment("Loch in der Beddecke");
+            mattress.setDamageComment("Loch in der Bettdecke");
             mattress.save();
         }
     }

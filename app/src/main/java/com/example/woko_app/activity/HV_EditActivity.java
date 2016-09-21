@@ -133,18 +133,23 @@ public class HV_EditActivity extends Activity {
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 v.setSelected(true);
                 Log.d("parent at position: ", String.valueOf(groupPosition) + " is clicked and child at position: " + String.valueOf(childPosition));
-                if (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 0) {
-                    callDatagridFargment(groupPosition, childPosition);
+                List<String> children;
+                if ((ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 0) || (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 2)) {
+                    children = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.room_children)));
+                    children.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
+                    callDatagridFargment(groupPosition, children.get(childPosition));
                     btnNext.setVisibility(View.VISIBLE);
-                } else {
-                    if (groupPosition == 0) {
-                        callDatagridFargment(groupPosition, childPosition);
-                        btnNext.setVisibility(View.VISIBLE);
-                    } else if (groupPosition == 1 || groupPosition == 2) {
-                        callDatagridFargment(groupPosition, childPosition);
-                        btnBack.setVisibility(View.VISIBLE);
-                        btnNext.setVisibility(View.VISIBLE);
-                    }
+                } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 0) {
+                    children = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.kitchen_children)));
+                    children.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
+                    callDatagridFargment(groupPosition, children.get(childPosition));
+                    btnNext.setVisibility(View.VISIBLE);
+                } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 1) {
+                    children = new ArrayList<String>(Arrays.asList(getResources().getStringArray(R.array.bathroom_children)));
+                    children.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
+                    callDatagridFargment(groupPosition, children.get(childPosition));
+                    btnBack.setVisibility(View.VISIBLE);
+                    btnNext.setVisibility(View.VISIBLE);
                 }
                 return false;
             }
@@ -156,10 +161,14 @@ public class HV_EditActivity extends Activity {
                 if (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType())) {
 
                 } else {
-                    if (groupPosition == 3 ||groupPosition == 4) {
-                        callDatagridFargment(groupPosition, 1000);
+                    if (groupPosition == 3) {
+                        callDatagridFargment(groupPosition, "Balkon");
                         btnBack.setVisibility(View.VISIBLE);
                         btnNext.setVisibility(View.VISIBLE);
+                    } else if (groupPosition == 4) {
+                        callDatagridFargment(groupPosition, "Kellerabteil");
+                        btnNext.setVisibility(View.VISIBLE);
+                        btnBack.setVisibility(View.VISIBLE);
                     }
                 }
                 return false;
@@ -238,12 +247,12 @@ public class HV_EditActivity extends Activity {
     }
 
 
-    public void callDatagridFargment(int parent, int child) {
+    public void callDatagridFargment(int parent, String child) {
         dataGridFragment = new DataGridFragment(font);
         bundle = new Bundle();
         bundle.putLong("AP", currentAP.getId());
         bundle.putInt("Parent", parent);
-        bundle.putInt("Child", child);
+        bundle.putString("Child", child);
         dataGridFragment.setArguments(bundle);
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.datagrid_container, dataGridFragment, null).addToBackStack(null).commit();

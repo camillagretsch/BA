@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 19.09.16.
  */
 @Table(name = "BasementState")
-public class BasementState extends Model{
+public class BasementState extends Model implements EntryStateInterface {
 
     @Column(name = "isClean")
     private boolean isClean = true;
@@ -146,27 +148,51 @@ public class BasementState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(BasementState basement) {
+    public List<Boolean> createCheckList(BasementState basement) {
         return new ArrayList<>(Arrays.asList(basement.isClean(), basement.isEmpty(), basement.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(BasementState basement) {
+    public List<String> createCommentsList(BasementState basement) {
         return new ArrayList<>(Arrays.asList(basement.getCleanComment(), basement.getEmptyComment(), basement.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(BasementState basement) {
+    public List<Boolean> createCheckOldList(BasementState basement) {
         return new ArrayList<>(Arrays.asList(basement.isCleanOld(), basement.isEmptyOld(), basement.isDamageOld()));
     }
-    public static void duplicateBasementEntries(BasementState basement, BasementState oldBasement) {
-        basement.setIsClean(oldBasement.isClean());
-        basement.setIsCleanOld(oldBasement.isCleanOld());
-        basement.setCleanComment(oldBasement.getCleanComment());
-        basement.setIsEmpty(oldBasement.isEmpty());
-        basement.setIsEmptyOld(oldBasement.isEmptyOld());
-        basement.setEmptyComment(oldBasement.getEmptyComment());
-        basement.setHasNoDamage(oldBasement.hasNoDamage());
-        basement.setIsDamageOld(oldBasement.isDamageOld());
-        basement.setDamageComment(oldBasement.getDamageComment());
+
+    public void getEntries(DataGridFragment frag) {
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(this.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(this));
+        frag.getCheckOld().addAll(createCheckOldList(this));
+        frag.getComments().addAll(createCommentsList(this));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            BasementState oldBasement = BasementState.findByApartmentAndAP(oldAP.getApartment(), oldAP);
+            this.copyOldEntries(oldBasement);
+            this.save();
+        }
+    }
+
+    public void copyOldEntries(BasementState oldBasement) {
+        this.setIsClean(oldBasement.isClean());
+        this.setIsCleanOld(oldBasement.isCleanOld());
+        this.setCleanComment(oldBasement.getCleanComment());
+        this.setIsEmpty(oldBasement.isEmpty());
+        this.setIsEmptyOld(oldBasement.isEmptyOld());
+        this.setEmptyComment(oldBasement.getEmptyComment());
+        this.setHasNoDamage(oldBasement.hasNoDamage());
+        this.setIsDamageOld(oldBasement.isDamageOld());
+        this.setDamageComment(oldBasement.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            this.save();
+        }
     }
 
     public static BasementState findByApartmentAndAP(Apartment apartment, AP ap) {

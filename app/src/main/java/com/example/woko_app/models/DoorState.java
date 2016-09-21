@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 18.09.16.
  */
 @Table(name = "DoorState")
-public class DoorState extends Model{
+public class DoorState extends Model implements EntryStateInterface{
 
     @Column(name = "hasNoSpot")
     private boolean hasNoSpot = true;
@@ -176,30 +178,79 @@ public class DoorState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(DoorState door) {
+    public List<Boolean> createCheckList(DoorState door) {
         return new ArrayList<>(Arrays.asList(door.hasNoSpot(), door.hasNoHole(), door.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(DoorState door) {
+    public List<String> createCommentsList(DoorState door) {
         return new ArrayList<>(Arrays.asList(door.getSpotComment(), door.getHoleComment(), door.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(DoorState door) {
+    public List<Boolean> createCheckOldList(DoorState door) {
         return new ArrayList<>(Arrays.asList(door.isSpotOld(), door.isHoleOld(), door.isDamageOld()));
     }
 
-    public static void duplicateDoorEntries(DoorState door, DoorState oldDoor) {
-        door.setHasNoSpot(oldDoor.hasNoSpot());
-        door.setIsSpotOld(oldDoor.isSpotOld());
-        door.setSpotComment(oldDoor.getSpotComment());
-        door.setHasNoHole(oldDoor.hasNoHole());
-        door.setIsHoleOld(oldDoor.isHoleOld());
-        door.setHoleComment(oldDoor.getHoleComment());
-        door.setHasNoDamage(oldDoor.hasNoDamage());
-        door.setIsDamageOld(oldDoor.isDamageOld());
-        door.setDamageComment(oldDoor.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        DoorState door = DoorState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
+
+        if (ApartmentType.STUDIO.equals(frag.getCurrentAP().getApartment().getType())) {
+            if (frag.getParent() == 0) {
+                door = DoorState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP());
+                frag.setTableEntries(DoorState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP()));
+            } else if (frag.getParent() == 1) {
+                door = DoorState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP());
+                frag.setTableEntries(DoorState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP()));
+            }
+        }
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(door.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(door));
+        frag.getCheckOld().addAll(createCheckOldList(door));
+        frag.getComments().addAll(createCommentsList(door));
+        frag.setTableContentVariante1();
     }
 
+    public void duplicateEntries(AP ap, AP oldAP) {
+        DoorState oldDoor = DoorState.findByRoomAndAP(oldAP.getRoom(), oldAP);
+        this.copyOldEntries(oldDoor);
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            DoorState door = new DoorState(ap.getKitchen(), ap);
+            oldDoor = DoorState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
+            door.copyOldEntries(oldDoor);
+            door.save();
+
+            door = new DoorState(ap.getBathroom(), ap);
+            oldDoor = DoorState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
+            door.copyOldEntries(oldDoor);
+            door.save();
+        }
+    }
+
+    public void copyOldEntries(DoorState oldDoor) {
+        this.setHasNoSpot(oldDoor.hasNoSpot());
+        this.setIsSpotOld(oldDoor.isSpotOld());
+        this.setSpotComment(oldDoor.getSpotComment());
+        this.setHasNoHole(oldDoor.hasNoHole());
+        this.setIsHoleOld(oldDoor.isHoleOld());
+        this.setHoleComment(oldDoor.getHoleComment());
+        this.setHasNoDamage(oldDoor.hasNoDamage());
+        this.setIsDamageOld(oldDoor.isDamageOld());
+        this.setDamageComment(oldDoor.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            DoorState door = new DoorState(ap.getKitchen(), ap);
+            door.save();
+
+            door = new DoorState(ap.getBathroom(), ap);
+            door.save();
+        }
+    }
     public static DoorState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(DoorState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
     }

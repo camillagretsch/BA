@@ -73,11 +73,6 @@
         <item>Kommentar</item>
         <item>Foto</item>
     </string-array>
-    <string-array name="basement_list">
-        <item>Ist besenrein?</item>
-        <item>Persönliche Gegenstände wurden entfernt?</item>
-        <item>Ist alles intakt?</item>
-    </string-array>
 
     <!-- icons -->
     <string name="user_icon">&#xf007;</string>

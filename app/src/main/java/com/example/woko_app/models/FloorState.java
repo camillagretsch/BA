@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 11.09.16.
  */
 @Table(name = "FloorState")
-public class FloorState extends Model {
+public class FloorState extends Model implements EntryStateInterface {
 
     @Column(name = "isClean")
     private boolean isClean = true;
@@ -141,25 +143,75 @@ public class FloorState extends Model {
         return ap;
     }
 
-    public static List<Boolean> createCheckList(FloorState floor) {
+    public List<Boolean> createCheckList(FloorState floor) {
         return new ArrayList<>(Arrays.asList(floor.isClean(), floor.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(FloorState floor) {
+    public List<String> createCommentsList(FloorState floor) {
        return new ArrayList<>(Arrays.asList(floor.getCleanComment(), floor.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(FloorState floor) {
+    public List<Boolean> createCheckOldList(FloorState floor) {
         return new ArrayList<>(Arrays.asList(floor.isCleanOld(), floor.isDamageOld()));
     }
 
-    public static void duplicateFloorEntries(FloorState floor, FloorState oldFloor) {
-        floor.setIsClean(oldFloor.isClean());
-        floor.setIsCleanOld(oldFloor.isCleanOld());
-        floor.setCleanComment(oldFloor.getCleanComment());
-        floor.setHasNoDamage(oldFloor.hasNoDamage());
-        floor.setIsDamageOld(oldFloor.isDamageOld());
-        floor.setDamageComment(oldFloor.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        FloorState floor = FloorState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
+
+        if (ApartmentType.STUDIO.equals(frag.getCurrentAP().getApartment().getType())) {
+            if (frag.getParent() == 0) {
+                floor = FloorState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP());
+                frag.setTableEntries(FloorState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP()));
+            } else if (frag.getParent() == 1) {
+                floor = FloorState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP());
+                frag.setTableEntries(FloorState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP()));
+            }
+        }
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(floor.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(floor));
+        frag.getCheckOld().addAll(createCheckOldList(floor));
+        frag.getComments().addAll(createCommentsList(floor));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        FloorState oldFloor = FloorState.findByRoomAndAP(oldAP.getRoom(), oldAP);
+        this.copyOldEntries(oldFloor);
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            FloorState floor = new FloorState(ap.getKitchen(), ap);
+            oldFloor = FloorState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
+            floor.copyOldEntries(oldFloor);
+            floor.save();
+
+            floor = new FloorState(ap.getBathroom(), ap);
+            oldFloor = FloorState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
+            floor.copyOldEntries(oldFloor);
+            floor.save();
+        }
+    }
+
+    public void copyOldEntries(FloorState oldFloor) {
+        this.setIsClean(oldFloor.isClean());
+        this.setIsCleanOld(oldFloor.isCleanOld());
+        this.setCleanComment(oldFloor.getCleanComment());
+        this.setHasNoDamage(oldFloor.hasNoDamage());
+        this.setIsDamageOld(oldFloor.isDamageOld());
+        this.setDamageComment(oldFloor.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            FloorState floor = new FloorState(ap.getKitchen(), ap);
+            floor.save();
+
+            floor = new FloorState(ap.getBathroom(), ap);
+            floor.save();
+        }
     }
 
     public static FloorState findByRoomAndAP(Room room, AP ap) {

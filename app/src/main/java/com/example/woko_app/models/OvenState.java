@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 19.09.16.
  */
 @Table(name = "OvenState")
-public class OvenState extends Model{
+public class OvenState extends Model implements EntryStateInterface {
 
     @Column(name = "ovenIsClean")
     private boolean ovenIsClean = true;
@@ -144,28 +146,51 @@ public class OvenState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(OvenState oven) {
+    public List<Boolean> createCheckList(OvenState oven) {
         return new ArrayList<>(Arrays.asList(oven.getOvenIsClean(), oven.getCookerIsClean(), oven.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(OvenState oven) {
+    public List<String> createCommentsList(OvenState oven) {
         return new ArrayList<>(Arrays.asList(oven.getOvenComment(), oven.getCookerComment(), oven.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(OvenState oven) {
+    public List<Boolean> createCheckOldList(OvenState oven) {
         return new ArrayList<>(Arrays.asList(oven.isOvenOld(), oven.isCookerOld(), oven.isDamageOld()));
     }
 
-    public static void duplicateOvenEntries(OvenState oven, OvenState oldOven) {
-        oven.setOvenIsClean(oldOven.getOvenIsClean());
-        oven.setIsOvenOld(oldOven.isOvenOld());
-        oven.setOvenComment(oldOven.getOvenComment());
-        oven.setCookerIsClean(oldOven.getCookerIsClean());
-        oven.setIsCookerOld(oldOven.isCookerOld());
-        oven.setCookerComment(oldOven.getCookerComment());
-        oven.setHasNoDamage(oldOven.hasNoDamage());
-        oven.setIsDamageOld(oldOven.isDamageOld());
-        oven.setDamageComment(oldOven.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(this.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(this));
+        frag.getCheckOld().addAll(createCheckOldList(this));
+        frag.getComments().addAll(createCommentsList(this));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            OvenState oldOven = OvenState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
+            this.copyOldEntries(oldOven);
+            this.save();
+        }
+    }
+
+    public void copyOldEntries(OvenState oldOven) {
+        this.setOvenIsClean(oldOven.getOvenIsClean());
+        this.setIsOvenOld(oldOven.isOvenOld());
+        this.setOvenComment(oldOven.getOvenComment());
+        this.setCookerIsClean(oldOven.getCookerIsClean());
+        this.setIsCookerOld(oldOven.isCookerOld());
+        this.setCookerComment(oldOven.getCookerComment());
+        this.setHasNoDamage(oldOven.hasNoDamage());
+        this.setIsDamageOld(oldOven.isDamageOld());
+        this.setDamageComment(oldOven.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            this.save();
+        }
     }
 
     public static OvenState findByKitchenAndAP(Kitchen kitchen, AP ap) {

@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 19.09.16.
  */
 @Table(name = "ShowerState")
-public class ShowerState extends Model{
+public class ShowerState extends Model implements EntryStateInterface {
 
     @Column(name = "showerCurtainIsClean")
     private boolean showerCurtainIsClean = true;
@@ -210,33 +212,57 @@ public class ShowerState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(ShowerState shower) {
+    public List<Boolean> createCheckList(ShowerState shower) {
         return new ArrayList<>(Arrays.asList(shower.getShowerCurtainIsClean(), shower.getShowerIsOK(), shower.getToiletIsOK(), shower.getSinkIsOK(), shower.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(ShowerState shower) {
+    public List<String> createCommentsList(ShowerState shower) {
         return new ArrayList<>(Arrays.asList(shower.getShowerCurtainComment(), shower.getShowerComment(), shower.getToiletComment(), shower.getSinkComment(), shower.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(ShowerState shower) {
+    public List<Boolean> createCheckOldList(ShowerState shower) {
         return new ArrayList<>(Arrays.asList(shower.isShowerCurtainOld(), shower.isShowerOKOld(), shower.isToiletOKOld(), shower.isSinkOKOld(), shower.isDamageOld()));
     }
-    public static void duplicateShowerEntries(ShowerState shower, ShowerState oldShower) {
-        shower.setShowerCurtainIsClean(oldShower.getShowerCurtainIsClean());
-        shower.setIsShowerCurtainOld(oldShower.isShowerCurtainOld());
-        shower.setShowerCurtainComment(oldShower.getShowerCurtainComment());
-        shower.setShowerIsOK(oldShower.getShowerIsOK());
-        shower.setIsShowerOKOld(oldShower.isShowerOKOld());
-        shower.setShowerComment(oldShower.getShowerComment());
-        shower.setToiletIsOK(oldShower.getToiletIsOK());
-        shower.setIsToiletOKOld(oldShower.isToiletOKOld());
-        shower.setToiletComment(oldShower.getToiletComment());
-        shower.setSinkIsOK(oldShower.getSinkIsOK());
-        shower.setIsSinkOKOld(oldShower.isSinkOKOld());
-        shower.setSinkComment(oldShower.getSinkComment());
-        shower.setHasNoDamage(oldShower.hasNoDamage());
-        shower.setIsDamageOld(oldShower.isDamageOld());
-        shower.setDamageComment(oldShower.getDamageComment());
+
+    public void getEntries(DataGridFragment frag) {
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(this.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(this));
+        frag.getCheckOld().addAll(createCheckOldList(this));
+        frag.getComments().addAll(createCommentsList(this));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            ShowerState oldShower = ShowerState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
+            this.copyOldEntries(oldShower);
+            this.save();
+        }
+    }
+
+    public void copyOldEntries(ShowerState oldShower) {
+        this.setShowerCurtainIsClean(oldShower.getShowerCurtainIsClean());
+        this.setIsShowerCurtainOld(oldShower.isShowerCurtainOld());
+        this.setShowerCurtainComment(oldShower.getShowerCurtainComment());
+        this.setShowerIsOK(oldShower.getShowerIsOK());
+        this.setIsShowerOKOld(oldShower.isShowerOKOld());
+        this.setShowerComment(oldShower.getShowerComment());
+        this.setToiletIsOK(oldShower.getToiletIsOK());
+        this.setIsToiletOKOld(oldShower.isToiletOKOld());
+        this.setToiletComment(oldShower.getToiletComment());
+        this.setSinkIsOK(oldShower.getSinkIsOK());
+        this.setIsSinkOKOld(oldShower.isSinkOKOld());
+        this.setSinkComment(oldShower.getSinkComment());
+        this.setHasNoDamage(oldShower.hasNoDamage());
+        this.setIsDamageOld(oldShower.isDamageOld());
+        this.setDamageComment(oldShower.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            this.save();
+        }
     }
 
     public static ShowerState findByBathroomAndAP(Bathroom bathroom, AP ap) {

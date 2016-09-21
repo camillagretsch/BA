@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 19.09.16.
  */
 @Table(name = "BalconyState")
-public class BalconyState extends Model{
+public class BalconyState extends Model implements EntryStateInterface {
 
     @Column(name = "isClean")
     private boolean isClean = true;
@@ -113,25 +115,48 @@ public class BalconyState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(BalconyState balcony) {
+    public List<Boolean> createCheckList(BalconyState balcony) {
         return new ArrayList<>(Arrays.asList(balcony.isClean(), balcony.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(BalconyState balcony) {
+    public List<String> createCommentsList(BalconyState balcony) {
         return new ArrayList<>(Arrays.asList(balcony.getCleanComment(), balcony.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(BalconyState balcony) {
+    public List<Boolean> createCheckOldList(BalconyState balcony) {
         return new ArrayList<>(Arrays.asList(balcony.isCleanOld(), balcony.isDamageOld()));
     }
 
-    public static void duplicateBalconyEntries(BalconyState balcony, BalconyState oldBalcony) {
-        balcony.setIsClean(oldBalcony.isClean());
-        balcony.setIsCleanOld(oldBalcony.isCleanOld());
-        balcony.setCleanComment(oldBalcony.getCleanComment());
-        balcony.setHasNoDamage(oldBalcony.hasNoDamage());
-        balcony.setIsDamageOld(oldBalcony.isDamageOld());
-        balcony.setDamageComment(oldBalcony.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(this.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(this));
+        frag.getCheckOld().addAll(createCheckOldList(this));
+        frag.getComments().addAll(createCommentsList(this));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            BalconyState oldBalcony = BalconyState.findByApartmentAndAP(oldAP.getApartment(), oldAP);
+            this.copyOldEntries(oldBalcony);
+            this.save();
+        }
+    }
+
+    public void copyOldEntries(BalconyState oldBalcony) {
+        this.setIsClean(oldBalcony.isClean());
+        this.setIsCleanOld(oldBalcony.isCleanOld());
+        this.setCleanComment(oldBalcony.getCleanComment());
+        this.setHasNoDamage(oldBalcony.hasNoDamage());
+        this.setIsDamageOld(oldBalcony.isDamageOld());
+        this.setDamageComment(oldBalcony.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            this.save();
+        }
     }
 
     public static BalconyState findByApartmentAndAP(Apartment apartment, AP ap) {

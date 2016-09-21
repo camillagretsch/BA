@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 19.09.16.
  */
 @Table(name = "CupboardState")
-public class CupboardState extends Model{
+public class CupboardState extends Model implements EntryStateInterface{
 
     @Column(name = "isClean")
     private boolean isClean = true;
@@ -111,25 +113,48 @@ public class CupboardState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(CupboardState cupboard) {
+    public List<Boolean> createCheckList(CupboardState cupboard) {
         return new ArrayList<>(Arrays.asList(cupboard.isClean(), cupboard.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(CupboardState cupboard) {
+    public List<String> createCommentsList(CupboardState cupboard) {
         return new ArrayList<>(Arrays.asList(cupboard.getCleanComment(), cupboard.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(CupboardState cupboard) {
+    public List<Boolean> createCheckOldList(CupboardState cupboard) {
         return new ArrayList<>(Arrays.asList(cupboard.isCleanOld(), cupboard.isDamageOld()));
     }
 
-    public static void duplicateCupboardEntries(CupboardState cupboard, CupboardState oldCupboard) {
-        cupboard.setIsClean(oldCupboard.isClean());
-        cupboard.setIsCleanOld(oldCupboard.isCleanOld());
-        cupboard.setCleanComment(oldCupboard.getCleanComment());
-        cupboard.setHasNoDamage(oldCupboard.hasNoDamage());
-        cupboard.setIsDamageOld(oldCupboard.isDamageOld());
-        cupboard.setDamageComment(oldCupboard.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(this.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(this));
+        frag.getCheckOld().addAll(createCheckOldList(this));
+        frag.getComments().addAll(createCommentsList(this));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            CupboardState oldCupboard = CupboardState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
+            this.copyOldEntries(oldCupboard);
+            this.save();
+        }
+    }
+
+    public void copyOldEntries(CupboardState oldCupboard) {
+        this.setIsClean(oldCupboard.isClean());
+        this.setIsCleanOld(oldCupboard.isCleanOld());
+        this.setCleanComment(oldCupboard.getCleanComment());
+        this.setHasNoDamage(oldCupboard.hasNoDamage());
+        this.setIsDamageOld(oldCupboard.isDamageOld());
+        this.setDamageComment(oldCupboard.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            this.save();
+        }
     }
 
     public static CupboardState findByKitchenAndAP(Kitchen kitchen, AP ap) {

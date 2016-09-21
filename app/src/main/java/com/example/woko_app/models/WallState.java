@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 16.09.16.
  */
 @Table(name = "WallState")
-public class WallState extends Model{
+public class WallState extends Model implements EntryStateInterface{
 
     @Column(name = "hasNoSpot")
     private boolean hasNoSpot = true;
@@ -176,28 +178,78 @@ public class WallState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(WallState wall) {
+    public List<Boolean> createCheckList(WallState wall) {
         return new ArrayList<>(Arrays.asList(wall.hasNoSpot(), wall.hasNoHole(), wall.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(WallState wall) {
+    public List<String> createCommentsList(WallState wall) {
         return new ArrayList<>(Arrays.asList(wall.getSpotComment(), wall.getHoleComment(), wall.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(WallState wall) {
+    public List<Boolean> createCheckOldList(WallState wall) {
         return new ArrayList<>(Arrays.asList(wall.isSpotOld(), wall.isHoleOld(), wall.isDamageOld()));
     }
 
-    public static void duplicateWallEntries(WallState wall, WallState oldWall) {
-        wall.setHasNoSpot(oldWall.hasNoSpot());
-        wall.setIsSpotOld(oldWall.isSpotOld());
-        wall.setSpotComment(oldWall.getSpotComment());
-        wall.setHasNoHole(oldWall.hasNoHole());
-        wall.setIsHoleOld(oldWall.isHoleOld());
-        wall.setHoleComment(oldWall.getHoleComment());
-        wall.setHasNoDamage(oldWall.hasNoDamage());
-        wall.setIsDamageOld(oldWall.isDamageOld());
-        wall.setDamageComment(oldWall.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        WallState wall = WallState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
+
+        if (ApartmentType.STUDIO.equals(frag.getCurrentAP().getApartment().getType())) {
+            if (frag.getParent() == 0) {
+                wall = WallState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP());
+                frag.setTableEntries(WallState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP()));
+            } else if (frag.getParent() == 1) {
+                wall = WallState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP());
+                frag.setTableEntries(WallState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP()));
+            }
+        }
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(wall.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(wall));
+        frag.getCheckOld().addAll(createCheckOldList(wall));
+        frag.getComments().addAll(createCommentsList(wall));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        WallState oldWall = WallState.findByRoomAndAP(oldAP.getRoom(), oldAP);
+        this.copyOldEntries(oldWall);
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            WallState wall = new WallState(ap.getKitchen(), ap);
+            oldWall = WallState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
+            wall.copyOldEntries(oldWall);
+            wall.save();
+
+            wall = new WallState(ap.getBathroom(), ap);
+            oldWall = WallState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
+            wall.copyOldEntries(oldWall);
+            wall.save();
+        }
+    }
+
+    public void copyOldEntries(WallState oldWall) {
+        this.setHasNoSpot(oldWall.hasNoSpot());
+        this.setIsSpotOld(oldWall.isSpotOld());
+        this.setSpotComment(oldWall.getSpotComment());
+        this.setHasNoHole(oldWall.hasNoHole());
+        this.setIsHoleOld(oldWall.isHoleOld());
+        this.setHoleComment(oldWall.getHoleComment());
+        this.setHasNoDamage(oldWall.hasNoDamage());
+        this.setIsDamageOld(oldWall.isDamageOld());
+        this.setDamageComment(oldWall.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            WallState wall = new WallState(ap.getKitchen(), ap);
+            wall.save();
+
+            wall = new WallState(ap.getBathroom(), ap);
+            wall.save();
+        }
     }
 
     public static WallState findByRoomAndAP(Room room, AP ap) {

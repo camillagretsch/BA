@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 18.09.16.
  */
 @Table(name = "WindowState")
-public class WindowState extends Model{
+public class WindowState extends Model implements EntryStateInterface {
 
     @Column(name = "isClean")
     private boolean isClean = true;
@@ -137,25 +139,75 @@ public class WindowState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(WindowState window) {
+    public List<Boolean> createCheckList(WindowState window) {
         return new ArrayList<>(Arrays.asList(window.isClean(), window.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(WindowState window) {
+    public List<String> createCommentsList(WindowState window) {
         return new ArrayList<>(Arrays.asList(window.getCleanComment(), window.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(WindowState window) {
+    public List<Boolean> createCheckOldList(WindowState window) {
         return new ArrayList<>(Arrays.asList(window.isCleanOld(), window.isDamageOld()));
     }
 
-    public static void duplicateWindowEntries(WindowState window, WindowState oldWindow) {
-        window.setIsClean(oldWindow.isClean());
-        window.setIsCleanOld(oldWindow.isCleanOld());
-        window.setCleanComment(oldWindow.getCleanComment());
-        window.setHasNoDamage(oldWindow.hasNoDamage());
-        window.setIsDamageOld(oldWindow.isDamageOld());
-        window.setDamageComment(oldWindow.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        WindowState window = WindowState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
+
+        if (ApartmentType.STUDIO.equals(frag.getCurrentAP().getApartment().getType())) {
+            if (frag.getParent() == 0) {
+                window = WindowState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP());
+                frag.setTableEntries(WindowState.findByKitchenAndAP(frag.getCurrentAP().getKitchen(), frag.getCurrentAP()));
+            } else if (frag.getParent() == 1) {
+                window = WindowState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP());
+                frag.setTableEntries(WindowState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP()));
+            }
+        }
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(window.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(window));
+        frag.getCheckOld().addAll(createCheckOldList(window));
+        frag.getComments().addAll(createCommentsList(window));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        WindowState oldWindow = WindowState.findByRoomAndAP(oldAP.getRoom(), oldAP);
+        this.copyOldEntries(oldWindow);
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            WindowState window = new WindowState(ap.getKitchen(), ap);
+            oldWindow = WindowState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
+            window.copyOldEntries(oldWindow);
+            window.save();
+
+            window = new WindowState(ap.getBathroom(), ap);
+            oldWindow = WindowState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
+            window.copyOldEntries(oldWindow);
+            window.save();
+        }
+    }
+
+    public void copyOldEntries(WindowState oldWindow) {
+        this.setIsClean(oldWindow.isClean());
+        this.setIsCleanOld(oldWindow.isCleanOld());
+        this.setCleanComment(oldWindow.getCleanComment());
+        this.setHasNoDamage(oldWindow.hasNoDamage());
+        this.setIsDamageOld(oldWindow.isDamageOld());
+        this.setDamageComment(oldWindow.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        this.save();
+
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            WindowState window = new WindowState(ap.getKitchen(), ap);
+            window.save();
+
+            window = new WindowState(ap.getBathroom(), ap);
+            window.save();
+        }
     }
 
     public static WindowState findByRoomAndAP(Room room, AP ap) {

@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +16,7 @@ import java.util.Observable;
  * Created by camillagretsch on 19.09.16.
  */
 @Table(name = "FridgeState")
-public class FridgeState extends Model{
+public class FridgeState extends Model implements EntryStateInterface{
 
     @Column(name = "hasNoFood")
     private boolean hasNoFood = true;
@@ -178,40 +180,54 @@ public class FridgeState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(FridgeState fridge) {
+    public List<Boolean> createCheckList(FridgeState fridge) {
         return new ArrayList<>(Arrays.asList(fridge.hasNoFood(), fridge.isClean(), fridge.isDefrosted(), fridge.hasNoDamage()));
     }
 
-    public static void saveCheckList(List<Boolean> check, Kitchen kitchen, AP ap) {
-        FridgeState fridge = FridgeState.findByKitchenAndAP(kitchen, ap);
-        fridge.setHasNoFood(check.get(0));
-        fridge.setIsClean(check.get(1));
-        fridge.setIsDefrosted(check.get(2));
-        fridge.setHasNoDamage(check.get(3));
-        fridge.save();
-    }
-
-    public static List<String> createCommentsList(FridgeState fridge) {
+    public List<String> createCommentsList(FridgeState fridge) {
         return new ArrayList<>(Arrays.asList(fridge.getFoodComment(), fridge.getCleanComment(), fridge.getDefrostedComment(), fridge.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(FridgeState fridge) {
+    public List<Boolean> createCheckOldList(FridgeState fridge) {
         return new ArrayList<>(Arrays.asList(fridge.isFoodOld(), fridge.isCleanOld(), fridge.isDefrostedOld(), fridge.isDamageOld()));
     }
 
-    public static void duplicateFridgeEntries(FridgeState fridge, FridgeState oldFridge) {
-        fridge.setHasNoFood(oldFridge.hasNoFood());
-        fridge.setIsFoodOld(oldFridge.isFoodOld());
-        fridge.setFoodComment(oldFridge.getFoodComment());
-        fridge.setIsClean(oldFridge.isClean());
-        fridge.setIsCleanOld(oldFridge.isCleanOld());
-        fridge.setCleanComment(oldFridge.getCleanComment());
-        fridge.setIsDefrosted(oldFridge.isDefrosted());
-        fridge.setIsDefrostedOld(oldFridge.isDefrostedOld());
-        fridge.setDefrostedComment(oldFridge.getDefrostedComment());
-        fridge.setHasNoDamage(oldFridge.hasNoDamage());
-        fridge.setIsDamageOld(oldFridge.isDamageOld());
-        fridge.setDamageComment(oldFridge.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(this.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(this));
+        frag.getCheckOld().addAll(createCheckOldList(this));
+        frag.getComments().addAll(createCommentsList(this));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            FridgeState oldFridge = FridgeState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
+            this.copyOldEntries(oldFridge);
+            this.save();
+        }
+    }
+
+    private void copyOldEntries(FridgeState oldFridge) {
+        this.setHasNoFood(oldFridge.hasNoFood());
+        this.setIsFoodOld(oldFridge.isFoodOld());
+        this.setFoodComment(oldFridge.getFoodComment());
+        this.setIsClean(oldFridge.isClean());
+        this.setIsCleanOld(oldFridge.isCleanOld());
+        this.setCleanComment(oldFridge.getCleanComment());
+        this.setIsDefrosted(oldFridge.isDefrosted());
+        this.setIsDefrostedOld(oldFridge.isDefrostedOld());
+        this.setDefrostedComment(oldFridge.getDefrostedComment());
+        this.setHasNoDamage(oldFridge.hasNoDamage());
+        this.setIsDamageOld(oldFridge.isDamageOld());
+        this.setDamageComment(oldFridge.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            this.save();
+        }
     }
 
     public static FridgeState findByKitchenAndAP(Kitchen kitchen, AP ap) {

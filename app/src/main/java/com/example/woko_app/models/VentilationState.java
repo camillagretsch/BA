@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.constants.ApartmentType;
+import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
  * Created by camillagretsch on 19.09.16.
  */
 @Table(name = "VentilationState")
-public class VentilationState extends Model{
+public class VentilationState extends Model implements EntryStateInterface {
 
     @Column(name = "isClean")
     private boolean isClean = true;
@@ -177,31 +179,52 @@ public class VentilationState extends Model{
         return ap;
     }
 
-    public static List<Boolean> createCheckList(VentilationState ventilation) {
+    public List<Boolean> createCheckList(VentilationState ventilation) {
         return new ArrayList<>(Arrays.asList(ventilation.isClean(), ventilation.isWorking(), ventilation.getLampIsWorking(), ventilation.hasNoDamage()));
     }
 
-    public static List<String> createCommentsList(VentilationState ventilation) {
+    public List<String> createCommentsList(VentilationState ventilation) {
         return new ArrayList<>(Arrays.asList(ventilation.getCleanComment(), ventilation.getWorkingComment(), ventilation.getLampComment(), ventilation.getDamageComment()));
     }
 
-    public static List<Boolean> createCheckOldList(VentilationState ventilation) {
+    public List<Boolean> createCheckOldList(VentilationState ventilation) {
         return new ArrayList<>(Arrays.asList(ventilation.isCleanOld(), ventilation.isWorkingOld(), ventilation.isLampWorkingOld(), ventilation.isDamageOld()));
     }
 
-    public static void duplicateVentilationEntries(VentilationState ventilation, VentilationState oldVentilation) {
-        ventilation.setIsClean(oldVentilation.isClean());
-        ventilation.setIsCleanOld(ventilation.isCleanOld());
-        ventilation.setCleanComment(oldVentilation.getCleanComment());
-        ventilation.setIsWorking(oldVentilation.isWorking());
-        ventilation.setIsWorkingOld(oldVentilation.isWorkingOld());
-        ventilation.setWorkingComment(oldVentilation.getWorkingComment());
-        ventilation.setLampIsWorking(oldVentilation.getLampIsWorking());
-        ventilation.setIsLampWorkingOld(oldVentilation.isLampWorkingOld());
-        oldVentilation.setLampComment(oldVentilation.getLampComment());
-        ventilation.setHasNoDamage(oldVentilation.hasNoDamage());
-        ventilation.setIsDamageOld(oldVentilation.isDamageOld());
-        ventilation.setDamageComment(oldVentilation.getDamageComment());
+    public void getEntries(DataGridFragment frag) {
+        frag.setHeaderVariante1();
+        frag.getRowNames().addAll(this.ROW_NAMES);
+        frag.getCheck().addAll(createCheckList(this));
+        frag.getCheckOld().addAll(createCheckOldList(this));
+        frag.getComments().addAll(createCommentsList(this));
+        frag.setTableContentVariante1();
+    }
+
+    public void duplicateEntries(AP ap, AP oldAP) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            VentilationState oldVentilation = VentilationState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
+            this.copyOldEntries(oldVentilation);
+            this.save();
+        }
+    }
+
+    public void copyOldEntries(VentilationState oldVentilation) {
+        this.setIsClean(oldVentilation.isClean());
+        this.setIsCleanOld(oldVentilation.isCleanOld());
+        this.setCleanComment(oldVentilation.getCleanComment());
+        this.setIsWorking(oldVentilation.isWorking());
+        this.setIsWorkingOld(oldVentilation.isWorkingOld());
+        this.setWorkingComment(oldVentilation.getWorkingComment());
+        this.setLampIsWorking(oldVentilation.getLampIsWorking());
+        this.setIsLampWorkingOld(oldVentilation.isLampWorkingOld());
+        this.setLampComment(oldVentilation.getLampComment());
+        this.setHasNoDamage(oldVentilation.hasNoDamage());
+        this.setIsDamageOld(oldVentilation.isDamageOld());
+        this.setDamageComment(oldVentilation.getDamageComment());
+    }
+
+    public void createNewEntry(AP ap) {
+        this.save();
     }
 
     public static VentilationState findByKitchenAndAP(Kitchen kitchen, AP ap) {

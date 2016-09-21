@@ -153,188 +153,92 @@ public class AP extends Model{
     }
 
     public void createNewAP(AP ap) {
-        // Room
-        MattressState mattress = new MattressState(ap.getRoom(), ap);
-        mattress.save();
-        FloorState floor = new FloorState(ap.getRoom(), ap);
-        floor.save();
-        WallState wall = new WallState(ap.getRoom(), ap);
-        wall.save();
-        DoorState door = new DoorState(ap.getRoom(), ap);
-        door.save();
-        WindowState window = new WindowState(ap.getRoom(), ap);
-        window.save();
-        SocketState socket = new SocketState(ap.getRoom(), ap);
-        socket.save();
-        RadiatorState radiator = new RadiatorState(ap.getRoom(), ap);
-        radiator.save();
 
-        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
-            // Bathroom
-            ShowerState shower = new ShowerState(ap.getBathroom(), ap);
-            shower.save();
-            wall = new WallState(ap.getBathroom(), ap);
-            wall.save();
-            floor = new FloorState(ap.getBathroom(), ap);
-            floor.save();
-            window = new WindowState(ap.getBathroom(), ap);
-            window.save();
-            door = new DoorState(ap.getBathroom(), ap);
-            door.save();
-            socket = new SocketState(ap.getBathroom(), ap);
-            socket.save();
-            radiator = new RadiatorState(ap.getBathroom(), ap);
-            radiator.save();
+        EntryStateInterface entryState = new FridgeState(ap.getKitchen(), ap);
+        entryState.createNewEntry(ap);
 
-            // Kitchen
-            FridgeState fridge = new FridgeState(ap.getKitchen(), ap);
-            fridge.save();
-            OvenState oven = new OvenState(ap.getKitchen(), ap);
-            oven.save();
-            VentilationState ventilation = new VentilationState(ap.getKitchen(), ap);
-            ventilation.save();
-            CupboardState cupboard = new CupboardState(ap.getKitchen(), ap);
-            cupboard.save();
-            wall = new WallState(ap.getKitchen(), ap);
-            wall.save();
-            floor = new FloorState(ap.getKitchen(), ap);
-            floor.save();
-            window = new WindowState(ap.getKitchen(), ap);
-            window.save();
-            door = new DoorState(ap.getKitchen(), ap);
-            door.save();
-            socket = new SocketState(ap.getKitchen(), ap);
-            socket.save();
-            radiator = new RadiatorState(ap.getKitchen(), ap);
-            radiator.save();
+        entryState = new OvenState(ap.getKitchen(), ap);
+        entryState.createNewEntry(ap);
 
-            // Balcony
-            BalconyState balcony = new BalconyState(ap.getApartment(), ap);
-            balcony.save();
+        entryState = new VentilationState(ap.getKitchen(), ap);
+        entryState.createNewEntry(ap);
 
-            // Basement
-            BasementState basement = new BasementState(ap.getApartment(), ap);
-            basement.save();
-        }
+        entryState = new CupboardState(ap.getKitchen(), ap);
+        entryState.createNewEntry(ap);
+
+        entryState = new ShowerState(ap.getBathroom(), ap);
+        entryState.createNewEntry(ap);
+
+        entryState = new MattressState(ap.getRoom(), ap);
+        entryState.createNewEntry(ap);
+
+        entryState = new BalconyState(ap.getApartment(), ap);
+        entryState.createNewEntry(ap);
+
+        entryState = new BasementState(ap.getApartment(), ap);
+        entryState.createNewEntry(ap);
+
+        entryState = new WallState(ap.getRoom(), ap);
+        entryState.createNewEntry(ap);
+
+        entryState = new FloorState(ap.getRoom(), ap);
+        entryState.createNewEntry(ap);
+
+        entryState = new WindowState(ap.getRoom(), ap);
+        entryState.createNewEntry(ap);
+        
+        entryState = new DoorState(ap.getRoom(), ap);
+        entryState.createNewEntry(ap);
+
+        entryState = new SocketState(ap.getRoom(), ap);
+        entryState.createNewEntry(ap);
+
+        entryState = new RadiatorState(ap.getRoom(), ap);
+        entryState.createNewEntry(ap);
     }
 
     public void duplicateAP(AP ap, AP oldAP) {
-        // Room
-        MattressState mattress = new MattressState(ap.getRoom(), ap);
-        MattressState oldMattress = MattressState.findByRoomAndAP(oldAP.getRoom(), oldAP);
-        MattressState.duplicateMattressEntries(mattress, oldMattress);
-        mattress.save();
-        FloorState floor = new FloorState(ap.getRoom(), ap);
-        FloorState oldFloor = FloorState.findByRoomAndAP(oldAP.getRoom(), oldAP);
-        FloorState.duplicateFloorEntries(floor, oldFloor);
-        floor.save();
-        Log.d("Check for same entry", floor.getDamageComment() + " old: " + oldFloor.getDamageComment());
-        WallState wall = new WallState(ap.getRoom(), ap);
-        WallState oldWall = WallState.findByRoomAndAP(oldAP.getRoom(), oldAP);
-        WallState.duplicateWallEntries(wall, oldWall);
-        wall.save();
-        DoorState door = new DoorState(ap.getRoom(), ap);
-        DoorState oldDoor = DoorState.findByRoomAndAP(oldAP.getRoom(), oldAP);
-        DoorState.duplicateDoorEntries(door, oldDoor);
-        door.save();
-        WindowState window = new WindowState(ap.getRoom(), ap);
-        WindowState oldWindow = WindowState.findByRoomAndAP(oldAP.getRoom(), oldAP);
-        WindowState.duplicateWindowEntries(window, oldWindow);
-        window.save();
-        SocketState socket = new SocketState(ap.getRoom(), ap);
-        SocketState oldSocket = SocketState.findByRoomAndAP(oldAP.getRoom(), oldAP);
-        SocketState.duplicateSocketEntries(socket, oldSocket);
-        socket.save();
-        RadiatorState radiator = new RadiatorState(ap.getRoom(), ap);
-        RadiatorState oldRadiator = RadiatorState.findByRoomAndAP(oldAP.getRoom(), oldAP);
-        RadiatorState.duplicateRadiatorEntries(radiator, oldRadiator);
-        radiator.save();
+        EntryStateInterface entryState = new FridgeState(ap.getKitchen(), ap);
+        entryState.duplicateEntries(ap, oldAP);
 
-        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
-            // Bathroom
-            ShowerState shower = new ShowerState(ap.getBathroom(), ap);
-            ShowerState oldShower = ShowerState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
-            ShowerState.duplicateShowerEntries(shower, oldShower);
-            shower.save();
-            wall = new WallState(ap.getBathroom(), ap);
-            oldWall = WallState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
-            WallState.duplicateWallEntries(wall, oldWall);
-            wall.save();
-            floor = new FloorState(ap.getBathroom(), ap);
-            oldFloor = FloorState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
-            FloorState.duplicateFloorEntries(floor, oldFloor);
-            floor.save();
-            window = new WindowState(ap.getBathroom(), ap);
-            oldWindow = WindowState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
-            WindowState.duplicateWindowEntries(window, oldWindow);
-            window.save();
-            door = new DoorState(ap.getBathroom(), ap);
-            oldDoor = DoorState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
-            DoorState.duplicateDoorEntries(door, oldDoor);
-            door.save();
-            socket = new SocketState(ap.getBathroom(), ap);
-            oldSocket = SocketState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
-            SocketState.duplicateSocketEntries(socket, oldSocket);
-            socket.save();
-            radiator = new RadiatorState(ap.getBathroom(), ap);
-            oldRadiator = RadiatorState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
-            RadiatorState.duplicateRadiatorEntries(radiator, oldRadiator);
-            radiator.save();
+        entryState = new OvenState(ap.getKitchen(), ap);
+        entryState.duplicateEntries(ap, oldAP);
 
-            // Kitchen
-            FridgeState fridge = new FridgeState(ap.getKitchen(), ap);
-            FridgeState oldFridge = FridgeState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
-            FridgeState.duplicateFridgeEntries(fridge, oldFridge);
-            fridge.save();
-            OvenState oven = new OvenState(ap.getKitchen(), ap);
-            OvenState oldOven = OvenState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
-            OvenState.duplicateOvenEntries(oven, oldOven);
-            oven.save();
-            VentilationState ventilation = new VentilationState(ap.getKitchen(), ap);
-            VentilationState oldVentilation = VentilationState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
-            VentilationState.duplicateVentilationEntries(ventilation, oldVentilation);
-            ventilation.save();
-            CupboardState cupboard = new CupboardState(ap.getKitchen(), ap);
-            CupboardState oldCupboard = CupboardState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
-            CupboardState.duplicateCupboardEntries(cupboard, oldCupboard);
-            cupboard.save();
-            wall = new WallState(ap.getKitchen(), ap);
-            oldWall = WallState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
-            WallState.duplicateWallEntries(wall, oldWall);
-            wall.save();
-            floor = new FloorState(ap.getKitchen(), ap);
-            oldFloor = FloorState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
-            FloorState.duplicateFloorEntries(floor, oldFloor);
-            floor.save();
-            window = new WindowState(ap.getKitchen(), ap);
-            oldWindow = WindowState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
-            WindowState.duplicateWindowEntries(window, oldWindow);
-            window.save();
-            door = new DoorState(ap.getKitchen(), ap);
-            oldDoor = DoorState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
-            DoorState.duplicateDoorEntries(door, oldDoor);
-            door.save();
-            socket = new SocketState(ap.getKitchen(), ap);
-            oldSocket = SocketState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
-            SocketState.duplicateSocketEntries(socket, oldSocket);
-            socket.save();
-            radiator = new RadiatorState(ap.getKitchen(), ap);
-            oldRadiator = RadiatorState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
-            RadiatorState.duplicateRadiatorEntries(radiator, oldRadiator);
-            radiator.save();
+        entryState = new VentilationState(ap.getKitchen(), ap);
+        entryState.duplicateEntries(ap, oldAP);
 
-            // Balcony
-            BalconyState balcony = new BalconyState(ap.getApartment(), ap);
-            BalconyState oldBalcony = BalconyState.findByApartmentAndAP(oldAP.getApartment(), oldAP);
-            BalconyState.duplicateBalconyEntries(balcony, oldBalcony);
-            balcony.save();
+        entryState = new CupboardState(ap.getKitchen(), ap);
+        entryState.duplicateEntries(ap, oldAP);
 
-            // Basement
-            BasementState basement = new BasementState(ap.getApartment(), ap);
-            BasementState oldBasement = BasementState.findByApartmentAndAP(oldAP.getApartment(), oldAP);
-            BasementState.duplicateBasementEntries(basement, oldBasement);
-            basement.save();
-        }
+        entryState = new ShowerState(ap.getBathroom(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new MattressState(ap.getRoom(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new BalconyState(ap.getApartment(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new BasementState(ap.getApartment(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new WallState(ap.getRoom(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new FloorState(ap.getRoom(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new WindowState(ap.getRoom(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new DoorState(ap.getRoom(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new SocketState(ap.getRoom(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new RadiatorState(ap.getRoom(), ap);
+        entryState.duplicateEntries(ap, oldAP);
     }
 
     public static List<AP> initializeAPs(List<House> houses) {
