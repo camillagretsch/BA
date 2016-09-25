@@ -1,7 +1,8 @@
 package com.example.woko_app.fragment;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.res.Resources;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.ContextThemeWrapper;
@@ -9,28 +10,27 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.PopupWindow;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.activeandroid.query.Select;
 import com.example.woko_app.R;
+import com.example.woko_app.activity.HV_EditActivity;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.models.AP;
-import com.example.woko_app.models.Apartment;
 import com.example.woko_app.models.BalconyState;
 import com.example.woko_app.models.BasementState;
-import com.example.woko_app.models.Bathroom;
 import com.example.woko_app.models.CupboardState;
+import com.example.woko_app.models.CutleryState;
 import com.example.woko_app.models.DoorState;
 import com.example.woko_app.models.EntryStateInterface;
 import com.example.woko_app.models.FloorState;
 import com.example.woko_app.models.FridgeState;
+import com.example.woko_app.models.FurnitureState;
 import com.example.woko_app.models.MattressState;
 import com.example.woko_app.models.OvenState;
 import com.example.woko_app.models.RadiatorState;
@@ -40,9 +40,7 @@ import com.example.woko_app.models.VentilationState;
 import com.example.woko_app.models.WallState;
 import com.example.woko_app.models.WindowState;
 
-import java.security.interfaces.RSAKey;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Observer;
 
@@ -68,6 +66,8 @@ public class DataGridFragment extends Fragment {
     private List<Boolean> check = new ArrayList<>();
     private List<Boolean> checkOld = new ArrayList<>();
     private List<String> comments = new ArrayList<>();
+    private List<Integer> count = new ArrayList<>();
+    private List<Integer> countBroken = new ArrayList<>();
 
     private EntryStateInterface tableEntries;
 
@@ -75,12 +75,16 @@ public class DataGridFragment extends Fragment {
 
     private Typeface font;
 
-    private TextView c1;
-    private CheckBox c2;
-    private CheckBox c3;
-    private CheckBox c4;
-    private EditText c5;
-    private TextView c6;
+    private TextView titleColumn;
+    private CheckBox yesColumn;
+    private CheckBox noColumn;
+    private CheckBox oldColumn;
+    private TextView commentColumn;
+    private TextView pictureColumn;
+    private TextView countColumn;
+    private Spinner brokenColumn;
+
+    private HV_EditActivity hv_editActivity;
 
     public DataGridFragment() {
         // Required empty public constructor
@@ -102,6 +106,8 @@ public class DataGridFragment extends Fragment {
         table = (TableLayout) view.findViewById(R.id.table);
         table.setStretchAllColumns(true);
         table.bringToFront();
+
+        hv_editActivity = (HV_EditActivity) getActivity();
 
         return view;
     }
@@ -125,7 +131,6 @@ public class DataGridFragment extends Fragment {
             tableEntries.getEntries(this);
         } else
             switchCaseEntries();
-
     }
 
     private void switchCaseEntries() {
@@ -143,7 +148,8 @@ public class DataGridFragment extends Fragment {
                 tableEntries.getEntries(this);
                 break;
             case "Pfannen, Geschirr, Besteck":
-                // TODO
+                tableEntries = CutleryState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
+                tableEntries.getEntries(this);
                 break;
             case "Schränke":
                 tableEntries = CupboardState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
@@ -158,7 +164,8 @@ public class DataGridFragment extends Fragment {
                 tableEntries.getEntries(this);
                 break;
             case "Mobiliar":
-                // TODO
+                tableEntries = FurnitureState.findByRoomAndAP(currentAP.getRoom(), currentAP);
+                tableEntries.getEntries(this);
                 break;
             case "Wände, Decke":
                 tableEntries = WallState.findByRoomAndAP(currentAP.getRoom(), currentAP);
@@ -207,16 +214,20 @@ public class DataGridFragment extends Fragment {
         return rowNames;
     }
 
+    public List<Integer> getCount() {
+        return count;
+    }
+
+    public List<Integer> getCountBroken() {
+        return countBroken;
+    }
+
     public int getParent() {
         return parent;
     }
 
     public void setTableEntries(EntryStateInterface tableEntries) {
         this.tableEntries = tableEntries;
-    }
-
-    public EntryStateInterface getTableEntries() {
-        return tableEntries;
     }
 
     public void setHeaderVariante1() {
@@ -254,110 +265,186 @@ public class DataGridFragment extends Fragment {
             row.setId(i);
             table.addView(row);
 
-            c1 = new TextView(new ContextThemeWrapper(getActivity(), R.style.TextViewStyle), null);
-            c1.setText(rowNames.get(i));
-            c1.setId(i);
-            row.addView(c1);
+            titleColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.TextViewStyle), null);
+            titleColumn.setText(rowNames.get(i));
+            row.addView(titleColumn);
 
-            c2 = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
-            c2.setId(i);
-            row.addView(c2);
+            yesColumn = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
+            row.addView(yesColumn);
 
-            c3 = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
-            c3.setId(i);
+            noColumn = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
+            row.addView(noColumn);
+
+            oldColumn = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
+            row.addView(oldColumn);
             if (check.get(i) == true) {
-                c2.setChecked(true);
+                yesColumn.setChecked(true);
+                yesColumn.setEnabled(false);
+                oldColumn.setEnabled(false);
             } else {
-                c3.setChecked(true);
-            }
-            row.addView(c3);
-
-            c4 = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
-            c4.setId(i);
-            row.addView(c4);
-            if (c2.isChecked()) {
-                c4.setEnabled(false);
-            } if (c3.isChecked()) {
-                c4.setEnabled(true);
+                noColumn.setChecked(true);
+                noColumn.setEnabled(false);
             }
             if (checkOld.get(i) == true) {
-                c4.setChecked(true);
+                oldColumn.setChecked(true);
             }
 
-            c5 = new EditText(new ContextThemeWrapper(getActivity(), R.style.EditTextStyle), null);
-            c5.setText(comments.get(i));
-            c5.setId(i);
-            row.addView(c5);
+            commentColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.CommentStyle), null);
+            commentColumn.setText(comments.get(i));
+            row.addView(commentColumn);
 
-            c6 = new TextView(new ContextThemeWrapper(getActivity(), R.style.PictureStyle), null);
-            c6.setTypeface(font);
-            c6.setId(i);
-            row.addView(c6);
+            pictureColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.PictureStyle), null);
+            pictureColumn.setTypeface(font);
+            row.addView(pictureColumn);
 
-            c2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    setOnClickYes((TableRow) buttonView.getParent(), isChecked);
-                }
-            });
-            c3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    setOnClickNo((TableRow) buttonView.getParent(), isChecked);
-                }
-            });
-            c4.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                }
-            });
+            setOnClickYes();
+            setOnClickNo();
+            setOnClickOld();
+            setOnClickComment();
         }
     }
 
-    private void setOnClickYes(TableRow row, boolean isChecked){
-        CheckBox checkBox;
-        if (isChecked) {
-            // set old disabled
-            checkBox = (CheckBox)row.getChildAt(3);
-            checkBox.setEnabled(false);
-            checkBox.setChecked(false);
-            // set no unchecked
-            checkBox = (CheckBox)row.getChildAt(2);
-            checkBox.setChecked(false);
-            // TODO save to DB
-            check.set(row.getId(), true);
-            // TODO exclamation
-        } else {
-            // set old enable
-            row.getChildAt(3).setEnabled(true);
+    public void setTableContentVarainte2() {
+        for (int i = 0; i < rowNames.size(); i++) {
+            TableRow row;
+            if (i % 2 == 0) {
+                row = new TableRow(new ContextThemeWrapper(getActivity(), R.style.RowStyleGreyHell), null);
+            } else {
+                row = new TableRow(new ContextThemeWrapper(getActivity(), R.style.RowStyleWhite), null);
+            }
+            row.setId(i);
+            table.addView(row);
+
+            titleColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.TextViewStyle), null);
+            titleColumn.setText(rowNames.get(i));
+            row.addView(titleColumn);
+
+            countColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.TextViewStyle), null);
+            countColumn.setGravity(Gravity.CENTER);
+            countColumn.setText(count.get(i).toString());
+            row.addView(countColumn);
+
+            brokenColumn = new Spinner(getActivity());
+            row.addView(brokenColumn);
+
+            oldColumn = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
+            row.addView(oldColumn);
+            if (checkOld.get(i)) {
+                oldColumn.setChecked(true);
+            }
+            if (countBroken.get(i) == 0) {
+                oldColumn.setEnabled(false);
+            }
+
+            commentColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.CommentStyle), null);
+            commentColumn.setText(comments.get(i));
+            row.addView(commentColumn);
+
+            pictureColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.PictureStyle), null);
+            pictureColumn.setTypeface(font);
+            row.addView(pictureColumn);
+
+            setOnClickComment();
         }
     }
 
-    private void setOnClickNo(TableRow row, boolean isChecked){
-        CheckBox checkBox;
-        if (isChecked) {
-            // set old enable
-            checkBox = (CheckBox)row.getChildAt(3);
-            checkBox.setEnabled(true);
-            // set yes unchecked
-            checkBox = (CheckBox)row.getChildAt(1);
-            checkBox.setChecked(false);
-            // TODO save to DB
-            check.set(row.getId(), false);
-            // TODO exclamation
-        } else {
-            // set old disabled
-            checkBox = (CheckBox)row.getChildAt(3);
-            checkBox.setEnabled(false);
-        }
+    private void setOnClickYes(){
+        yesColumn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                TableRow row = (TableRow) buttonView.getParent();
+                CheckBox checkBox;
+
+                if (isChecked) {
+                    // set yes disabled
+                    checkBox = (CheckBox) row.getChildAt(1);
+                    checkBox.setEnabled(false);
+                    // set old disabled
+                    checkBox = (CheckBox) row.getChildAt(3);
+                    checkBox.setEnabled(false);
+                    checkBox.setChecked(false);
+                    // set no unchecked
+                    checkBox = (CheckBox) row.getChildAt(2);
+                    checkBox.setChecked(false);
+                    checkBox.setEnabled(true);
+                    // save to DB
+                    check.set(row.getId(), true);
+                    tableEntries.saveCheckEntries(check);
+                    //TODO exclamation
+                }
+            }
+        });
     }
 
-    private void setOnClickOld(TableRow row, boolean isChecked) {
-        CheckBox checkBox;
-        if (isChecked) {
-            // TODO save to DB
-            // TODO exclamation
-        }
+    private void setOnClickNo(){
+        noColumn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                TableRow row = (TableRow) buttonView.getParent();
+                CheckBox checkBox;
+
+                if (isChecked) {
+                    // set no disabled
+                    checkBox = (CheckBox) row.getChildAt(2);
+                    checkBox.setEnabled(false);
+                    // set old enabled
+                    checkBox = (CheckBox) row.getChildAt(3);
+                    checkBox.setEnabled(true);
+                    // set yes unchecked
+                    checkBox = (CheckBox) row.getChildAt(1);
+                    checkBox.setChecked(false);
+                    checkBox.setEnabled(true);
+                    // save to DB
+                    check.set(row.getId(), false);
+                    tableEntries.saveCheckEntries(check);
+                }
+            }
+        });
+    }
+
+    private void setOnClickOld() {
+        oldColumn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                TableRow row = (TableRow) buttonView.getParent();
+
+                if (isChecked) {
+                    checkOld.set(row.getId(), true);
+                    //TODO exclamation
+                } else {
+                    checkOld.set(row.getId(), false);
+                }
+                // save to DB
+                tableEntries.saveCheckOldEntries(checkOld);
+            }
+        });
+    }
+
+    private void setOnClickComment() {
+        commentColumn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final TableRow row = (TableRow) v.getParent();
+                final TextView textView = (TextView)row.getChildAt(4);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+                final EditText editText = new EditText(getActivity());
+                editText.setText(textView.getText());
+                alertDialogBuilder.setView(editText);
+
+                alertDialogBuilder.setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        textView.setText(editText.getText());
+                        comments.set(row.getId(), editText.getText().toString());
+                        tableEntries.saveCommentsEntries(comments);
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+        });
     }
 }

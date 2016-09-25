@@ -160,6 +160,7 @@ public class MattressState extends Model implements EntryStateInterface {
         return new ArrayList<>(Arrays.asList(mattress.isBeddingOld(), mattress.isLinenOld(), mattress.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         frag.setHeaderVariante1();
         frag.getRowNames().addAll(this.ROW_NAMES);
@@ -169,6 +170,7 @@ public class MattressState extends Model implements EntryStateInterface {
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         MattressState oldMattress = MattressState.findByRoomAndAP(oldAP.getRoom(), oldAP);
         this.copyOldEntries(oldMattress);
@@ -187,7 +189,32 @@ public class MattressState extends Model implements EntryStateInterface {
         this.setDamageComment(oldMattress.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
+        this.save();
+    }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setBeddingIsClean(check.get(0));
+        this.setLinenIsClean(check.get(1));
+        this.setHasNoDamage(check.get(2));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsBeddingOld(checkOld.get(0));
+        this.setIsLinenOld(checkOld.get(1));
+        this.setIsDamageOld(checkOld.get(2));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setBeddingComment(comments.get(0));
+        this.setLinenComment(comments.get(1));
+        this.setDamageComment(comments.get(2));
         this.save();
     }
 

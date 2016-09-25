@@ -1,12 +1,9 @@
 package com.example.woko_app.models;
 
-import android.util.Log;
-
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
-import com.example.woko_app.constants.ApartmentType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +38,9 @@ public class AP extends Model{
     @Column(name = "apartment", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private Apartment apartment;
 
+    @Column(name = "tenant_old", notNull = true, onUpdate = Column.ForeignKeyAction.CASCADE)
+    private TenantOld tenantOld;
+
     @Column(name = "old_AP")
     private AP oldAP;
 
@@ -48,16 +48,17 @@ public class AP extends Model{
         super();
     }
 
-    public AP(long day, long month, long year, Apartment apartment, Room room) {
+    public AP(long day, long month, long year, Apartment apartment, Room room, TenantOld tenantOld) {
         super();
         this.day = day;
         this.month = month;
         this.year = year;
         this.apartment = apartment;
         this.room = room;
+        this.tenantOld = tenantOld;
     }
 
-    public AP(long day, long month, long year, Apartment apartment, Room room, Bathroom bathroom, Kitchen kitchen) {
+    public AP(long day, long month, long year, Apartment apartment, Room room, Bathroom bathroom, Kitchen kitchen, TenantOld tenantOld) {
         super();
         this.day = day;
         this.month = month;
@@ -66,6 +67,7 @@ public class AP extends Model{
         this.room = room;
         this.bathroom = bathroom;
         this.kitchen = kitchen;
+        this.tenantOld = tenantOld;
     }
 
     public long getDay() {
@@ -124,6 +126,14 @@ public class AP extends Model{
         return apartment;
     }
 
+    public void setTenantOld(TenantOld tenantOld) {
+        this.tenantOld = tenantOld;
+    }
+
+    public TenantOld getTenantOld() {
+        return tenantOld;
+    }
+
     public void setOldAP(AP oldAP) {
         this.oldAP = oldAP;
     }
@@ -160,6 +170,9 @@ public class AP extends Model{
         entryState = new OvenState(ap.getKitchen(), ap);
         entryState.createNewEntry(ap);
 
+        entryState = new CutleryState(ap.getKitchen(), ap);
+        entryState.createNewEntry(ap);
+
         entryState = new VentilationState(ap.getKitchen(), ap);
         entryState.createNewEntry(ap);
 
@@ -170,6 +183,9 @@ public class AP extends Model{
         entryState.createNewEntry(ap);
 
         entryState = new MattressState(ap.getRoom(), ap);
+        entryState.createNewEntry(ap);
+
+        entryState = new FurnitureState(ap.getRoom(), ap);
         entryState.createNewEntry(ap);
 
         entryState = new BalconyState(ap.getApartment(), ap);
@@ -198,10 +214,14 @@ public class AP extends Model{
     }
 
     public void duplicateAP(AP ap, AP oldAP) {
+
         EntryStateInterface entryState = new FridgeState(ap.getKitchen(), ap);
         entryState.duplicateEntries(ap, oldAP);
 
         entryState = new OvenState(ap.getKitchen(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new CutleryState(ap.getKitchen(), ap);
         entryState.duplicateEntries(ap, oldAP);
 
         entryState = new VentilationState(ap.getKitchen(), ap);
@@ -214,6 +234,9 @@ public class AP extends Model{
         entryState.duplicateEntries(ap, oldAP);
 
         entryState = new MattressState(ap.getRoom(), ap);
+        entryState.duplicateEntries(ap, oldAP);
+
+        entryState = new FurnitureState(ap.getRoom(), ap);
         entryState.duplicateEntries(ap, oldAP);
 
         entryState = new BalconyState(ap.getApartment(), ap);
@@ -250,35 +273,35 @@ public class AP extends Model{
             Apartment apartment = house.getApartments().get(0);
 
             Room room = apartment.getRooms().get(0);
-            AP ap = new AP(31, 07, 2015, apartment, room);
+            AP ap = new AP(31, 07, 2015, apartment, room, TenantOld.initializeTenantOld());
             ap.setSharedApartmentName(house.getStreet(), house.getStreetNumber(), room.getApartment().getApartmentNumber(), room.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
             aps.add(ap);
             ap.save();
 
-            ap = new AP(25, 07, 2015, apartment, room);
+            ap = new AP(25, 07, 2015, apartment, room, TenantOld.initializeTenantOld());
             ap.setSharedApartmentName(house.getStreet(), house.getStreetNumber(), room.getApartment().getApartmentNumber(), room.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
             aps.add(ap);
             ap.save();
 
             room = house.getApartments().get(0).getRooms().get(2);
-            ap = new AP(26, 05, 2013, apartment, room);
+            ap = new AP(26, 05, 2013, apartment, room, TenantOld.initializeTenantOld());
             ap.setSharedApartmentName(house.getStreet(), house.getStreetNumber(), room.getApartment().getApartmentNumber(), room.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
             aps.add(ap);
             ap.save();
 
-            ap = new AP(28, 06, 2014, apartment, room);
+            ap = new AP(28, 06, 2014, apartment, room, TenantOld.initializeTenantOld());
             ap.setSharedApartmentName(house.getStreet(), house.getStreetNumber(), room.getApartment().getApartmentNumber(), room.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
             aps.add(ap);
             ap.save();
 
-            ap = new AP(30, 06, 2015, apartment, room);
+            ap = new AP(30, 06, 2015, apartment, room, TenantOld.initializeTenantOld());
             ap.setSharedApartmentName(house.getStreet(), house.getStreetNumber(), room.getApartment().getApartmentNumber(), room.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
             aps.add(ap);
             ap.save();
 
             apartment = house.getApartments().get(1);
             room = apartment.getRooms().get(1);
-            ap = new AP(20, 06, 2014, apartment, room);
+            ap = new AP(20, 06, 2014, apartment, room, TenantOld.initializeTenantOld());
             ap.setSharedApartmentName(house.getStreet(), house.getStreetNumber(), room.getApartment().getApartmentNumber(), room.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
             aps.add(ap);
             ap.save();
@@ -286,7 +309,7 @@ public class AP extends Model{
             house = houses.get(1);
             apartment = house.getApartments().get(0);
             room = apartment.getRooms().get(0);
-            ap = new AP(30, 10, 2015, apartment, room, Bathroom.findByApartment(apartment), Kitchen.findByApartment(apartment));
+            ap = new AP(30, 10, 2015, apartment, room, Bathroom.findByApartment(apartment), Kitchen.findByApartment(apartment), TenantOld.initializeTenantOld());
             ap.setStudioName(house.getStreet(), house.getStreetNumber(), apartment.getApartmentNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
             aps.add(ap);
             ap.save();

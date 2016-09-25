@@ -160,6 +160,7 @@ public class BasementState extends Model implements EntryStateInterface {
         return new ArrayList<>(Arrays.asList(basement.isCleanOld(), basement.isEmptyOld(), basement.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         frag.setHeaderVariante1();
         frag.getRowNames().addAll(this.ROW_NAMES);
@@ -169,6 +170,7 @@ public class BasementState extends Model implements EntryStateInterface {
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
             BasementState oldBasement = BasementState.findByApartmentAndAP(oldAP.getApartment(), oldAP);
@@ -189,10 +191,35 @@ public class BasementState extends Model implements EntryStateInterface {
         this.setDamageComment(oldBasement.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
             this.save();
         }
+    }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setIsClean(check.get(0));
+        this.setIsEmpty(check.get(1));
+        this.setHasNoDamage(check.get(2));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsCleanOld(checkOld.get(0));
+        this.setIsEmptyOld(checkOld.get(1));
+        this.setIsDamageOld(checkOld.get(2));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setCleanComment(comments.get(0));
+        this.setEmptyComment(comments.get(1));
+        this.setDamageComment(comments.get(2));
+        this.save();
     }
 
     public static BasementState findByApartmentAndAP(Apartment apartment, AP ap) {

@@ -158,6 +158,7 @@ public class OvenState extends Model implements EntryStateInterface {
         return new ArrayList<>(Arrays.asList(oven.isOvenOld(), oven.isCookerOld(), oven.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         frag.setHeaderVariante1();
         frag.getRowNames().addAll(this.ROW_NAMES);
@@ -167,6 +168,7 @@ public class OvenState extends Model implements EntryStateInterface {
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
             OvenState oldOven = OvenState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
@@ -187,10 +189,35 @@ public class OvenState extends Model implements EntryStateInterface {
         this.setDamageComment(oldOven.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
             this.save();
         }
+    }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setOvenIsClean(check.get(0));
+        this.setCookerIsClean(check.get(1));
+        this.setHasNoDamage(check.get(2));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsOvenOld(checkOld.get(0));
+        this.setIsCookerOld(checkOld.get(1));
+        this.setIsDamageOld(checkOld.get(2));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setOvenComment(comments.get(0));
+        this.setCookerComment(comments.get(1));
+        this.setDamageComment(comments.get(2));
+        this.save();
     }
 
     public static OvenState findByKitchenAndAP(Kitchen kitchen, AP ap) {

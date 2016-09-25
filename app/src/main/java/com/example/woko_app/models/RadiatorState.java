@@ -155,6 +155,7 @@ public class RadiatorState extends Model implements EntryStateInterface {
         return new ArrayList<>(Arrays.asList(radiator.isOnOld(), radiator.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         RadiatorState radiator = RadiatorState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
 
@@ -175,6 +176,7 @@ public class RadiatorState extends Model implements EntryStateInterface {
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         RadiatorState oldRadiator = RadiatorState.findByRoomAndAP(oldAP.getRoom(), oldAP);
         this.copyOldEntries(oldRadiator);
@@ -202,6 +204,7 @@ public class RadiatorState extends Model implements EntryStateInterface {
         this.setDamageComment(oldRadiator.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
         this.save();
 
@@ -212,6 +215,27 @@ public class RadiatorState extends Model implements EntryStateInterface {
             radiator = new RadiatorState(ap.getBathroom(), ap);
             radiator.save();
         }
+    }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setIsOn(check.get(0));
+        this.setHasNoDamage(check.get(1));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsOnOld(checkOld.get(0));
+        this.setIsDamageOld(checkOld.get(1));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setOnComment(comments.get(0));
+        this.setDamageComment(comments.get(1));
+        this.save();
     }
 
     public static RadiatorState findByRoomAndAP(Room room, AP ap) {

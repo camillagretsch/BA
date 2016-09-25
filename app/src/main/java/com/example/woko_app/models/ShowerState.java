@@ -224,6 +224,7 @@ public class ShowerState extends Model implements EntryStateInterface {
         return new ArrayList<>(Arrays.asList(shower.isShowerCurtainOld(), shower.isShowerOKOld(), shower.isToiletOKOld(), shower.isSinkOKOld(), shower.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         frag.setHeaderVariante1();
         frag.getRowNames().addAll(this.ROW_NAMES);
@@ -233,6 +234,7 @@ public class ShowerState extends Model implements EntryStateInterface {
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
             ShowerState oldShower = ShowerState.findByBathroomAndAP(oldAP.getBathroom(), oldAP);
@@ -259,10 +261,41 @@ public class ShowerState extends Model implements EntryStateInterface {
         this.setDamageComment(oldShower.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
             this.save();
         }
+    }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setShowerCurtainIsClean(check.get(0));
+        this.setShowerIsOK(check.get(1));
+        this.setToiletIsOK(check.get(2));
+        this.setSinkIsOK(check.get(3));
+        this.setHasNoDamage(check.get(4));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsShowerCurtainOld(checkOld.get(0));
+        this.setIsShowerOKOld(checkOld.get(1));
+        this.setIsToiletOKOld(checkOld.get(2));
+        this.setIsSinkOKOld(checkOld.get(3));
+        this.setIsDamageOld(checkOld.get(4));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setShowerCurtainComment(comments.get(0));
+        this.setShowerComment(comments.get(1));
+        this.setToiletComment(comments.get(2));
+        this.setSinkComment(comments.get(3));
+        this.setDamageComment(comments.get(4));
+        this.save();
     }
 
     public static ShowerState findByBathroomAndAP(Bathroom bathroom, AP ap) {

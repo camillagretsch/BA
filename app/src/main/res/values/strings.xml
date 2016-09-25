@@ -73,6 +73,27 @@
         <item>Kommentar</item>
         <item>Foto</item>
     </string-array>
+    <string name="new_address">Neue Adresse des Mieters</string>
+    <string name="street_nr">Strasse, Nr.:</string>
+    <string name="PLZ_town_contry">PLZ, Stadt, Land: </string>
+    <string name="email">Email: </string>
+    <string name="refund">Rückerstattung der Kaution an</string>
+    <string name="tenant">Mieter</string>
+    <string name="other_person">Andere Person, Name und Adresse: </string>
+    <string name="account_info">Kontoangaben</string>
+    <string name="post_account">Post Account</string>
+    <string name="account_number">Account Nummer</string>
+    <string name="bank_account">Bank Account</string>
+    <string name="bank_name">Name und Adresse der Bank: </string>
+    <string name="SWIFT">SWIFT: </string>
+    <string name="IBAN">IBAN: </string>
+    <string name="acc_clearing_number">Account und Clearing Nummer: </string>
+    <string name="stop_message">Das Protokoll wird nicht gespeichert. Soll das Protokoll geschlossen werden?</string>
+    <string name="signature">Unterschriften</string>
+    <string name="date">Datum: </string>
+    <string name="old_tenant">Mieter: </string>
+    <string name="new_tenant">Nachmieter: </string>
+    <string name="WOKO">WOKO: </string>
 
     <!-- icons -->
     <string name="user_icon">&#xf007;</string>
@@ -81,6 +102,7 @@
     <string name="save_icon">&#xf0c7;</string>
     <string name="close_icon">&#xf00d;</string>
     <string name="file_icon">&#xf15c;</string>
+    <string name="exclamation_mark">&#xf12a;</string>
 
     <!-- buttons -->
     <string name="logout_btn">Logout &#xf08b;</string>
@@ -107,5 +129,14 @@
     <!-- Create Protocol Fragment -->
     <string name="no_protocol">Kein Protokoll vorhanden</string>
     <string name="create_new">neues Protokoll erstellen</string>
+
+    <!-- Save Fragment -->
+    <string name="sendEmail">Mail mit Protokoll im Anhang</string>
+    <string name="message">Benachrichtigung an: </string>
+    <string name="hintEmail">Email Adresse</string>
+    <string name="hintMessage">Nachricht</string>
+    <string name="HW">Hauswart</string>
+    <string name="VW">Verwaltung</string>
+    <string name="saved">Protokoll wurde gespeichert</string>
 
 </resources>

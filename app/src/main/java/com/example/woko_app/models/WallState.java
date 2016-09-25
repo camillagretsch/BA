@@ -190,6 +190,7 @@ public class WallState extends Model implements EntryStateInterface{
         return new ArrayList<>(Arrays.asList(wall.isSpotOld(), wall.isHoleOld(), wall.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         WallState wall = WallState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
 
@@ -210,6 +211,7 @@ public class WallState extends Model implements EntryStateInterface{
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         WallState oldWall = WallState.findByRoomAndAP(oldAP.getRoom(), oldAP);
         this.copyOldEntries(oldWall);
@@ -240,6 +242,7 @@ public class WallState extends Model implements EntryStateInterface{
         this.setDamageComment(oldWall.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
         this.save();
 
@@ -251,6 +254,31 @@ public class WallState extends Model implements EntryStateInterface{
             wall.save();
         }
     }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setHasNoSpot(check.get(0));
+        this.setHasNoHole(check.get(1));
+        this.setHasNoDamage(check.get(2));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsSpotOld(checkOld.get(0));
+        this.setIsHoleOld(checkOld.get(1));
+        this.setIsDamageOld(checkOld.get(2));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setSpotComment(comments.get(0));
+        this.setHoleComment(comments.get(1));
+        this.setDamageComment(comments.get(2));
+        this.save();
+    }
+
 
     public static WallState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(WallState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();

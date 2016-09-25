@@ -6,14 +6,12 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -213,10 +211,7 @@ public class HV_HomeActivity extends Activity {
         expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int groupPosition) {
-                if (openFragment != null) {
-                    fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.remove(openFragment).commit();
-                }
+               closeOpenFragment();
             }
         });
         sidebarContainer.addView(expandableListView);
@@ -308,6 +303,13 @@ public class HV_HomeActivity extends Activity {
         showOldFragment.setArguments(bundle);
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, showOldFragment, null).addToBackStack(null).commit();
+    }
+
+    public void closeOpenFragment() {
+        if (openFragment != null) {
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.remove(openFragment).commit();
+        }
     }
 
     public void callEditActivity(long currentAP_Id) {

@@ -155,6 +155,7 @@ public class FloorState extends Model implements EntryStateInterface {
         return new ArrayList<>(Arrays.asList(floor.isCleanOld(), floor.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         FloorState floor = FloorState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
 
@@ -175,6 +176,7 @@ public class FloorState extends Model implements EntryStateInterface {
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         FloorState oldFloor = FloorState.findByRoomAndAP(oldAP.getRoom(), oldAP);
         this.copyOldEntries(oldFloor);
@@ -202,6 +204,7 @@ public class FloorState extends Model implements EntryStateInterface {
         this.setDamageComment(oldFloor.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
         this.save();
 
@@ -212,6 +215,27 @@ public class FloorState extends Model implements EntryStateInterface {
             floor = new FloorState(ap.getBathroom(), ap);
             floor.save();
         }
+    }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setIsClean(check.get(0));
+        this.setHasNoDamage(check.get(1));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsCleanOld(checkOld.get(0));
+        this.setIsDamageOld(checkOld.get(1));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setCleanComment(comments.get(0));
+        this.setDamageComment(comments.get(1));
+        this.save();
     }
 
     public static FloorState findByRoomAndAP(Room room, AP ap) {

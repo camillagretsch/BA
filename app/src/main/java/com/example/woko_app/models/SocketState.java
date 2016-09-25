@@ -157,6 +157,7 @@ public class SocketState extends Model implements EntryStateInterface {
         return new ArrayList<>(Arrays.asList(socket.isWorkingOld(), socket.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         SocketState socket = SocketState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
 
@@ -177,6 +178,7 @@ public class SocketState extends Model implements EntryStateInterface {
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         SocketState oldSocket = SocketState.findByRoomAndAP(oldAP.getRoom(), oldAP);
         this.copyOldEntries(oldSocket);
@@ -204,6 +206,7 @@ public class SocketState extends Model implements EntryStateInterface {
         this.setDamageComment(oldSocket.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
         this.save();
 
@@ -215,6 +218,28 @@ public class SocketState extends Model implements EntryStateInterface {
             socket.save();
         }
     }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setIsWorking(check.get(0));
+        this.setHasNoDamage(check.get(1));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsWorkingOld(checkOld.get(0));
+        this.setIsDamageOld(checkOld.get(1));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setWorkingComment(comments.get(0));
+        this.setDamageComment(comments.get(1));
+        this.save();
+    }
+
 
     public static SocketState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(SocketState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();

@@ -15,9 +15,13 @@
     <style name="ButtonStyle" parent="android:Widget.Button">
         <item name="android:background">@color/grey_hell</item>
         <item name="android:textSize">25sp</item>
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">200sp</item>
         <item name="android:layout_height">50sp</item>
         <item name="android:padding">10sp</item>
+    </style>
+
+    <style name="ExclamationRed" parent="android:Widget.TextView">
+
     </style>
 
     <style name="HorizontalDividerStyle">
@@ -83,10 +87,10 @@
         <item name="android:gravity">center_horizontal</item>
     </style>
 
-    <style name="EditTextStyle" parent="android:Widget.EditText">
+    <style name="CommentStyle" parent="android:Widget.TextView">
         <item name="android:layout_width">70sp</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_gravity">center</item>
         <item name="android:textSize">16sp</item>
     </style>
 

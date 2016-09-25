@@ -21,8 +21,7 @@ import com.example.woko_app.models.Bathroom;
 import com.example.woko_app.models.House;
 import com.example.woko_app.models.Kitchen;
 import com.example.woko_app.models.Room;
-
-import java.util.List;
+import com.example.woko_app.models.TenantOld;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -83,10 +82,10 @@ public class DuplicateFragment extends Fragment {
             public void onClick(View v) {
                 AP ap;
                 if (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType())) {
-                    ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentRoom);
+                    ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentRoom, TenantOld.saveNewTenantOld());
                     ap.setSharedApartmentName(currentHouse.getStreet(), currentHouse.getStreetNumber(), currentApartment.getApartmentNumber(), currentRoom.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
                 } else {
-                    ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentApartment.getRooms().get(0), Bathroom.findByApartment(currentApartment), Kitchen.findByApartment(currentApartment));
+                    ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentApartment.getRooms().get(0), Bathroom.findByApartment(currentApartment), Kitchen.findByApartment(currentApartment), TenantOld.saveNewTenantOld());
                     ap.setStudioName(currentHouse.getStreet(), currentHouse.getStreetNumber(), currentApartment.getApartmentNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
 
                 }

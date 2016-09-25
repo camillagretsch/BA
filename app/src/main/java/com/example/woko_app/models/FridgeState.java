@@ -192,6 +192,7 @@ public class FridgeState extends Model implements EntryStateInterface{
         return new ArrayList<>(Arrays.asList(fridge.isFoodOld(), fridge.isCleanOld(), fridge.isDefrostedOld(), fridge.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         frag.setHeaderVariante1();
         frag.getRowNames().addAll(this.ROW_NAMES);
@@ -201,6 +202,7 @@ public class FridgeState extends Model implements EntryStateInterface{
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
             FridgeState oldFridge = FridgeState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
@@ -224,10 +226,38 @@ public class FridgeState extends Model implements EntryStateInterface{
         this.setDamageComment(oldFridge.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
             this.save();
         }
+    }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setHasNoFood(check.get(0));
+        this.setIsClean(check.get(1));
+        this.setIsDefrosted(check.get(2));
+        this.setHasNoDamage(check.get(3));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsFoodOld(checkOld.get(0));
+        this.setIsCleanOld(checkOld.get(1));
+        this.setIsDefrostedOld(checkOld.get(2));
+        this.setIsDamageOld(checkOld.get(3));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setFoodComment(comments.get(0));
+        this.setCleanComment(comments.get(1));
+        this.setDefrostedComment(comments.get(2));
+        this.setDamageComment(comments.get(3));
+        this.save();
     }
 
     public static FridgeState findByKitchenAndAP(Kitchen kitchen, AP ap) {

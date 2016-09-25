@@ -191,6 +191,7 @@ public class VentilationState extends Model implements EntryStateInterface {
         return new ArrayList<>(Arrays.asList(ventilation.isCleanOld(), ventilation.isWorkingOld(), ventilation.isLampWorkingOld(), ventilation.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         frag.setHeaderVariante1();
         frag.getRowNames().addAll(this.ROW_NAMES);
@@ -200,6 +201,7 @@ public class VentilationState extends Model implements EntryStateInterface {
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
             VentilationState oldVentilation = VentilationState.findByKitchenAndAP(oldAP.getKitchen(), oldAP);
@@ -223,7 +225,37 @@ public class VentilationState extends Model implements EntryStateInterface {
         this.setDamageComment(oldVentilation.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
+        if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
+            this.save();
+        }
+    }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setIsClean(check.get(0));
+        this.setIsWorking(check.get(1));
+        this.setLampIsWorking(check.get(2));
+        this.setHasNoDamage(check.get(3));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsCleanOld(checkOld.get(0));
+        this.setIsWorkingOld(checkOld.get(1));
+        this.setIsLampWorkingOld(checkOld.get(2));
+        this.setIsDamageOld(checkOld.get(3));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setCleanComment(comments.get(0));
+        this.setWorkingComment(comments.get(1));
+        this.setLampComment(comments.get(2));
+        this.setDamageComment(comments.get(3));
         this.save();
     }
 

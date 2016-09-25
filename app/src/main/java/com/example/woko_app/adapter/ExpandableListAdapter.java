@@ -2,7 +2,6 @@ package com.example.woko_app;
 
 import android.app.Activity;
 import android.graphics.Typeface;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

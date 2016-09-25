@@ -151,6 +151,7 @@ public class WindowState extends Model implements EntryStateInterface {
         return new ArrayList<>(Arrays.asList(window.isCleanOld(), window.isDamageOld()));
     }
 
+    @Override
     public void getEntries(DataGridFragment frag) {
         WindowState window = WindowState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
 
@@ -171,6 +172,7 @@ public class WindowState extends Model implements EntryStateInterface {
         frag.setTableContentVariante1();
     }
 
+    @Override
     public void duplicateEntries(AP ap, AP oldAP) {
         WindowState oldWindow = WindowState.findByRoomAndAP(oldAP.getRoom(), oldAP);
         this.copyOldEntries(oldWindow);
@@ -198,6 +200,7 @@ public class WindowState extends Model implements EntryStateInterface {
         this.setDamageComment(oldWindow.getDamageComment());
     }
 
+    @Override
     public void createNewEntry(AP ap) {
         this.save();
 
@@ -209,6 +212,28 @@ public class WindowState extends Model implements EntryStateInterface {
             window.save();
         }
     }
+
+    @Override
+    public void saveCheckEntries(List<Boolean> check) {
+        this.setIsClean(check.get(0));
+        this.setHasNoDamage(check.get(1));
+        this.save();
+    }
+
+    @Override
+    public void saveCheckOldEntries(List<Boolean> checkOld) {
+        this.setIsCleanOld(checkOld.get(0));
+        this.setIsDamageOld(checkOld.get(1));
+        this.save();
+    }
+
+    @Override
+    public void saveCommentsEntries(List<String> comments) {
+        this.setCleanComment(comments.get(0));
+        this.setDamageComment(comments.get(1));
+        this.save();
+    }
+
 
     public static WindowState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(WindowState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();

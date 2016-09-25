@@ -1,10 +1,10 @@
 package com.example.woko_app.fragment;
 
-import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.Layout;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.woko_app.activity.HV_HomeActivity;
@@ -101,10 +100,33 @@ public class ShowOldFragment extends Fragment {
             Log.d("How many files are found:", String.valueOf(oldAPs.size()));
         }
 
-        createFiles();
+        if (oldAPs.isEmpty()) {
+            showMessageNoFilesFound();
+        } else
+            createFilesOnScreen();
     }
 
-    private void createFiles() {
+    private void showMessageNoFilesFound() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+        final TextView textView = new TextView(getActivity());
+        textView.setText("Es wurde kein Protokoll für das Jahr " + year + " gefunden.");
+        textView.setTextSize(25);
+        textView.setPadding(5, 5, 5, 5);
+        textView.setGravity(Gravity.CENTER);
+        alertDialogBuilder.setView(textView);
+
+        alertDialogBuilder.setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                getActivity().onBackPressed();
+            }
+        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    private void createFilesOnScreen() {
 
         int i = 0;
 
@@ -133,13 +155,11 @@ public class ShowOldFragment extends Fragment {
             btnOpen.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("Button ID", String.valueOf(btnOpen.getId()));
-                    currentAP = oldAPs.get(btnOpen.getId());
-                    Log.d("Open: ", currentAP.getApartment().getHouse().getHV().getName() + " opens AP with the id " + currentAP.getId());
+                   setOnClickOpen(btnOpen);
                 }
             });
 
-            Button btnEdit = new Button(new ContextThemeWrapper(getActivity(), R.style.ButtonStyle), null);
+            final Button btnEdit = new Button(new ContextThemeWrapper(getActivity(), R.style.ButtonStyle), null);
             btnEdit.setText(R.string.edit_btn);
             btnEdit.setGravity(Gravity.CENTER_HORIZONTAL);
             btnEdit.setTypeface(font);
@@ -148,16 +168,26 @@ public class ShowOldFragment extends Fragment {
             btnEdit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("Button ID", String.valueOf(btnOpen.getId()));
-                    currentAP = oldAPs.get(btnOpen.getId());
-                    currentAP.save();
-                    Log.d("Edit: ", currentAP.getApartment().getHouse().getHV().getName() + " edits AP with the id " + currentAP.getId());
-                    HV_HomeActivity hv_homeActivity = (HV_HomeActivity) getActivity();
-                    hv_homeActivity.callEditActivity(currentAP.getId());
+                    setOnClickEdit(btnEdit);
                 }
             });
 
             i++;
         }
+    }
+
+    private void setOnClickOpen(Button btnOpen) {
+        Log.d("Button ID", String.valueOf(btnOpen.getId()));
+        currentAP = oldAPs.get(btnOpen.getId());
+        Log.d("Open: ", currentAP.getApartment().getHouse().getHV().getName() + " opens AP with the id " + currentAP.getId());
+    }
+
+    private void setOnClickEdit(Button btnEdit) {
+        Log.d("Button ID", String.valueOf(btnEdit.getId()));
+        currentAP = oldAPs.get(btnEdit.getId());
+        currentAP.save();
+        Log.d("Edit: ", currentAP.getApartment().getHouse().getHV().getName() + " edits AP with the id " + currentAP.getId());
+        HV_HomeActivity hv_homeActivity = (HV_HomeActivity) getActivity();
+        hv_homeActivity.callEditActivity(currentAP.getId());
     }
 }
