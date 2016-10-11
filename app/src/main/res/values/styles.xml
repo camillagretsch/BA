@@ -20,10 +20,6 @@
         <item name="android:padding">10sp</item>
     </style>
 
-    <style name="ExclamationRed" parent="android:Widget.TextView">
-
-    </style>
-
     <style name="HorizontalDividerStyle">
         <item name="android:layout_height">3sp</item>
         <item name="android:layout_width">match_parent</item>

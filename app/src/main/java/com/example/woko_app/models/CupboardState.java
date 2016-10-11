@@ -26,6 +26,9 @@ public class CupboardState extends Model implements EntryStateInterface{
     @Column(name = "clean_comment")
     private String cleanComment;
 
+    @Column(name = "clean_picture")
+    private byte[] cleanPicture;
+
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
 
@@ -34,6 +37,9 @@ public class CupboardState extends Model implements EntryStateInterface{
 
     @Column(name = "damage_comment")
     private String damageComment;
+
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Sind gereinigt?", "Ist alles intakt?");
 
@@ -77,6 +83,14 @@ public class CupboardState extends Model implements EntryStateInterface{
         return cleanComment;
     }
 
+    public void setCleanPicture(byte[] cleanPicture) {
+        this.cleanPicture = cleanPicture;
+    }
+
+    public byte[] getCleanPicture() {
+        return cleanPicture;
+    }
+
     public void setHasNoDamage(boolean hasNoDamage) {
         this.hasNoDamage = hasNoDamage;
     }
@@ -101,6 +115,14 @@ public class CupboardState extends Model implements EntryStateInterface{
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -113,16 +135,40 @@ public class CupboardState extends Model implements EntryStateInterface{
         return ap;
     }
 
-    public List<Boolean> createCheckList(CupboardState cupboard) {
+    private List<Boolean> createCheckList(CupboardState cupboard) {
         return new ArrayList<>(Arrays.asList(cupboard.isClean(), cupboard.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(CupboardState cupboard) {
+    private List<String> createCommentsList(CupboardState cupboard) {
         return new ArrayList<>(Arrays.asList(cupboard.getCleanComment(), cupboard.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(CupboardState cupboard) {
+    private List<Boolean> createCheckOldList(CupboardState cupboard) {
         return new ArrayList<>(Arrays.asList(cupboard.isCleanOld(), cupboard.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(CupboardState cupboard) {
+        return new ArrayList<>(Arrays.asList(cupboard.getCleanPicture(), cupboard.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -132,6 +178,7 @@ public class CupboardState extends Model implements EntryStateInterface{
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
         frag.getComments().addAll(createCommentsList(this));
+        frag.getCurrentAP().setLastOpend(this);
         frag.setTableContentVariante1();
     }
 
@@ -144,13 +191,15 @@ public class CupboardState extends Model implements EntryStateInterface{
         }
     }
 
-    public void copyOldEntries(CupboardState oldCupboard) {
+    private void copyOldEntries(CupboardState oldCupboard) {
         this.setIsClean(oldCupboard.isClean());
         this.setIsCleanOld(oldCupboard.isCleanOld());
         this.setCleanComment(oldCupboard.getCleanComment());
+        this.setCleanPicture(oldCupboard.getCleanPicture());
         this.setHasNoDamage(oldCupboard.hasNoDamage());
         this.setIsDamageOld(oldCupboard.isDamageOld());
         this.setDamageComment(oldCupboard.getDamageComment());
+        this.setDamagePicture(oldCupboard.getDamagePicture());
     }
 
     @Override
@@ -178,6 +227,19 @@ public class CupboardState extends Model implements EntryStateInterface{
     public void saveCommentsEntries(List<String> comments) {
         this.setCleanComment(comments.get(0));
         this.setDamageComment(comments.get(1));
+        this.save();
+    }
+
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setCleanPicture(picture);
+                break;
+            case 1:
+                this.setDamagePicture(picture);
+                break;
+        }
         this.save();
     }
 

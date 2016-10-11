@@ -47,4 +47,8 @@ public class Kitchen  extends Model{
             kitchen.save();
         }
     }
+
+    public static void addExclamationMark(List<String> child, AP ap) {
+
+    }
 }

@@ -1,4 +1,4 @@
-package com.example.woko_app;
+package com.example.woko_app.adapter;
 
 import android.app.Activity;
 import android.graphics.Typeface;
@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
+
+import com.example.woko_app.R;
+import com.example.woko_app.models.AP;
 
 import java.util.ArrayList;
 
@@ -23,6 +26,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private int parentLayout;
     private int childLayout;
     private Typeface font;
+    private AP ap;
 
     public ExpandableListAdapter(ArrayList<String> parents, ArrayList<Object> childern, int parentLayout, int childLayout, Typeface font) {
         this.parentItems = parents;
@@ -48,6 +52,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
         textView = (TextView) convertView.findViewById(R.id.child_text);
         textView.setText(child.get(childPosition));
+        textView.setTypeface(font);
 
         return convertView;
     }

@@ -26,6 +26,9 @@ public class OvenState extends Model implements EntryStateInterface {
     @Column(name = "oven_comment")
     private String ovenComment;
 
+    @Column(name = "oven_picture")
+    private byte[] ovenPicture;
+
     @Column(name = "cookerIsClean")
     private boolean cookerIsClean = true;
 
@@ -35,6 +38,9 @@ public class OvenState extends Model implements EntryStateInterface {
     @Column(name = "cooker_comment")
     private String cookerComment;
 
+    @Column(name = "cooker_picture")
+    private byte[] cookerPicture;
+
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
 
@@ -43,6 +49,9 @@ public class OvenState extends Model implements EntryStateInterface {
 
     @Column(name = "damage_comment")
     private String damageComment;
+
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Backofen ist gereinigt?", "Herd ist gereinigt?", "Ist alles intakt?");
 
@@ -86,6 +95,14 @@ public class OvenState extends Model implements EntryStateInterface {
         return ovenComment;
     }
 
+    public void setOvenPicture(byte[] ovenPicture) {
+        this.ovenPicture = ovenPicture;
+    }
+
+    public byte[] getOvenPicture() {
+        return ovenPicture;
+    }
+
     public void setCookerIsClean(boolean cookerIsClean) {
         this.cookerIsClean = cookerIsClean;
     }
@@ -108,6 +125,14 @@ public class OvenState extends Model implements EntryStateInterface {
 
     public String getCookerComment() {
         return cookerComment;
+    }
+
+    public void setCookerPicture(byte[] cookerPicture) {
+        this.cookerPicture = cookerPicture;
+    }
+
+    public byte[] getCookerPicture() {
+        return cookerPicture;
     }
 
     public void setHasNoDamage(boolean hasNoDamage) {
@@ -134,6 +159,14 @@ public class OvenState extends Model implements EntryStateInterface {
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -146,16 +179,40 @@ public class OvenState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    public List<Boolean> createCheckList(OvenState oven) {
+    private List<Boolean> createCheckList(OvenState oven) {
         return new ArrayList<>(Arrays.asList(oven.getOvenIsClean(), oven.getCookerIsClean(), oven.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(OvenState oven) {
+    private List<String> createCommentsList(OvenState oven) {
         return new ArrayList<>(Arrays.asList(oven.getOvenComment(), oven.getCookerComment(), oven.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(OvenState oven) {
+    private List<Boolean> createCheckOldList(OvenState oven) {
         return new ArrayList<>(Arrays.asList(oven.isOvenOld(), oven.isCookerOld(), oven.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(OvenState oven) {
+        return new ArrayList<>(Arrays.asList(oven.getOvenPicture(), oven.getCookerPicture(), oven.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -165,6 +222,7 @@ public class OvenState extends Model implements EntryStateInterface {
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
         frag.getComments().addAll(createCommentsList(this));
+        frag.getCurrentAP().setLastOpend(this);
         frag.setTableContentVariante1();
     }
 
@@ -177,16 +235,19 @@ public class OvenState extends Model implements EntryStateInterface {
         }
     }
 
-    public void copyOldEntries(OvenState oldOven) {
+    private void copyOldEntries(OvenState oldOven) {
         this.setOvenIsClean(oldOven.getOvenIsClean());
         this.setIsOvenOld(oldOven.isOvenOld());
         this.setOvenComment(oldOven.getOvenComment());
+        this.setOvenPicture(oldOven.getOvenPicture());
         this.setCookerIsClean(oldOven.getCookerIsClean());
         this.setIsCookerOld(oldOven.isCookerOld());
         this.setCookerComment(oldOven.getCookerComment());
+        this.setCookerPicture(oldOven.getCookerPicture());
         this.setHasNoDamage(oldOven.hasNoDamage());
         this.setIsDamageOld(oldOven.isDamageOld());
         this.setDamageComment(oldOven.getDamageComment());
+        this.setDamagePicture(oldOven.getDamagePicture());
     }
 
     @Override
@@ -217,6 +278,22 @@ public class OvenState extends Model implements EntryStateInterface {
         this.setOvenComment(comments.get(0));
         this.setCookerComment(comments.get(1));
         this.setDamageComment(comments.get(2));
+        this.save();
+    }
+
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setOvenPicture(picture);
+                break;
+            case 1:
+                this.setCookerPicture(picture);
+                break;
+            case 2:
+                this.setDamagePicture(picture);
+                break;
+        }
         this.save();
     }
 

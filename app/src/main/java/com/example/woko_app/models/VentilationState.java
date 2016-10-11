@@ -26,6 +26,9 @@ public class VentilationState extends Model implements EntryStateInterface {
     @Column(name = "clean_comment")
     private String cleanComment;
 
+    @Column(name = "clean_picture")
+    private byte[] cleanPicture;
+
     @Column(name = "isWorking")
     private boolean isWorking = true;
 
@@ -34,6 +37,9 @@ public class VentilationState extends Model implements EntryStateInterface {
 
     @Column(name = "working_comment")
     private String workingComment;
+
+    @Column(name = "working_picture")
+    private byte[] workingPicture;
 
     @Column(name = "lampIsWorking")
     private boolean lampIsWorking = true;
@@ -44,6 +50,9 @@ public class VentilationState extends Model implements EntryStateInterface {
     @Column(name = "lamp_comment")
     private String lampComment;
 
+    @Column(name = "lamp_picture")
+    private byte[] lampPicture;
+
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
 
@@ -52,6 +61,9 @@ public class VentilationState extends Model implements EntryStateInterface {
 
     @Column(name = "damage_comment")
     private String damageComment;
+
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("st gereinigt?", "Funktioniert?", "Lämpchen sind intakt?", "Ist alles intakt?");
 
@@ -95,6 +107,14 @@ public class VentilationState extends Model implements EntryStateInterface {
         return cleanComment;
     }
 
+    public void setCleanPicture(byte[] cleanPicture) {
+        this.cleanPicture = cleanPicture;
+    }
+
+    public byte[] getCleanPicture() {
+        return cleanPicture;
+    }
+
     public void setIsWorking(boolean isWorking) {
         this.isWorking = isWorking;
     }
@@ -117,6 +137,14 @@ public class VentilationState extends Model implements EntryStateInterface {
 
     public String getWorkingComment() {
         return workingComment;
+    }
+
+    public void setWorkingPicture(byte[] workingPicture) {
+        this.workingPicture = workingPicture;
+    }
+
+    public byte[] getWorkingPicture() {
+        return workingPicture;
     }
 
     public void setLampIsWorking(boolean lampIsWorking) {
@@ -143,6 +171,14 @@ public class VentilationState extends Model implements EntryStateInterface {
         return lampComment;
     }
 
+    public void setLampPicture(byte[] lampPicture) {
+        this.lampPicture = lampPicture;
+    }
+
+    public byte[] getLampPicture() {
+        return lampPicture;
+    }
+
     public void setHasNoDamage(boolean hasNoDamage) {
         this.hasNoDamage = hasNoDamage;
     }
@@ -167,6 +203,14 @@ public class VentilationState extends Model implements EntryStateInterface {
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -179,16 +223,39 @@ public class VentilationState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    public List<Boolean> createCheckList(VentilationState ventilation) {
+    private List<Boolean> createCheckList(VentilationState ventilation) {
         return new ArrayList<>(Arrays.asList(ventilation.isClean(), ventilation.isWorking(), ventilation.getLampIsWorking(), ventilation.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(VentilationState ventilation) {
+    private List<String> createCommentsList(VentilationState ventilation) {
         return new ArrayList<>(Arrays.asList(ventilation.getCleanComment(), ventilation.getWorkingComment(), ventilation.getLampComment(), ventilation.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(VentilationState ventilation) {
+    private List<Boolean> createCheckOldList(VentilationState ventilation) {
         return new ArrayList<>(Arrays.asList(ventilation.isCleanOld(), ventilation.isWorkingOld(), ventilation.isLampWorkingOld(), ventilation.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(VentilationState ventilation) {
+        return new ArrayList<>(Arrays.asList(ventilation.getCleanPicture(), ventilation.getWorkingPicture(), ventilation.getLampPicture(), ventilation.getDamagePicture()));
+    }
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -198,6 +265,7 @@ public class VentilationState extends Model implements EntryStateInterface {
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
         frag.getComments().addAll(createCommentsList(this));
+        frag.getCurrentAP().setLastOpend(this);
         frag.setTableContentVariante1();
     }
 
@@ -210,19 +278,23 @@ public class VentilationState extends Model implements EntryStateInterface {
         }
     }
 
-    public void copyOldEntries(VentilationState oldVentilation) {
+    private void copyOldEntries(VentilationState oldVentilation) {
         this.setIsClean(oldVentilation.isClean());
         this.setIsCleanOld(oldVentilation.isCleanOld());
         this.setCleanComment(oldVentilation.getCleanComment());
+        this.setCleanPicture(oldVentilation.getCleanPicture());
         this.setIsWorking(oldVentilation.isWorking());
         this.setIsWorkingOld(oldVentilation.isWorkingOld());
         this.setWorkingComment(oldVentilation.getWorkingComment());
+        this.setWorkingPicture(oldVentilation.getWorkingPicture());
         this.setLampIsWorking(oldVentilation.getLampIsWorking());
         this.setIsLampWorkingOld(oldVentilation.isLampWorkingOld());
         this.setLampComment(oldVentilation.getLampComment());
+        this.setLampPicture(oldVentilation.getLampPicture());
         this.setHasNoDamage(oldVentilation.hasNoDamage());
         this.setIsDamageOld(oldVentilation.isDamageOld());
         this.setDamageComment(oldVentilation.getDamageComment());
+        this.setDamagePicture(oldVentilation.getDamagePicture());
     }
 
     @Override
@@ -259,6 +331,24 @@ public class VentilationState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setCleanPicture(picture);
+                break;
+            case 1:
+                this.setWorkingPicture(picture);
+                break;
+            case 2:
+                this.setLampPicture(picture);
+                break;
+            case 3:
+                this.setDamagePicture(picture);
+        }
+        this.save();
+    }
+
     public static VentilationState findByKitchenAndAP(Kitchen kitchen, AP ap) {
         return new Select().from(VentilationState.class).where("kitchen = ? and AP = ?", kitchen.getId(), ap.getId()).executeSingle();
     }
@@ -267,10 +357,12 @@ public class VentilationState extends Model implements EntryStateInterface {
         return new Select().from(VentilationState.class).where("id = ?", id).executeSingle();
     }
 
-    public static void initializeKitchenVentilation(List<AP> aps) {
+    public static void initializeKitchenVentilation(List<AP> aps, byte[] image) {
         for (AP ap : aps) {
             VentilationState ventilation = new VentilationState(ap.getKitchen(), ap);
-            ventilation.setLampIsWorking(false);
+            ventilation.setHasNoDamage(false);
+            ventilation.setDamageComment("Verdeckung ist abgebrochen");
+            ventilation.setDamagePicture(image);
             ventilation.save();
         }
     }

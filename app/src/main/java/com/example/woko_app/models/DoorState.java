@@ -26,7 +26,8 @@ public class DoorState extends Model implements EntryStateInterface{
     @Column(name = "spot_comment")
     private String spotComment;
 
-    //TODO spotPicture
+    @Column(name = "spot_picture")
+    private byte[] spotPicture;
 
     @Column(name = "hasNoHole")
     private boolean hasNoHole = true;
@@ -37,7 +38,8 @@ public class DoorState extends Model implements EntryStateInterface{
     @Column(name = "hole_comment")
     private String holeComment;
 
-    //TODO holePicture
+    @Column(name = "hole_picture")
+    private byte[] holePicture;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -48,7 +50,8 @@ public class DoorState extends Model implements EntryStateInterface{
     @Column(name = "damage_comment")
     private String damageComment;
 
-    //TODO damagePicture
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Sind alle Flecken entfernt?", "Sind keine Löcher zusehen?", "Ist alles intakt?");
 
@@ -110,6 +113,14 @@ public class DoorState extends Model implements EntryStateInterface{
         return spotComment;
     }
 
+    public void setSpotPicture(byte[] spotPicture) {
+        this.spotPicture = spotPicture;
+    }
+
+    public byte[] getSpotPicture() {
+        return spotPicture;
+    }
+
     public void setHasNoHole(boolean hasNoHole) {
         this.hasNoHole = hasNoHole;
     }
@@ -132,6 +143,14 @@ public class DoorState extends Model implements EntryStateInterface{
 
     public String getHoleComment() {
         return holeComment;
+    }
+
+    public void setHolePicture(byte[] holePicture) {
+        this.holePicture = holePicture;
+    }
+
+    public byte[] getHolePicture() {
+        return holePicture;
     }
 
     public void setHasNoDamage(boolean hasNoDamage) {
@@ -158,6 +177,14 @@ public class DoorState extends Model implements EntryStateInterface{
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -178,16 +205,39 @@ public class DoorState extends Model implements EntryStateInterface{
         return ap;
     }
 
-    public List<Boolean> createCheckList(DoorState door) {
+    private List<Boolean> createCheckList(DoorState door) {
         return new ArrayList<>(Arrays.asList(door.hasNoSpot(), door.hasNoHole(), door.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(DoorState door) {
+    private List<String> createCommentsList(DoorState door) {
         return new ArrayList<>(Arrays.asList(door.getSpotComment(), door.getHoleComment(), door.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(DoorState door) {
+    private List<Boolean> createCheckOldList(DoorState door) {
         return new ArrayList<>(Arrays.asList(door.isSpotOld(), door.isHoleOld(), door.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(DoorState door) {
+        return new ArrayList<>(Arrays.asList(door.getSpotPicture(), door.getHolePicture(), door.getDamagePicture()));
+    }
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -208,6 +258,7 @@ public class DoorState extends Model implements EntryStateInterface{
         frag.getCheck().addAll(createCheckList(door));
         frag.getCheckOld().addAll(createCheckOldList(door));
         frag.getComments().addAll(createCommentsList(door));
+        frag.getCurrentAP().setLastOpend(door);
         frag.setTableContentVariante1();
     }
 
@@ -230,16 +281,19 @@ public class DoorState extends Model implements EntryStateInterface{
         }
     }
 
-    public void copyOldEntries(DoorState oldDoor) {
+    private void copyOldEntries(DoorState oldDoor) {
         this.setHasNoSpot(oldDoor.hasNoSpot());
         this.setIsSpotOld(oldDoor.isSpotOld());
         this.setSpotComment(oldDoor.getSpotComment());
+        this.setSpotPicture(oldDoor.getSpotPicture());
         this.setHasNoHole(oldDoor.hasNoHole());
         this.setIsHoleOld(oldDoor.isHoleOld());
         this.setHoleComment(oldDoor.getHoleComment());
+        this.setHolePicture(oldDoor.getHolePicture());
         this.setHasNoDamage(oldDoor.hasNoDamage());
         this.setIsDamageOld(oldDoor.isDamageOld());
         this.setDamageComment(oldDoor.getDamageComment());
+        this.setDamagePicture(oldDoor.getDamagePicture());
     }
 
     @Override
@@ -279,6 +333,22 @@ public class DoorState extends Model implements EntryStateInterface{
         this.save();
     }
 
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setSpotPicture(picture);
+                break;
+            case 1:
+                this.setHolePicture(picture);
+                break;
+            case 2:
+                this.setDamagePicture(picture);
+                break;
+        }
+        this.save();
+    }
+
     public static DoorState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(DoorState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
     }
@@ -293,6 +363,15 @@ public class DoorState extends Model implements EntryStateInterface{
 
     public static DoorState findById(long id) {
         return new Select().from(DoorState.class).where("id = ?", id).executeSingle();
+    }
+
+    public static DoorState checkBelonging(DoorState door, AP ap) {
+        if (door.getRoom() != null) {
+            return DoorState.findByRoomAndAP(ap.getRoom(), ap);
+        } else if (door.getBathroom() != null) {
+            return DoorState.findByBathroomAndAP(ap.getBathroom(), ap);
+        } else
+            return DoorState.findByKitchenAndAP(ap.getKitchen(), ap);
     }
 
     public static void initializeRoomDoor(List<AP> aps) {

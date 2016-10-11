@@ -44,6 +44,8 @@ public class AP extends Model{
     @Column(name = "old_AP")
     private AP oldAP;
 
+    private EntryStateInterface lastOpend;
+
     public AP() {
         super();
     }
@@ -140,6 +142,14 @@ public class AP extends Model{
 
     public AP getOldAP() {
         return oldAP;
+    }
+
+    public void setLastOpend(EntryStateInterface lastOpend) {
+        this.lastOpend = lastOpend;
+    }
+
+    public EntryStateInterface getLastOpend() {
+        return lastOpend;
     }
 
     public static List<AP> findByRoom(Room room) {

@@ -1,12 +1,24 @@
 package com.example.woko_app.models;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Picture;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
+
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +38,9 @@ public class MattressState extends Model implements EntryStateInterface {
     @Column(name = "bedding_comment")
     private String beddingComment;
 
+    @Column(name = "bedding_picture")
+    private byte[] beddingPicture = null;
+
     @Column(name = "linenIsClean")
     private boolean linenIsClean = true;
 
@@ -34,6 +49,9 @@ public class MattressState extends Model implements EntryStateInterface {
 
     @Column(name = "linen_comment")
     private String linenComment;
+
+    @Column(name = "linen_picture")
+    private byte[] linenPicture = null;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -44,7 +62,8 @@ public class MattressState extends Model implements EntryStateInterface {
     @Column(name = "damage_comment")
     private String damageComment;
 
-    //TODO damagePicture
+    @Column(name = "damage_picture")
+    private byte[] damagePicture = null;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Wurde gewaschen, getrocknet & gefaltet?", "Matratzenschoner wurde bei 60 gewaschen?", "Ist alles intakt?");
 
@@ -88,6 +107,14 @@ public class MattressState extends Model implements EntryStateInterface {
         return beddingComment;
     }
 
+    public void setBeddingPicture(byte[] beddingPicture) {
+        this.beddingPicture = beddingPicture;
+    }
+
+    public byte[] getBeddingPicture() {
+        return beddingPicture;
+    }
+
     public void setLinenIsClean(boolean linenIsClean) {
         this.linenIsClean = linenIsClean;
     }
@@ -110,6 +137,14 @@ public class MattressState extends Model implements EntryStateInterface {
 
     public String getLinenComment() {
         return linenComment;
+    }
+
+    public void setLinenPicture(byte[] linenPicture) {
+        this.linenPicture = linenPicture;
+    }
+
+    public byte[] getLinenPicture() {
+        return linenPicture;
     }
 
     public void setHasNoDamage(boolean hasNoDamage) {
@@ -136,6 +171,14 @@ public class MattressState extends Model implements EntryStateInterface {
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -148,16 +191,40 @@ public class MattressState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    public List<Boolean> createCheckList(MattressState mattress) {
+    private List<Boolean> createCheckList(MattressState mattress) {
         return new ArrayList<>(Arrays.asList(mattress.getBeddingIsClean(), mattress.getLinenIsClean(), mattress.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(MattressState mattress) {
+    private List<String> createCommentsList(MattressState mattress) {
         return new ArrayList<>(Arrays.asList(mattress.getBeddingComment(), mattress.getLinenComment(), mattress.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(MattressState mattress) {
+    private List<Boolean> createCheckOldList(MattressState mattress) {
         return new ArrayList<>(Arrays.asList(mattress.isBeddingOld(), mattress.isLinenOld(), mattress.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(MattressState mattress) {
+        return new ArrayList<>(Arrays.asList(mattress.getBeddingPicture(), mattress.getLinenPicture(), mattress.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -167,6 +234,7 @@ public class MattressState extends Model implements EntryStateInterface {
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
         frag.getComments().addAll(createCommentsList(this));
+        frag.getCurrentAP().setLastOpend(this);
         frag.setTableContentVariante1();
     }
 
@@ -177,16 +245,19 @@ public class MattressState extends Model implements EntryStateInterface {
         this.save();
     }
 
-    public void copyOldEntries(MattressState oldMattress) {
+    private void copyOldEntries(MattressState oldMattress) {
         this.setBeddingIsClean(oldMattress.getBeddingIsClean());
         this.setIsBeddingOld(oldMattress.isBeddingOld());
         this.setBeddingComment(oldMattress.getBeddingComment());
+        this.setBeddingPicture(oldMattress.getBeddingPicture());
         this.setLinenIsClean(oldMattress.getLinenIsClean());
         this.setIsLinenOld(oldMattress.isLinenOld());
         this.setLinenComment(oldMattress.getLinenComment());
+        this.setLinenPicture(oldMattress.getLinenPicture());
         this.setHasNoDamage(oldMattress.hasNoDamage());
         this.setIsDamageOld(oldMattress.isDamageOld());
         this.setDamageComment(oldMattress.getDamageComment());
+        this.setDamagePicture(oldMattress.getDamagePicture());
     }
 
     @Override
@@ -215,6 +286,22 @@ public class MattressState extends Model implements EntryStateInterface {
         this.setBeddingComment(comments.get(0));
         this.setLinenComment(comments.get(1));
         this.setDamageComment(comments.get(2));
+        this.save();
+    }
+ 
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setBeddingPicture(picture);
+                break;
+            case 1:
+                this.setLinenPicture(picture);
+                break;
+            case 2:
+                this.setDamagePicture(picture);
+                break;
+        }
         this.save();
     }
 

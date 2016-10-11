@@ -4,12 +4,11 @@
     android:layout_height="match_parent"
     tools:context="com.example.woko_app.fragment.DataGridFragment">
 
-        <TableLayout
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:id="@+id/table"
-            android:gravity="center">
+    <TableLayout
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:id="@+id/table"
+        android:gravity="center">
 
-        </TableLayout>
-
+    </TableLayout>
 </FrameLayout>

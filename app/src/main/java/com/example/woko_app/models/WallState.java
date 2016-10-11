@@ -26,7 +26,8 @@ public class WallState extends Model implements EntryStateInterface{
     @Column(name = "spot_comment")
     private String spotComment;
 
-    //TODO spotPicture
+    @Column(name = "spot_picture")
+    private byte[] spotPicture;
 
     @Column(name = "hasNoHole")
     private boolean hasNoHole = true;
@@ -37,7 +38,8 @@ public class WallState extends Model implements EntryStateInterface{
     @Column(name = "hole_comment")
     private String holeComment;
 
-    //TODO holePicture
+    @Column(name = "hole_picture")
+    private byte[] holePicture;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -48,7 +50,8 @@ public class WallState extends Model implements EntryStateInterface{
     @Column(name = "damage_comment")
     private String damageComment;
 
-    //TODO damagePicture
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Sind alle Flecken entfernt?", "Sind keine Löcher zusehen?", "Ist alles intakt?");
 
@@ -110,6 +113,14 @@ public class WallState extends Model implements EntryStateInterface{
         return spotComment;
     }
 
+    public void setSpotPicture(byte[] spotPicture) {
+        this.spotPicture = spotPicture;
+    }
+
+    public byte[] getSpotPicture() {
+        return spotPicture;
+    }
+
     public void setHasNoHole(boolean hasNoHole) {
         this.hasNoHole = hasNoHole;
     }
@@ -132,6 +143,14 @@ public class WallState extends Model implements EntryStateInterface{
 
     public String getHoleComment() {
         return holeComment;
+    }
+
+    public void setHolePicture(byte[] holePicture) {
+        this.holePicture = holePicture;
+    }
+
+    public byte[] getHolePicture() {
+        return holePicture;
     }
 
     public void setHasNoDamage(boolean hasNoDamage) {
@@ -158,6 +177,14 @@ public class WallState extends Model implements EntryStateInterface{
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -178,16 +205,40 @@ public class WallState extends Model implements EntryStateInterface{
         return ap;
     }
 
-    public List<Boolean> createCheckList(WallState wall) {
+    private List<Boolean> createCheckList(WallState wall) {
         return new ArrayList<>(Arrays.asList(wall.hasNoSpot(), wall.hasNoHole(), wall.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(WallState wall) {
+    private List<String> createCommentsList(WallState wall) {
         return new ArrayList<>(Arrays.asList(wall.getSpotComment(), wall.getHoleComment(), wall.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(WallState wall) {
+    private List<Boolean> createCheckOldList(WallState wall) {
         return new ArrayList<>(Arrays.asList(wall.isSpotOld(), wall.isHoleOld(), wall.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(WallState wall) {
+        return new ArrayList<>(Arrays.asList(wall.getSpotPicture(), wall.getHolePicture(), wall.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -208,6 +259,7 @@ public class WallState extends Model implements EntryStateInterface{
         frag.getCheck().addAll(createCheckList(wall));
         frag.getCheckOld().addAll(createCheckOldList(wall));
         frag.getComments().addAll(createCommentsList(wall));
+        frag.getCurrentAP().setLastOpend(wall);
         frag.setTableContentVariante1();
     }
 
@@ -230,16 +282,19 @@ public class WallState extends Model implements EntryStateInterface{
         }
     }
 
-    public void copyOldEntries(WallState oldWall) {
+    private void copyOldEntries(WallState oldWall) {
         this.setHasNoSpot(oldWall.hasNoSpot());
         this.setIsSpotOld(oldWall.isSpotOld());
         this.setSpotComment(oldWall.getSpotComment());
+        this.setSpotPicture(oldWall.getSpotPicture());
         this.setHasNoHole(oldWall.hasNoHole());
         this.setIsHoleOld(oldWall.isHoleOld());
         this.setHoleComment(oldWall.getHoleComment());
+        this.setHolePicture(oldWall.getHolePicture());
         this.setHasNoDamage(oldWall.hasNoDamage());
         this.setIsDamageOld(oldWall.isDamageOld());
         this.setDamageComment(oldWall.getDamageComment());
+        this.setDamagePicture(oldWall.getDamagePicture());
     }
 
     @Override
@@ -279,6 +334,21 @@ public class WallState extends Model implements EntryStateInterface{
         this.save();
     }
 
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setSpotPicture(picture);
+                break;
+            case 1:
+                this.setHolePicture(picture);
+                break;
+            case 2:
+                this.setDamagePicture(picture);
+                break;
+        }
+        this.save();
+    }
 
     public static WallState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(WallState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
@@ -294,6 +364,15 @@ public class WallState extends Model implements EntryStateInterface{
 
     public static WallState findById(long id) {
         return new Select().from(WallState.class).where("id = ?", id).executeSingle();
+    }
+
+    public static WallState checkBelonging(WallState wall, AP ap) {
+        if (wall.getRoom() != null ) {
+            return WallState.findByRoomAndAP(ap.getRoom(), ap);
+        } else if (wall.getBathroom() != null) {
+            return WallState.findByBathroomAndAP(ap.getBathroom(), ap);
+        } else
+            return WallState.findByKitchenAndAP(ap.getKitchen(), ap);
     }
 
     public static void initializeRoomWall(List<AP> aps) {
@@ -318,11 +397,12 @@ public class WallState extends Model implements EntryStateInterface{
         }
     }
 
-    public static void initializeKitchenWall(List<AP> aps) {
+    public static void initializeKitchenWall(List<AP> aps, byte[] image) {
         for (AP ap : aps) {
             WallState wall = new WallState(ap.getKitchen(), ap);
             wall.setHasNoSpot(false);
-            wall.setSpotComment("Brandflecken");
+            wall.setSpotComment("Brauner Fleck");
+            wall.setSpotPicture(image);
             wall.setHasNoHole(true);
             wall.setHasNoDamage(true);
             wall.save();

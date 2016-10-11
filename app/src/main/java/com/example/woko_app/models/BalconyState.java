@@ -26,6 +26,9 @@ public class BalconyState extends Model implements EntryStateInterface {
     @Column(name = "cleanComment")
     private String cleanComment;
 
+    @Column(name = "clean_picture")
+    private byte[] cleanPicture;
+
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
 
@@ -35,7 +38,8 @@ public class BalconyState extends Model implements EntryStateInterface {
     @Column(name = "damage_comment")
     private String damageComment;
 
-    //TODO damagePicture
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Ist besenrein?", "Ist alles intakt?");
 
@@ -79,6 +83,14 @@ public class BalconyState extends Model implements EntryStateInterface {
         return cleanComment;
     }
 
+    public void setCleanPicture(byte[] cleanPicture) {
+        this.cleanPicture = cleanPicture;
+    }
+
+    public byte[] getCleanPicture() {
+        return cleanPicture;
+    }
+
     public void setHasNoDamage(boolean hasNoDamage) {
         this.hasNoDamage = hasNoDamage;
     }
@@ -103,6 +115,14 @@ public class BalconyState extends Model implements EntryStateInterface {
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -115,16 +135,40 @@ public class BalconyState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    public List<Boolean> createCheckList(BalconyState balcony) {
+    private List<Boolean> createCheckList(BalconyState balcony) {
         return new ArrayList<>(Arrays.asList(balcony.isClean(), balcony.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(BalconyState balcony) {
+    private List<String> createCommentsList(BalconyState balcony) {
         return new ArrayList<>(Arrays.asList(balcony.getCleanComment(), balcony.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(BalconyState balcony) {
+    private List<Boolean> createCheckOldList(BalconyState balcony) {
         return new ArrayList<>(Arrays.asList(balcony.isCleanOld(), balcony.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(BalconyState balcony) {
+        return new ArrayList<>(Arrays.asList(balcony.getCleanPicture(), balcony.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -134,6 +178,7 @@ public class BalconyState extends Model implements EntryStateInterface {
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
         frag.getComments().addAll(createCommentsList(this));
+        frag.getCurrentAP().setLastOpend(this);
         frag.setTableContentVariante1();
     }
 
@@ -146,13 +191,15 @@ public class BalconyState extends Model implements EntryStateInterface {
         }
     }
 
-    public void copyOldEntries(BalconyState oldBalcony) {
+    private void copyOldEntries(BalconyState oldBalcony) {
         this.setIsClean(oldBalcony.isClean());
         this.setIsCleanOld(oldBalcony.isCleanOld());
         this.setCleanComment(oldBalcony.getCleanComment());
+        this.setCleanPicture(oldBalcony.getCleanPicture());
         this.setHasNoDamage(oldBalcony.hasNoDamage());
         this.setIsDamageOld(oldBalcony.isDamageOld());
         this.setDamageComment(oldBalcony.getDamageComment());
+        this.setDamagePicture(oldBalcony.getDamagePicture());
     }
 
     @Override
@@ -180,6 +227,19 @@ public class BalconyState extends Model implements EntryStateInterface {
     public void saveCommentsEntries(List<String> comments) {
         this.setCleanComment(comments.get(0));
         this.setDamageComment(comments.get(1));
+        this.save();
+    }
+
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setCleanPicture(picture);
+                break;
+            case 1:
+                this.setDamagePicture(picture);
+                break;
+        }
         this.save();
     }
 

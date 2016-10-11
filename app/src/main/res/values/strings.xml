@@ -117,7 +117,7 @@
     <string name="save_btn">Speichern &#xf0c7;</string>
     <string name="send_btn">Senden &#xf1d9;</string>
     <string name="picture_btn">&#xf03e;</string>
-    <string name="camera_btn">&#xf030;</string>
+    <string name="camera_btn">&#xf030; Foto aufnehmen</string>
     <string name="search_btn">&#xf002; Suchen</string>
 
     <!-- Duplicate Fragment -->

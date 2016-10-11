@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <activity android:name=".activity.HistoryActivity"
+            android:screenOrientation="landscape"></activity>
+
         <!-- Home Activity -->
         <activity
             android:name=".activity.HV_HomeActivity"
@@ -43,7 +46,6 @@
         <meta-data
             android:name="AA_DB_VERSION"
             android:value="2" />
-
     </application>
 
 </manifest>

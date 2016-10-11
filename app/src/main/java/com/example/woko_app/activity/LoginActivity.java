@@ -2,7 +2,12 @@ package com.example.woko_app.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Picture;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +25,7 @@ import com.example.woko_app.models.BasementState;
 import com.example.woko_app.models.Bathroom;
 import com.example.woko_app.models.CupboardState;
 import com.example.woko_app.models.CutleryState;
+import com.example.woko_app.models.DbBitmapUtility;
 import com.example.woko_app.models.DoorState;
 import com.example.woko_app.models.FloorState;
 import com.example.woko_app.models.FridgeState;
@@ -119,6 +125,7 @@ public class LoginActivity extends Activity {
      * fills the DB with start data
      */
     private void initializeDB() {
+        Bitmap bitmap = null;
         ActiveAndroid.dispose();
         ActiveAndroid.initialize(this);
         List<User> users = User.initializeUsers();
@@ -133,7 +140,8 @@ public class LoginActivity extends Activity {
         FloorState.initializeKitchenFloor(aps);
         WallState.initializeRoomWall(aps);
         WallState.initializeBathroomWall(aps);
-        WallState.initializeKitchenWall(aps);
+        bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.kitchen_wall_spot)).getBitmap();
+        WallState.initializeKitchenWall(aps, DbBitmapUtility.getBytes(bitmap));
         DoorState.initializeRoomDoor(aps);
         DoorState.initializeBathroomDoor(aps);
         DoorState.initializeKitchenDoor(aps);
@@ -147,12 +155,15 @@ public class LoginActivity extends Activity {
         RadiatorState.initializeBathroomRadiator(aps);
         RadiatorState.initializeKitchenRadiator(aps);
         MattressState.initializeRoomMattress(aps);
-        FurnitureState.initializeRoomFurniture(aps);
+        bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.broken_chair)).getBitmap();
+        FurnitureState.initializeRoomFurniture(aps, DbBitmapUtility.getBytes(bitmap));
         ShowerState.initializeBathroomShower(aps);
         FridgeState.initializeKitchenFridge(aps);
         OvenState.initializeKitchenOven(aps);
-        CutleryState.initializeKitchenCutlery(aps);
-        VentilationState.initializeKitchenVentilation(aps);
+        bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.broken_pan)).getBitmap();
+        CutleryState.initializeKitchenCutlery(aps, DbBitmapUtility.getBytes(bitmap));
+        bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.ventilation_damage)).getBitmap();
+        VentilationState.initializeKitchenVentilation(aps, DbBitmapUtility.getBytes(bitmap));
         CupboardState.initializeKitchenCupboard(aps);
         BalconyState.initializeBalcony(aps);
         BasementState.initializeBasement(aps);

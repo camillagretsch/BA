@@ -26,7 +26,8 @@ public class RadiatorState extends Model implements EntryStateInterface {
     @Column(name = "on_comment")
     private String onComment;
 
-    //TODO cleanPicture
+    @Column(name = "on_picture")
+    private byte[] onPicture;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -37,7 +38,8 @@ public class RadiatorState extends Model implements EntryStateInterface {
     @Column(name = "damage_comment")
     private String damageComment;
 
-    //TODO damagePicture
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Heizung ist eingeschalten?", "Ist alles intakt?");
 
@@ -99,6 +101,14 @@ public class RadiatorState extends Model implements EntryStateInterface {
         return onComment;
     }
 
+    public void setOnPicture(byte[] onPicture) {
+        this.onPicture = onPicture;
+    }
+
+    public byte[] getOnPicture() {
+        return onPicture;
+    }
+
     public void setHasNoDamage(boolean hasNoDamage) {
         this.hasNoDamage = hasNoDamage;
     }
@@ -123,6 +133,14 @@ public class RadiatorState extends Model implements EntryStateInterface {
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -143,16 +161,40 @@ public class RadiatorState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    public List<Boolean> createCheckList(RadiatorState radiator) {
+    private List<Boolean> createCheckList(RadiatorState radiator) {
         return new ArrayList<>(Arrays.asList(radiator.isOn(), radiator.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(RadiatorState radiator) {
+    private List<String> createCommentsList(RadiatorState radiator) {
         return new ArrayList<>(Arrays.asList(radiator.getOnComment(), radiator.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(RadiatorState radiator) {
+    private List<Boolean> createCheckOldList(RadiatorState radiator) {
         return new ArrayList<>(Arrays.asList(radiator.isOnOld(), radiator.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(RadiatorState radiator) {
+        return new ArrayList<>(Arrays.asList(radiator.getOnPicture(), radiator.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -173,6 +215,7 @@ public class RadiatorState extends Model implements EntryStateInterface {
         frag.getCheck().addAll(createCheckList(radiator));
         frag.getCheckOld().addAll(createCheckOldList(radiator));
         frag.getComments().addAll(createCommentsList(radiator));
+        frag.getCurrentAP().setLastOpend(radiator);
         frag.setTableContentVariante1();
     }
 
@@ -195,13 +238,15 @@ public class RadiatorState extends Model implements EntryStateInterface {
         }
     }
 
-    public void copyOldEntries(RadiatorState oldRadiator) {
+    private void copyOldEntries(RadiatorState oldRadiator) {
         this.setIsOn(oldRadiator.isOn());
         this.setIsOnOld(oldRadiator.isOnOld());
         this.setOnComment(oldRadiator.getOnComment());
+        this.setOnPicture(oldRadiator.getOnPicture());
         this.setHasNoDamage(oldRadiator.hasNoDamage());
         this.setIsDamageOld(oldRadiator.isDamageOld());
         this.setDamageComment(oldRadiator.getDamageComment());
+        this.setDamagePicture(oldRadiator.getDamagePicture());
     }
 
     @Override
@@ -238,6 +283,19 @@ public class RadiatorState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setOnPicture(picture);
+                break;
+            case 1:
+                this.setDamagePicture(picture);
+                break;
+        }
+        this.save();
+    }
+
     public static RadiatorState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(RadiatorState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
     }
@@ -252,6 +310,15 @@ public class RadiatorState extends Model implements EntryStateInterface {
 
     public static RadiatorState findById(long id) {
         return new Select().from(RadiatorState.class).where("id = ?", id).executeSingle();
+    }
+
+    public static RadiatorState checkBelonging(RadiatorState radiator, AP ap) {
+        if (radiator.getRoom() != null) {
+            return RadiatorState.findByRoomAndAP(ap.getRoom(), ap);
+        } else if (radiator.getBathroom() != null) {
+            return RadiatorState.findByBathroomAndAP(ap.getBathroom(), ap);
+        } else
+            return RadiatorState.findByKitchenAndAP(ap.getKitchen(), ap);
     }
 
     public static void initializeRoomRadiator(List<AP> aps) {

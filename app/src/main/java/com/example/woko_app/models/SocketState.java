@@ -26,6 +26,9 @@ public class SocketState extends Model implements EntryStateInterface {
     @Column(name = "working_comment")
     private String workingComment;
 
+    @Column(name = "working_picture")
+    private byte[] workingPicture;
+
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
 
@@ -35,7 +38,8 @@ public class SocketState extends Model implements EntryStateInterface {
     @Column(name = "damage_comment")
     private String damageComment;
 
-    //TODO damagePicture
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Funktionieren?", "Ist alles intakt?");
 
@@ -97,6 +101,14 @@ public class SocketState extends Model implements EntryStateInterface {
         return workingComment;
     }
 
+    public void setWorkingPicture(byte[] workingPicture) {
+        this.workingPicture = workingPicture;
+    }
+
+    public byte[] getWorkingPicture() {
+        return workingPicture;
+    }
+
     public void setHasNoDamage(boolean hasNoDamage) {
         this.hasNoDamage = hasNoDamage;
     }
@@ -119,6 +131,14 @@ public class SocketState extends Model implements EntryStateInterface {
 
     public String getDamageComment() {
         return damageComment;
+    }
+
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
     }
 
     public List<String> getRowNames() {
@@ -145,16 +165,40 @@ public class SocketState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    public List<Boolean> createCheckList(SocketState socket) {
+    private List<Boolean> createCheckList(SocketState socket) {
         return new ArrayList<>(Arrays.asList(socket.isWorking(), socket.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(SocketState socket) {
+    private List<String> createCommentsList(SocketState socket) {
         return new ArrayList<>(Arrays.asList(socket.getWorkingComment(), socket.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(SocketState socket) {
+    private List<Boolean> createCheckOldList(SocketState socket) {
         return new ArrayList<>(Arrays.asList(socket.isWorkingOld(), socket.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(SocketState socket) {
+        return new ArrayList<>(Arrays.asList(socket.getWorkingPicture(), socket.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -175,6 +219,7 @@ public class SocketState extends Model implements EntryStateInterface {
         frag.getCheck().addAll(createCheckList(socket));
         frag.getCheckOld().addAll(createCheckOldList(socket));
         frag.getComments().addAll(createCommentsList(socket));
+        frag.getCurrentAP().setLastOpend(socket);
         frag.setTableContentVariante1();
     }
 
@@ -197,13 +242,15 @@ public class SocketState extends Model implements EntryStateInterface {
         }
     }
 
-    public void copyOldEntries(SocketState oldSocket) {
+    private void copyOldEntries(SocketState oldSocket) {
         this.setIsWorking(oldSocket.isWorking());
         this.setIsWorkingOld(oldSocket.isWorkingOld());
         this.setWorkingComment(oldSocket.getWorkingComment());
+        this.setWorkingPicture(oldSocket.getWorkingPicture());
         this.setHasNoDamage(oldSocket.hasNoDamage());
         this.setIsDamageOld(oldSocket.isDamageOld());
         this.setDamageComment(oldSocket.getDamageComment());
+        this.setDamagePicture(oldSocket.getDamagePicture());
     }
 
     @Override
@@ -240,6 +287,18 @@ public class SocketState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setWorkingPicture(picture);
+                break;
+            case 1:
+                this.setDamagePicture(picture);
+                break;
+        }
+        this.save();
+    }
 
     public static SocketState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(SocketState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
@@ -255,6 +314,15 @@ public class SocketState extends Model implements EntryStateInterface {
 
     public static SocketState findById(long id) {
         return new Select().from(SocketState.class).where("id = ?", id).executeSingle();
+    }
+
+    public static SocketState checkBelonging(SocketState socket, AP ap) {
+        if (socket.getRoom() != null) {
+            return SocketState.findByRoomAndAP(ap.getRoom(), ap);
+        } else if (socket.getBathroom() != null) {
+            return SocketState.findByBathroomAndAP(ap.getBathroom(), ap);
+        } else
+            return SocketState.findByKitchenAndAP(ap.getKitchen(), ap);
     }
 
     public static void initializeRoomSocket(List<AP> aps) {

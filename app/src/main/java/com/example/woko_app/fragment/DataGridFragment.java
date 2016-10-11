@@ -10,6 +10,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import com.example.woko_app.R;
 import com.example.woko_app.activity.HV_EditActivity;
+import com.example.woko_app.activity.HV_HomeActivity;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.models.AP;
 import com.example.woko_app.models.BalconyState;
@@ -106,7 +108,6 @@ public class DataGridFragment extends Fragment {
         table = (TableLayout) view.findViewById(R.id.table);
         table.setStretchAllColumns(true);
         table.bringToFront();
-
         hv_editActivity = (HV_EditActivity) getActivity();
 
         return view;
@@ -123,6 +124,9 @@ public class DataGridFragment extends Fragment {
             child = bundle.getString("Child");
         }
 
+        hv_editActivity.setBtnNextVisible();
+        hv_editActivity.setBtnBackVisible();
+
         if (parent == 3) {
             tableEntries = BalconyState.findByApartmentAndAP(currentAP.getApartment(), currentAP);
             tableEntries.getEntries(this);
@@ -138,6 +142,7 @@ public class DataGridFragment extends Fragment {
             case "Kühlschrank, Tiefkühlfach":
                 tableEntries = FridgeState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
                 tableEntries.getEntries(this);
+                hv_editActivity.setBtnBackInvisible();
                 break;
             case "Backofen, Herdplatte":
                 tableEntries = OvenState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
@@ -162,6 +167,9 @@ public class DataGridFragment extends Fragment {
             case "Bettwäsche, Matratze":
                 tableEntries = MattressState.findByRoomAndAP(currentAP.getRoom(), currentAP);
                 tableEntries.getEntries(this);
+                if (ApartmentType.SHARED_APARTMENT.equals(currentAP.getApartment().getType())) {
+                    hv_editActivity.setBtnBackInvisible();
+                }
                 break;
             case "Mobiliar":
                 tableEntries = FurnitureState.findByRoomAndAP(currentAP.getRoom(), currentAP);
@@ -301,6 +309,7 @@ public class DataGridFragment extends Fragment {
             setOnClickNo();
             setOnClickOld();
             setOnClickComment();
+            setOnClickPicture();
         }
     }
 
@@ -425,7 +434,7 @@ public class DataGridFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final TableRow row = (TableRow) v.getParent();
-                final TextView textView = (TextView)row.getChildAt(4);
+                final TextView textView = (TextView) row.getChildAt(4);
 
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
 
@@ -444,6 +453,18 @@ public class DataGridFragment extends Fragment {
 
                 AlertDialog alertDialog = alertDialogBuilder.create();
                 alertDialog.show();
+            }
+        });
+    }
+
+    private void setOnClickPicture() {
+
+        pictureColumn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TableRow row = (TableRow) v.getParent();
+                table.removeAllViews();
+                hv_editActivity.callHistoryActivity(row.getId());
             }
         });
     }

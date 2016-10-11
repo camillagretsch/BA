@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.R;
-import com.example.woko_app.ExpandableListAdapter;
+import com.example.woko_app.adapter.ExpandableListAdapter;
 import com.example.woko_app.fragment.CreateProtocolFragment;
 import com.example.woko_app.fragment.DuplicateFragment;
 import com.example.woko_app.fragment.MainFragment;

@@ -26,7 +26,8 @@ public class FloorState extends Model implements EntryStateInterface {
     @Column(name = "clean_comment")
     private String cleanComment;
 
-    //TODO cleanPicture
+    @Column(name = "clean_picture")
+    private byte[] cleanPicture;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -37,7 +38,8 @@ public class FloorState extends Model implements EntryStateInterface {
     @Column(name = "damage_comment")
     private String damageComment;
 
-    //TODO damagePicture
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Ist besenrein?", "Ist alles intakt?");
 
@@ -99,6 +101,14 @@ public class FloorState extends Model implements EntryStateInterface {
         return cleanComment;
     }
 
+    public void setCleanPicture(byte[] cleanPicture) {
+        this.cleanPicture = cleanPicture;
+    }
+
+    public byte[] getCleanPicture() {
+        return cleanPicture;
+    }
+
     public void setHasNoDamage(boolean hasNoDamage) {
         this.hasNoDamage = hasNoDamage;
     }
@@ -123,6 +133,14 @@ public class FloorState extends Model implements EntryStateInterface {
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -143,16 +161,40 @@ public class FloorState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    public List<Boolean> createCheckList(FloorState floor) {
+    private List<Boolean> createCheckList(FloorState floor) {
         return new ArrayList<>(Arrays.asList(floor.isClean(), floor.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(FloorState floor) {
+    private List<String> createCommentsList(FloorState floor) {
        return new ArrayList<>(Arrays.asList(floor.getCleanComment(), floor.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(FloorState floor) {
+    private List<Boolean> createCheckOldList(FloorState floor) {
         return new ArrayList<>(Arrays.asList(floor.isCleanOld(), floor.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(FloorState floor) {
+        return new ArrayList<>(Arrays.asList(floor.getCleanPicture(), floor.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -173,6 +215,7 @@ public class FloorState extends Model implements EntryStateInterface {
         frag.getCheck().addAll(createCheckList(floor));
         frag.getCheckOld().addAll(createCheckOldList(floor));
         frag.getComments().addAll(createCommentsList(floor));
+        frag.getCurrentAP().setLastOpend(floor);
         frag.setTableContentVariante1();
     }
 
@@ -195,13 +238,15 @@ public class FloorState extends Model implements EntryStateInterface {
         }
     }
 
-    public void copyOldEntries(FloorState oldFloor) {
+    private void copyOldEntries(FloorState oldFloor) {
         this.setIsClean(oldFloor.isClean());
         this.setIsCleanOld(oldFloor.isCleanOld());
         this.setCleanComment(oldFloor.getCleanComment());
+        this.setCleanPicture(oldFloor.getCleanPicture());
         this.setHasNoDamage(oldFloor.hasNoDamage());
         this.setIsDamageOld(oldFloor.isDamageOld());
         this.setDamageComment(oldFloor.getDamageComment());
+        this.setDamagePicture(oldFloor.getDamagePicture());
     }
 
     @Override
@@ -238,6 +283,19 @@ public class FloorState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setCleanPicture(picture);
+                break;
+            case 1:
+                this.setDamagePicture(picture);
+                break;
+        }
+        this.save();
+    }
+
     public static FloorState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(FloorState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
     }
@@ -252,6 +310,15 @@ public class FloorState extends Model implements EntryStateInterface {
 
     public static FloorState findById(long id) {
         return new Select().from(FloorState.class).where("id = ?", id).executeSingle();
+    }
+
+    public static FloorState checkBelongin(FloorState floor, AP ap) {
+        if (floor.getRoom() != null) {
+            return FloorState.findByRoomAndAP(ap.getRoom(), ap);
+        } else if (floor.getBathroom() != null) {
+            return FloorState.findByBathroomAndAP(ap.getBathroom(), ap);
+        } else
+            return FloorState.findByKitchenAndAP(ap.getKitchen(), ap);
     }
 
     public static void initializeRoomFloor(List<AP> aps) {

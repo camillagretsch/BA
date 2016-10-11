@@ -26,6 +26,9 @@ public class BasementState extends Model implements EntryStateInterface {
     @Column(name = "cleanComment")
     private String cleanComment;
 
+    @Column(name = "clean_picture")
+    private byte[] cleanPicture;
+
     @Column(name = "isEmpty")
     private boolean isEmpty = true;
 
@@ -34,6 +37,9 @@ public class BasementState extends Model implements EntryStateInterface {
 
     @Column(name = "empty_comment")
     private String emptyComment;
+
+    @Column(name = "empty_picture")
+    private byte[] emptyPicture;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -44,7 +50,8 @@ public class BasementState extends Model implements EntryStateInterface {
     @Column(name = "damage_comment")
     private String damageComment;
 
-    //TODO damagePicture
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Ist besenrein?", "Der Keller ist geräumt", "Ist alles intakt?");
 
@@ -88,6 +95,14 @@ public class BasementState extends Model implements EntryStateInterface {
         return cleanComment;
     }
 
+    public void setCleanPicture(byte[] cleanPicture) {
+        this.cleanPicture = cleanPicture;
+    }
+
+    public byte[] getCleanPicture() {
+        return cleanPicture;
+    }
+
     public void setIsEmpty(boolean isEmpty) {
         this.isEmpty = isEmpty;
     }
@@ -110,6 +125,14 @@ public class BasementState extends Model implements EntryStateInterface {
 
     public String getEmptyComment() {
         return emptyComment;
+    }
+
+    public void setEmptyPicture(byte[] emptyPicture) {
+        this.emptyPicture = emptyPicture;
+    }
+
+    public byte[] getEmptyPicture() {
+        return emptyPicture;
     }
 
     public void setHasNoDamage(boolean hasNoDamage) {
@@ -136,6 +159,14 @@ public class BasementState extends Model implements EntryStateInterface {
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -148,16 +179,40 @@ public class BasementState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    public List<Boolean> createCheckList(BasementState basement) {
+    private List<Boolean> createCheckList(BasementState basement) {
         return new ArrayList<>(Arrays.asList(basement.isClean(), basement.isEmpty(), basement.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(BasementState basement) {
+    private List<String> createCommentsList(BasementState basement) {
         return new ArrayList<>(Arrays.asList(basement.getCleanComment(), basement.getEmptyComment(), basement.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(BasementState basement) {
+    private List<Boolean> createCheckOldList(BasementState basement) {
         return new ArrayList<>(Arrays.asList(basement.isCleanOld(), basement.isEmptyOld(), basement.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(BasementState basement) {
+        return new ArrayList<>(Arrays.asList(basement.getCleanPicture(), basement.getEmptyPicture(), basement.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -167,6 +222,7 @@ public class BasementState extends Model implements EntryStateInterface {
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
         frag.getComments().addAll(createCommentsList(this));
+        frag.getCurrentAP().setLastOpend(this);
         frag.setTableContentVariante1();
     }
 
@@ -179,16 +235,19 @@ public class BasementState extends Model implements EntryStateInterface {
         }
     }
 
-    public void copyOldEntries(BasementState oldBasement) {
+    private void copyOldEntries(BasementState oldBasement) {
         this.setIsClean(oldBasement.isClean());
         this.setIsCleanOld(oldBasement.isCleanOld());
         this.setCleanComment(oldBasement.getCleanComment());
+        this.setCleanPicture(oldBasement.getCleanPicture());
         this.setIsEmpty(oldBasement.isEmpty());
         this.setIsEmptyOld(oldBasement.isEmptyOld());
         this.setEmptyComment(oldBasement.getEmptyComment());
+        this.setEmptyPicture(oldBasement.getEmptyPicture());
         this.setHasNoDamage(oldBasement.hasNoDamage());
         this.setIsDamageOld(oldBasement.isDamageOld());
         this.setDamageComment(oldBasement.getDamageComment());
+        this.setDamagePicture(oldBasement.getDamagePicture());
     }
 
     @Override
@@ -219,6 +278,22 @@ public class BasementState extends Model implements EntryStateInterface {
         this.setCleanComment(comments.get(0));
         this.setEmptyComment(comments.get(1));
         this.setDamageComment(comments.get(2));
+        this.save();
+    }
+
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setCleanPicture(picture);
+                break;
+            case 1:
+                this.setEmptyPicture(picture);
+                break;
+            case 2:
+                this.setDamagePicture(picture);
+                break;
+        }
         this.save();
     }
 

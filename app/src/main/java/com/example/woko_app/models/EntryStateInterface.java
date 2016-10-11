@@ -20,4 +20,14 @@ public interface EntryStateInterface {
     public void saveCheckOldEntries(List<Boolean> checkOld);
 
     public void saveCommentsEntries(List<String> comments);
+
+    public String getCommentAtPosition(int pos);
+
+    public Boolean getCheckAtPosition(int pos);
+
+    public Boolean getCheckOldAtPosition(int pos);
+
+    public void savePicture(int pos, byte[] picture);
+
+    public byte[] getPictureAtPosition(int pos);
 }

@@ -103,6 +103,7 @@
             <Button
                 style="@style/ButtonStyle"
                 android:text="@string/back_btn"
+                android:background="@drawable/table_grey"
                 android:id="@+id/btnBack"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
@@ -111,6 +112,7 @@
             <Button
                 style="@style/ButtonStyle"
                 android:text="@string/next_btn"
+                android:background="@drawable/table_grey"
                 android:id="@+id/btnNext"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"

@@ -26,7 +26,8 @@ public class WindowState extends Model implements EntryStateInterface {
     @Column(name = "clean_comment")
     private String cleanComment;
 
-    //TODO cleanPicture
+    @Column(name = "clean_picture")
+    private byte[] cleanPicture;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -37,7 +38,8 @@ public class WindowState extends Model implements EntryStateInterface {
     @Column(name = "damage_comment")
     private String damageComment;
 
-    //TODO damagePicture
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Sind gereinigt?", "Ist alles intakt?");
 
@@ -99,6 +101,14 @@ public class WindowState extends Model implements EntryStateInterface {
         return cleanComment;
     }
 
+    public void setCleanPicture(byte[] cleanPicture) {
+        this.cleanPicture = cleanPicture;
+    }
+
+    public byte[] getCleanPicture() {
+        return cleanPicture;
+    }
+
     public void setHasNoDamage(boolean hasNoDamage) {
         this.hasNoDamage = hasNoDamage;
     }
@@ -123,6 +133,14 @@ public class WindowState extends Model implements EntryStateInterface {
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -139,16 +157,40 @@ public class WindowState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    public List<Boolean> createCheckList(WindowState window) {
+    private List<Boolean> createCheckList(WindowState window) {
         return new ArrayList<>(Arrays.asList(window.isClean(), window.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(WindowState window) {
+    private List<String> createCommentsList(WindowState window) {
         return new ArrayList<>(Arrays.asList(window.getCleanComment(), window.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(WindowState window) {
+    private List<Boolean> createCheckOldList(WindowState window) {
         return new ArrayList<>(Arrays.asList(window.isCleanOld(), window.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(WindowState window) {
+        return new ArrayList<>(Arrays.asList(window.getCleanPicture(), window.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -169,6 +211,7 @@ public class WindowState extends Model implements EntryStateInterface {
         frag.getCheck().addAll(createCheckList(window));
         frag.getCheckOld().addAll(createCheckOldList(window));
         frag.getComments().addAll(createCommentsList(window));
+        frag.getCurrentAP().setLastOpend(window);
         frag.setTableContentVariante1();
     }
 
@@ -191,13 +234,15 @@ public class WindowState extends Model implements EntryStateInterface {
         }
     }
 
-    public void copyOldEntries(WindowState oldWindow) {
+    private void copyOldEntries(WindowState oldWindow) {
         this.setIsClean(oldWindow.isClean());
         this.setIsCleanOld(oldWindow.isCleanOld());
         this.setCleanComment(oldWindow.getCleanComment());
+        this.setCleanPicture(oldWindow.getCleanPicture());
         this.setHasNoDamage(oldWindow.hasNoDamage());
         this.setIsDamageOld(oldWindow.isDamageOld());
         this.setDamageComment(oldWindow.getDamageComment());
+        this.setDamagePicture(oldWindow.getDamagePicture());
     }
 
     @Override
@@ -234,6 +279,18 @@ public class WindowState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setCleanPicture(picture);
+                break;
+            case 1:
+                this.setDamagePicture(picture);
+                break;
+        }
+        this.save();
+    }
 
     public static WindowState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(WindowState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
@@ -249,6 +306,15 @@ public class WindowState extends Model implements EntryStateInterface {
 
     public static WindowState findById(long id) {
         return new Select().from(WindowState.class).where("id = ?", id).executeSingle();
+    }
+
+    public static WindowState checkBelonging(WindowState window, AP ap) {
+        if (window.getRoom() != null) {
+            return WindowState.findByRoomAndAP(ap.getRoom(), ap);
+        } else if (window.getBathroom() != null) {
+            return WindowState.findByBathroomAndAP(ap.getBathroom(), ap);
+        } else
+            return WindowState.findByKitchenAndAP(ap.getKitchen(), ap);
     }
 
     public static void initializeRoomWindow(List<AP> aps) {

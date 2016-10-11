@@ -27,6 +27,9 @@ public class FridgeState extends Model implements EntryStateInterface{
     @Column(name = "food_comment")
     private String foodComment;
 
+    @Column(name = "food_picture")
+    private byte[] foodPicture;
+
     @Column(name = "isClean")
     private boolean isClean = true;
 
@@ -35,6 +38,9 @@ public class FridgeState extends Model implements EntryStateInterface{
 
     @Column(name = "clean_comment")
     private String cleanComment;
+
+    @Column(name = "clean_picture")
+    private byte[] cleanPicture;
 
     @Column(name = "isDefrosted")
     private boolean isDefrosted;
@@ -45,6 +51,9 @@ public class FridgeState extends Model implements EntryStateInterface{
     @Column(name = "defrosted_comment")
     private String defrostedComment;
 
+    @Column(name = "defrosted_picture")
+    private byte[] defrostedPicture;
+
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
 
@@ -53,6 +62,9 @@ public class FridgeState extends Model implements EntryStateInterface{
 
     @Column(name = "damage_comment")
     private String damageComment;
+
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Sind alle Esswaren entsorgt?", "Starke Verschmutzungen sind gereinigt?", "Wurden abgetaut und das Wasser aufgewischt?", "Ist alles intakt?");
 
@@ -96,6 +108,14 @@ public class FridgeState extends Model implements EntryStateInterface{
         return foodComment;
     }
 
+    public void setFoodPicture(byte[] foodPicture) {
+        this.foodPicture = foodPicture;
+    }
+
+    public byte[] getFoodPicture() {
+        return foodPicture;
+    }
+
     public void setIsClean(boolean isClean) {
         this.isClean = isClean;
     }
@@ -118,6 +138,14 @@ public class FridgeState extends Model implements EntryStateInterface{
 
     public String getCleanComment() {
         return cleanComment;
+    }
+
+    public void setCleanPicture(byte[] cleanPicture) {
+        this.cleanPicture = cleanPicture;
+    }
+
+    public byte[] getCleanPicture() {
+        return cleanPicture;
     }
 
     public void setIsDefrosted(boolean isDefrosted) {
@@ -144,6 +172,14 @@ public class FridgeState extends Model implements EntryStateInterface{
         return defrostedComment;
     }
 
+    public void setDefrostedPicture(byte[] defrostedPicture) {
+        this.defrostedPicture = defrostedPicture;
+    }
+
+    public byte[] getDefrostedPicture() {
+        return defrostedPicture;
+    }
+
     public void setHasNoDamage(boolean hasNoDamage) {
         this.hasNoDamage = hasNoDamage;
     }
@@ -168,6 +204,14 @@ public class FridgeState extends Model implements EntryStateInterface{
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -180,16 +224,40 @@ public class FridgeState extends Model implements EntryStateInterface{
         return ap;
     }
 
-    public List<Boolean> createCheckList(FridgeState fridge) {
+    private List<Boolean> createCheckList(FridgeState fridge) {
         return new ArrayList<>(Arrays.asList(fridge.hasNoFood(), fridge.isClean(), fridge.isDefrosted(), fridge.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(FridgeState fridge) {
+    private List<String> createCommentsList(FridgeState fridge) {
         return new ArrayList<>(Arrays.asList(fridge.getFoodComment(), fridge.getCleanComment(), fridge.getDefrostedComment(), fridge.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(FridgeState fridge) {
+    private List<Boolean> createCheckOldList(FridgeState fridge) {
         return new ArrayList<>(Arrays.asList(fridge.isFoodOld(), fridge.isCleanOld(), fridge.isDefrostedOld(), fridge.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(FridgeState fridge) {
+        return new ArrayList<>(Arrays.asList(fridge.getFoodPicture(), fridge.getCleanPicture(), fridge.getDefrostedPicture(), fridge.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -199,6 +267,7 @@ public class FridgeState extends Model implements EntryStateInterface{
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
         frag.getComments().addAll(createCommentsList(this));
+        frag.getCurrentAP().setLastOpend(this);
         frag.setTableContentVariante1();
     }
 
@@ -215,15 +284,19 @@ public class FridgeState extends Model implements EntryStateInterface{
         this.setHasNoFood(oldFridge.hasNoFood());
         this.setIsFoodOld(oldFridge.isFoodOld());
         this.setFoodComment(oldFridge.getFoodComment());
+        this.setFoodPicture(oldFridge.getFoodPicture());
         this.setIsClean(oldFridge.isClean());
         this.setIsCleanOld(oldFridge.isCleanOld());
         this.setCleanComment(oldFridge.getCleanComment());
+        this.setCleanPicture(oldFridge.getCleanPicture());
         this.setIsDefrosted(oldFridge.isDefrosted());
         this.setIsDefrostedOld(oldFridge.isDefrostedOld());
         this.setDefrostedComment(oldFridge.getDefrostedComment());
+        this.setDefrostedPicture(oldFridge.getDefrostedPicture());
         this.setHasNoDamage(oldFridge.hasNoDamage());
         this.setIsDamageOld(oldFridge.isDamageOld());
         this.setDamageComment(oldFridge.getDamageComment());
+        this.setDamagePicture(oldFridge.getDamagePicture());
     }
 
     @Override
@@ -257,6 +330,25 @@ public class FridgeState extends Model implements EntryStateInterface{
         this.setCleanComment(comments.get(1));
         this.setDefrostedComment(comments.get(2));
         this.setDamageComment(comments.get(3));
+        this.save();
+    }
+
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setFoodPicture(picture);
+                break;
+            case 1:
+                this.setCleanPicture(picture);
+                break;
+            case 2:
+                this.setDefrostedPicture(picture);
+                break;
+            case 3:
+                this.setDamagePicture(picture);
+                break;
+        }
         this.save();
     }
 

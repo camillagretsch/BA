@@ -26,6 +26,9 @@ public class ShowerState extends Model implements EntryStateInterface {
     @Column(name = "showerCurtain_comment")
     private String showerCurtainComment;
 
+    @Column(name = "showerCurtain_picture")
+    private byte[] showerCurtainPicture;
+
     @Column(name = "showerIsOK")
     private boolean showerIsOK = true;
 
@@ -34,6 +37,9 @@ public class ShowerState extends Model implements EntryStateInterface {
 
     @Column(name = "shower_comment")
     private String showerComment;
+
+    @Column(name = "shower_picture")
+    private byte[] showerPicture;
 
     @Column(name = "toiletIsOK")
     private boolean toiletIsOK = true;
@@ -44,6 +50,9 @@ public class ShowerState extends Model implements EntryStateInterface {
     @Column(name = "toilet_comment")
     private String toiletComment;
 
+    @Column(name = "toilet_picture")
+    private byte[] toiletPicture;
+
     @Column(name = "sinkIsOK")
     private boolean sinkIsOK;
 
@@ -53,6 +62,9 @@ public class ShowerState extends Model implements EntryStateInterface {
     @Column(name = "sink_comment")
     private String sinkComment;
 
+    @Column(name = "sink_picture")
+    private byte[] sinkPicture;
+
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
 
@@ -61,6 +73,9 @@ public class ShowerState extends Model implements EntryStateInterface {
 
     @Column(name = "damage_comment")
     private String damageComment;
+
+    @Column(name = "damage_picture")
+    private byte[] damagePicture;
 
     private static final List<String> ROW_NAMES = Arrays.asList("Duschvorhang wurde gewaschen & aufgehängt", "Dusche ist in Ordnung", "WC ist in Ordnung", "Lavabo ist in Ordnung", "Ist alles intakt?");
 
@@ -104,6 +119,14 @@ public class ShowerState extends Model implements EntryStateInterface {
         return showerCurtainComment;
     }
 
+    public void setShowerCurtainPicture(byte[] showerCurtainPicture) {
+        this.showerCurtainPicture = showerCurtainPicture;
+    }
+
+    public byte[] getShowerCurtainPicture() {
+        return showerCurtainPicture;
+    }
+
     public void setShowerIsOK(boolean showerIsOK) {
         this.showerIsOK = showerIsOK;
     }
@@ -126,6 +149,14 @@ public class ShowerState extends Model implements EntryStateInterface {
 
     public String getShowerComment() {
         return showerComment;
+    }
+
+    public void setShowerPicture(byte[] showerPicture) {
+        this.showerPicture = showerPicture;
+    }
+
+    public byte[] getShowerPicture() {
+        return showerPicture;
     }
 
     public void setToiletIsOK(boolean toiletIsOK) {
@@ -152,6 +183,14 @@ public class ShowerState extends Model implements EntryStateInterface {
         return toiletComment;
     }
 
+    public void setToiletPicture(byte[] toiletPicture) {
+        this.toiletPicture = toiletPicture;
+    }
+
+    public byte[] getToiletPicture() {
+        return toiletPicture;
+    }
+
     public void setSinkIsOK(boolean sinkIsOK) {
         this.sinkIsOK = sinkIsOK;
     }
@@ -174,6 +213,14 @@ public class ShowerState extends Model implements EntryStateInterface {
 
     public String getSinkComment() {
         return sinkComment;
+    }
+
+    public void setSinkPicture(byte[] sinkPicture) {
+        this.sinkPicture = sinkPicture;
+    }
+
+    public byte[] getSinkPicture() {
+        return sinkPicture;
     }
 
     public void setHasNoDamage(boolean hasNoDamage) {
@@ -200,6 +247,14 @@ public class ShowerState extends Model implements EntryStateInterface {
         return damageComment;
     }
 
+    public void setDamagePicture(byte[] damagePicture) {
+        this.damagePicture = damagePicture;
+    }
+
+    public byte[] getDamagePicture() {
+        return damagePicture;
+    }
+
     public List<String> getRowNames() {
         return ROW_NAMES;
     }
@@ -212,16 +267,40 @@ public class ShowerState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    public List<Boolean> createCheckList(ShowerState shower) {
+    private List<Boolean> createCheckList(ShowerState shower) {
         return new ArrayList<>(Arrays.asList(shower.getShowerCurtainIsClean(), shower.getShowerIsOK(), shower.getToiletIsOK(), shower.getSinkIsOK(), shower.hasNoDamage()));
     }
 
-    public List<String> createCommentsList(ShowerState shower) {
+    private List<String> createCommentsList(ShowerState shower) {
         return new ArrayList<>(Arrays.asList(shower.getShowerCurtainComment(), shower.getShowerComment(), shower.getToiletComment(), shower.getSinkComment(), shower.getDamageComment()));
     }
 
-    public List<Boolean> createCheckOldList(ShowerState shower) {
+    private List<Boolean> createCheckOldList(ShowerState shower) {
         return new ArrayList<>(Arrays.asList(shower.isShowerCurtainOld(), shower.isShowerOKOld(), shower.isToiletOKOld(), shower.isSinkOKOld(), shower.isDamageOld()));
+    }
+
+    private List<byte[]> createPictureList(ShowerState shower) {
+        return new ArrayList<>(Arrays.asList(shower.getShowerCurtainPicture(), shower.getShowerPicture(), shower.getToiletPicture(), shower.getSinkPicture(), shower.getDamagePicture()));
+    }
+
+    @Override
+    public String getCommentAtPosition(int pos) {
+        return createCommentsList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckAtPosition(int pos) {
+        return createCheckList(this).get(pos);
+    }
+
+    @Override
+    public Boolean getCheckOldAtPosition(int pos) {
+        return createCheckOldList(this).get(pos);
+    }
+
+    @Override
+    public byte[] getPictureAtPosition(int pos) {
+        return createPictureList(this).get(pos);
     }
 
     @Override
@@ -231,6 +310,7 @@ public class ShowerState extends Model implements EntryStateInterface {
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
         frag.getComments().addAll(createCommentsList(this));
+        frag.getCurrentAP().setLastOpend(this);
         frag.setTableContentVariante1();
     }
 
@@ -243,22 +323,27 @@ public class ShowerState extends Model implements EntryStateInterface {
         }
     }
 
-    public void copyOldEntries(ShowerState oldShower) {
+    private void copyOldEntries(ShowerState oldShower) {
         this.setShowerCurtainIsClean(oldShower.getShowerCurtainIsClean());
         this.setIsShowerCurtainOld(oldShower.isShowerCurtainOld());
         this.setShowerCurtainComment(oldShower.getShowerCurtainComment());
+        this.setShowerCurtainPicture(oldShower.getShowerCurtainPicture());
         this.setShowerIsOK(oldShower.getShowerIsOK());
         this.setIsShowerOKOld(oldShower.isShowerOKOld());
         this.setShowerComment(oldShower.getShowerComment());
+        this.setShowerPicture(oldShower.getShowerPicture());
         this.setToiletIsOK(oldShower.getToiletIsOK());
         this.setIsToiletOKOld(oldShower.isToiletOKOld());
         this.setToiletComment(oldShower.getToiletComment());
+        this.setToiletPicture(oldShower.getToiletPicture());
         this.setSinkIsOK(oldShower.getSinkIsOK());
         this.setIsSinkOKOld(oldShower.isSinkOKOld());
         this.setSinkComment(oldShower.getSinkComment());
+        this.setSinkPicture(oldShower.getSinkPicture());
         this.setHasNoDamage(oldShower.hasNoDamage());
         this.setIsDamageOld(oldShower.isDamageOld());
         this.setDamageComment(oldShower.getDamageComment());
+        this.setDamagePicture(oldShower.getDamagePicture());
     }
 
     @Override
@@ -295,6 +380,28 @@ public class ShowerState extends Model implements EntryStateInterface {
         this.setToiletComment(comments.get(2));
         this.setSinkComment(comments.get(3));
         this.setDamageComment(comments.get(4));
+        this.save();
+    }
+
+    @Override
+    public void savePicture(int pos, byte[] picture) {
+        switch (pos) {
+            case 0:
+                this.setShowerCurtainPicture(picture);
+                break;
+            case 1:
+                this.setShowerPicture(picture);
+                break;
+            case 2:
+                this.setToiletPicture(picture);
+                break;
+            case 3:
+                this.setSinkPicture(picture);
+                break;
+            case 4:
+                this.setDamagePicture(picture);
+                break;
+        }
         this.save();
     }
 

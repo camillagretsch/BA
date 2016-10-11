@@ -21,15 +21,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.woko_app.ExpandableListAdapter;
+import com.example.woko_app.adapter.ExpandableListAdapter;
 import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
+import com.example.woko_app.fragment.MainFragment;
 import com.example.woko_app.fragment.PersonalDataFragment;
 import com.example.woko_app.fragment.SaveFragment;
 import com.example.woko_app.models.AP;
 import com.example.woko_app.models.Apartment;
+import com.example.woko_app.models.EntryStateInterface;
 import com.example.woko_app.models.House;
+import com.example.woko_app.models.MattressState;
 import com.example.woko_app.models.Room;
 import com.example.woko_app.models.User;
 
@@ -44,12 +47,12 @@ public class HV_EditActivity extends Activity {
 
     private Typeface font;
 
+    private Button btnBack;
+    private Button btnNext;
+
     private TextView usericon;
     private TextView txtName;
     private TextView txtRole;
-
-    private Button btnNext;
-    private Button btnBack;
 
     private User currentUser;
     private AP currentAP;
@@ -83,13 +86,12 @@ public class HV_EditActivity extends Activity {
         sidebarContainer = (RelativeLayout)findViewById(R.id.list_holder);
         fragmentManager = getFragmentManager();
 
-        setHeader();
-
         btnBack = (Button)findViewById(R.id.btnBack);
         btnBack.setTypeface(font);
-
         btnNext = (Button)findViewById(R.id.btnNext);
         btnNext.setTypeface(font);
+
+        setHeader();
 
         generateSideView();
     }
@@ -125,7 +127,7 @@ public class HV_EditActivity extends Activity {
     /**
      * creates the expandable list with children items
      */
-    private void setExpandableListView() {
+    public void setExpandableListView() {
         final ExpandableListView expandableListView = new ExpandableListView(this);
         expandableListView.setDividerHeight(3);
         expandableListView.setGroupIndicator(null);
@@ -138,24 +140,23 @@ public class HV_EditActivity extends Activity {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 v.setSelected(true);
+                btnBack.setVisibility(View.INVISIBLE);
+                btnNext.setVisibility(View.INVISIBLE);
+                btnNext.setText(getResources().getText(R.string.next_btn));
                 Log.d("parent at position: ", String.valueOf(groupPosition) + " is clicked and child at position: " + String.valueOf(childPosition));
                 List<String> children;
                 if ((ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 0) || (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 2)) {
                     children = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.room_children)));
                     children.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
                     callDatagridFargment(groupPosition, children.get(childPosition));
-                    btnNext.setVisibility(View.VISIBLE);
                 } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 0) {
                     children = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.kitchen_children)));
                     children.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
                     callDatagridFargment(groupPosition, children.get(childPosition));
-                    btnNext.setVisibility(View.VISIBLE);
                 } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 1) {
                     children = new ArrayList<String>(Arrays.asList(getResources().getStringArray(R.array.bathroom_children)));
                     children.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
                     callDatagridFargment(groupPosition, children.get(childPosition));
-                    btnBack.setVisibility(View.VISIBLE);
-                    btnNext.setVisibility(View.VISIBLE);
                 }
                 return false;
             }
@@ -163,20 +164,17 @@ public class HV_EditActivity extends Activity {
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                btnBack.setVisibility(View.INVISIBLE);
+                btnNext.setVisibility(View.INVISIBLE);
+                btnNext.setText(getResources().getText(R.string.next_btn));
                 //1. Balcony, 2. Basement, 3. Personal Data, 4. Save, 5. Stop
                 if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 3) {
                     callDatagridFargment(groupPosition, "Balkon");
-                    btnBack.setVisibility(View.VISIBLE);
-                    btnNext.setVisibility(View.VISIBLE);
                 } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 4) {
                     callDatagridFargment(groupPosition, "Kellerabteil");
-                    btnNext.setVisibility(View.VISIBLE);
-                    btnBack.setVisibility(View.VISIBLE);
                 } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 5) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 1)) {
                     Log.d("Personal data of", currentAP.getName() + "is opened" );
                     callPersonalDataFragment();
-                    btnBack.setVisibility(View.VISIBLE);
-                    btnNext.setVisibility(View.VISIBLE);
                 } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 6) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 2)) {
                     callSaveFragment();
                     Toast toast = Toast.makeText(getBaseContext(), getResources().getText(R.string.saved), Toast.LENGTH_LONG);
@@ -185,9 +183,6 @@ public class HV_EditActivity extends Activity {
                     toastText.setTextSize(25);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     toast.show();
-                    btnBack.setVisibility(View.VISIBLE);
-                    btnNext.setText(getResources().getText(R.string.logout_btn));
-                    btnNext.setVisibility(View.VISIBLE);
                 } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 7) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 3)) {
                     setAPtoUnsavedAP();
                 }
@@ -198,8 +193,6 @@ public class HV_EditActivity extends Activity {
             @Override
             public void onGroupCollapse(int groupPosition) {
                 closeOpenFragment();
-                btnBack.setVisibility(View.INVISIBLE);
-                btnNext.setVisibility(View.INVISIBLE);
             }
         });
         sidebarContainer.addView(expandableListView);
@@ -221,8 +214,6 @@ public class HV_EditActivity extends Activity {
         childItems.add(child);
 
         // room
-        child = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.room_children)));
-        child.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
         setChildDataSharedApartment();
 
         // balcony
@@ -244,6 +235,7 @@ public class HV_EditActivity extends Activity {
         // stop
         child = new ArrayList<>();
         childItems.add(child);
+
     }
 
     public void setChildDataSharedApartment() {
@@ -285,6 +277,8 @@ public class HV_EditActivity extends Activity {
         bundle = new Bundle();
         bundle.putLong("AP", currentAP.getId());
         personalDataFragment.setArguments(bundle);
+        btnBack.setVisibility(View.VISIBLE);
+        btnNext.setVisibility(View.VISIBLE);
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.datagrid_container, personalDataFragment, null).addToBackStack(null).commit();
     }
@@ -296,6 +290,9 @@ public class HV_EditActivity extends Activity {
         bundle.putString("Username", currentUser.getUsername());
         bundle.putLong("AP", currentAP.getId());
         saveFragment.setArguments(bundle);
+        btnBack.setVisibility(View.VISIBLE);
+        btnNext.setVisibility(View.VISIBLE);
+        btnNext.setText(getResources().getText(R.string.logout_btn));
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.datagrid_container, saveFragment, null).addToBackStack(null).commit();
     }
@@ -322,6 +319,13 @@ public class HV_EditActivity extends Activity {
         alertDialog.show();
     }
 
+    public void callHistoryActivity(int pos) {
+        Intent intent = new Intent(this, HistoryActivity.class);
+        intent.putExtra("AP", currentAP.getId());
+        intent.putExtra("position", pos);
+        startActivity(intent);
+    }
+
     public void callHomeActivity() {
         Intent intent = new Intent(this, HV_HomeActivity.class);
         intent.putExtra("Username", currentUser.getUsername());
@@ -329,6 +333,9 @@ public class HV_EditActivity extends Activity {
     }
 
     public void closeOpenFragment() {
+        btnBack.setVisibility(View.INVISIBLE);
+        btnNext.setVisibility(View.INVISIBLE);
+        btnNext.setText(getResources().getText(R.string.next_btn));
         if (openFragment != null) {
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.remove(openFragment).commit();
@@ -345,4 +352,19 @@ public class HV_EditActivity extends Activity {
         currentHouse = House.findById(intent.getLongExtra("House", 0));
     }
 
+    public void setBtnBackVisible() {
+        btnBack.setVisibility(View.VISIBLE);
+    }
+
+    public void setBtnBackInvisible() {
+        btnBack.setVisibility(View.INVISIBLE);
+    }
+
+    public void setBtnNextVisible() {
+        btnNext.setVisibility(View.VISIBLE);
+    }
+
+    public void setBtnNextInvisible() {
+        btnNext.setVisibility(View.INVISIBLE);
+    }
 }
