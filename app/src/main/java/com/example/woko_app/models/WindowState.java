@@ -4,6 +4,13 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.pageelements.CellAlign;
+import com.cete.dynamicpdf.pageelements.CellVAlign;
+import com.cete.dynamicpdf.pageelements.Image;
+import com.cete.dynamicpdf.pageelements.Row;
+import com.cete.dynamicpdf.pageelements.forms.CheckBox;
+import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
 
@@ -24,10 +31,10 @@ public class WindowState extends Model implements EntryStateInterface {
     private boolean isCleanOld = false;
 
     @Column(name = "clean_comment")
-    private String cleanComment;
+    private String cleanComment = null;
 
     @Column(name = "clean_picture")
-    private byte[] cleanPicture;
+    private byte[] cleanPicture = null;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -36,12 +43,10 @@ public class WindowState extends Model implements EntryStateInterface {
     private boolean isDamageOld = false;
 
     @Column(name = "damage_comment")
-    private String damageComment;
+    private String damageComment = null;
 
     @Column(name = "damage_picture")
-    private byte[] damagePicture;
-
-    private static final List<String> ROW_NAMES = Arrays.asList("Sind gereinigt?", "Ist alles intakt?");
+    private byte[] damagePicture = null;
 
     @Column(name = "room", onUpdate = Column.ForeignKeyAction.CASCADE)
     private Room room;
@@ -54,6 +59,11 @@ public class WindowState extends Model implements EntryStateInterface {
 
     @Column(name = "AP", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private AP ap;
+
+    @Column(name = "name")
+    private String name = "Fenster";
+
+    private static final List<String> ROW_NAMES = Arrays.asList("Sind gereinigt?", "Ist alles intakt?");
 
     public WindowState() {
         super();
@@ -141,10 +151,6 @@ public class WindowState extends Model implements EntryStateInterface {
         return damagePicture;
     }
 
-    public List<String> getRowNames() {
-        return ROW_NAMES;
-    }
-
     public Room getRoom() {
         return room;
     }
@@ -157,20 +163,12 @@ public class WindowState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    private List<Boolean> createCheckList(WindowState window) {
-        return new ArrayList<>(Arrays.asList(window.isClean(), window.hasNoDamage()));
+    public void setName(String name) {
+        this.name = name;
     }
 
-    private List<String> createCommentsList(WindowState window) {
-        return new ArrayList<>(Arrays.asList(window.getCleanComment(), window.getDamageComment()));
-    }
-
-    private List<Boolean> createCheckOldList(WindowState window) {
-        return new ArrayList<>(Arrays.asList(window.isCleanOld(), window.isDamageOld()));
-    }
-
-    private List<byte[]> createPictureList(WindowState window) {
-        return new ArrayList<>(Arrays.asList(window.getCleanPicture(), window.getDamagePicture()));
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -194,6 +192,28 @@ public class WindowState extends Model implements EntryStateInterface {
     }
 
     @Override
+    public int countPicturesOfLast5Years(int pos, EntryStateInterface entryStateInterface) {
+        WindowState window = (WindowState) entryStateInterface;
+        AP ap = window.getAp();
+
+        int counter = 0;
+        int year = 0;
+
+        while (year < 5) {
+
+            if (null != WindowState.checkBelonging(window, ap).getPictureAtPosition(pos)) {
+                counter++;
+            }
+            if (null != ap.getOldAP()) {
+                ap = ap.getOldAP();
+            } else
+                break;
+            year++;
+        }
+        return counter;
+    }
+
+    @Override
     public void getEntries(DataGridFragment frag) {
         WindowState window = WindowState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
 
@@ -206,7 +226,7 @@ public class WindowState extends Model implements EntryStateInterface {
                 frag.setTableEntries(WindowState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP()));
             }
         }
-        frag.setHeaderVariante1();
+        frag.setTableHeader(frag.getResources().getStringArray(R.array.header_variante1));
         frag.getRowNames().addAll(window.ROW_NAMES);
         frag.getCheck().addAll(createCheckList(window));
         frag.getCheckOld().addAll(createCheckOldList(window));
@@ -234,17 +254,6 @@ public class WindowState extends Model implements EntryStateInterface {
         }
     }
 
-    private void copyOldEntries(WindowState oldWindow) {
-        this.setIsClean(oldWindow.isClean());
-        this.setIsCleanOld(oldWindow.isCleanOld());
-        this.setCleanComment(oldWindow.getCleanComment());
-        this.setCleanPicture(oldWindow.getCleanPicture());
-        this.setHasNoDamage(oldWindow.hasNoDamage());
-        this.setIsDamageOld(oldWindow.isDamageOld());
-        this.setDamageComment(oldWindow.getDamageComment());
-        this.setDamagePicture(oldWindow.getDamagePicture());
-    }
-
     @Override
     public void createNewEntry(AP ap) {
         this.save();
@@ -259,9 +268,13 @@ public class WindowState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<Boolean> check) {
-        this.setIsClean(check.get(0));
-        this.setHasNoDamage(check.get(1));
+    public void saveCheckEntries(List<String> check, String ex) {
+        this.setIsClean(Boolean.parseBoolean(check.get(0)));
+        this.setHasNoDamage(Boolean.parseBoolean(check.get(1)));
+        if (check.contains("false")) {
+            this.setName("Fenster " + ex);
+        } else
+            this.setName("Fenster");
         this.save();
     }
 
@@ -292,22 +305,98 @@ public class WindowState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    /**
+     * add all columns which contain the verification of the correctness of the entries to a list
+     * false when something is incorrect
+     * true when something is correct
+     * @param window
+     * @return
+     */
+    private static List<Boolean> createCheckList(WindowState window) {
+        return new ArrayList<>(Arrays.asList(window.isClean(), window.hasNoDamage()));
+    }
+
+    /**
+     * add all columns which contain the comment to a list
+     * @param window
+     * @return
+     */
+    private static List<String> createCommentsList(WindowState window) {
+        return new ArrayList<>(Arrays.asList(window.getCleanComment(), window.getDamageComment()));
+    }
+
+    /**
+     * add all columns which contain the verification if the entry is old to a list
+     * false when the entry is new
+     * true when the entry is old
+     * @param window
+     * @return
+     */
+    private static List<Boolean> createCheckOldList(WindowState window) {
+        return new ArrayList<>(Arrays.asList(window.isCleanOld(), window.isDamageOld()));
+    }
+
+    /**
+     * add all columns which contain the picture to a list
+     * @param window
+     * @return
+     */
+    private static List<byte[]> createPictureList(WindowState window) {
+        return new ArrayList<>(Arrays.asList(window.getCleanPicture(), window.getDamagePicture()));
+    }
+
+    /**
+     * copies all columns
+     * @param oldWindow
+     */
+    private void copyOldEntries(WindowState oldWindow) {
+        this.setIsClean(oldWindow.isClean());
+        this.setIsCleanOld(oldWindow.isCleanOld());
+        this.setCleanComment(oldWindow.getCleanComment());
+        this.setCleanPicture(oldWindow.getCleanPicture());
+        this.setHasNoDamage(oldWindow.hasNoDamage());
+        this.setIsDamageOld(oldWindow.isDamageOld());
+        this.setDamageComment(oldWindow.getDamageComment());
+        this.setDamagePicture(oldWindow.getDamagePicture());
+        this.setName(oldWindow.getName());
+    }
+
+    /**
+     * search it in the db with the room id and protocol id
+     * @param room
+     * @param ap
+     * @return
+     */
     public static WindowState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(WindowState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
     }
 
+    /**
+     * search it in the db with the bathroom id and protocol id
+     * @param bathroom
+     * @param ap
+     * @return
+     */
     public static WindowState findByBathroomAndAP(Bathroom bathroom, AP ap) {
         return new Select().from(WindowState.class).where("bathroom = ? and AP = ?", bathroom.getId(), ap.getId()).executeSingle();
     }
 
+    /**
+     * search it in the db with the kitchen id and protocol id
+     * @param kitchen
+     * @param ap
+     * @return
+     */
     public static WindowState findByKitchenAndAP(Kitchen kitchen, AP ap) {
         return new Select().from(WindowState.class).where("kitchen = ? and AP = ?", kitchen.getId(), ap.getId()).executeSingle();
     }
 
-    public static WindowState findById(long id) {
-        return new Select().from(WindowState.class).where("id = ?", id).executeSingle();
-    }
-
+    /**
+     * check if the entry belong to the kitchen, bathroom or room
+     * @param window
+     * @param ap
+     * @return
+     */
     public static WindowState checkBelonging(WindowState window, AP ap) {
         if (window.getRoom() != null) {
             return WindowState.findByRoomAndAP(ap.getRoom(), ap);
@@ -317,6 +406,10 @@ public class WindowState extends Model implements EntryStateInterface {
             return WindowState.findByKitchenAndAP(ap.getKitchen(), ap);
     }
 
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     */
     public static void initializeRoomWindow(List<AP> aps) {
         for (AP ap : aps) {
             WindowState window = new WindowState(ap.getRoom(), ap);
@@ -326,6 +419,10 @@ public class WindowState extends Model implements EntryStateInterface {
         }
     }
 
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     */
     public static void initializeBathroomWindow(List<AP> aps) {
         for (AP ap : aps) {
             WindowState window = new WindowState(ap.getBathroom(), ap);
@@ -335,14 +432,81 @@ public class WindowState extends Model implements EntryStateInterface {
         }
     }
 
-    public static void initializeKitchenWindow(List<AP> aps) {
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     * @param ex
+     */
+    public static void initializeKitchenWindow(List<AP> aps, String ex) {
         for (AP ap : aps) {
             WindowState window = new WindowState(ap.getKitchen(), ap);
             window.setIsClean(true);
             window.setHasNoDamage(false);
+            window.setName(window.getName() + " " + ex);
             window.setDamageComment("Sprung in einer Scheibe");
             window.save();
         }
+    }
+
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(WindowState window, float pageWidth, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+
+        table.getColumns().add(150);
+        table.getColumns().add(30);
+        table.getColumns().add(30);
+        table.getColumns().add(50);
+        table.getColumns().add(170);
+        table.getColumns().add(320);
+
+        Row header = table.getRows().add(30);
+        header.setFont(Font.getHelveticaBold());
+        header.setFontSize(11);
+        header.setAlign(CellAlign.CENTER);
+        header.setVAlign(CellVAlign.CENTER);
+        header.getCellList().add("");
+        header.getCellList().add("Ja");
+        header.getCellList().add("Nein");
+        header.getCellList().add("alter Eintrag");
+        header.getCellList().add("Kommentar");
+        header.getCellList().add("Foto");
+
+        int i = 0;
+        for (String s : ROW_NAMES) {
+            Row row = table.getRows().add(30);
+            row.setFontSize(11);
+            row.setAlign(CellAlign.CENTER);
+            row.setVAlign(CellVAlign.CENTER);
+
+            row.getCellList().add(s);
+
+            if (createCheckList(window).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+                row.getCellList().add("");
+            } else {
+                row.getCellList().add("");
+                row.getCellList().add(new Image(cross, 0, 0));
+            }
+
+            if (createCheckOldList(window).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+            } else
+                row.getCellList().add("");
+
+            if (null != createCommentsList(window).get(i)) {
+                row.getCellList().add(createCommentsList(window).get(i));
+            } else
+                row.getCellList().add("");
+
+            if (null != createPictureList(window).get(i)) {
+                Image image = new Image(createPictureList(window).get(i), 0, 0);
+                row.getCellList().add(image);
+            } else
+                row.getCellList().add("");
+
+            i++;
+        }
+        table.setHeight(table.getRequiredHeight());
+        return table;
     }
 }
 

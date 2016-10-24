@@ -1,11 +1,16 @@
 package com.example.woko_app.models;
 
+import android.test.AndroidTestCase;
+
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.example.woko_app.R;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,6 +48,12 @@ public class AP extends Model{
 
     @Column(name = "old_AP")
     private AP oldAP;
+
+    @Column(name = "signature_tenant")
+    private byte[] signatureTenant = null;
+
+    @Column(name = "signature_woko")
+    private byte[] signatureWoko = null;
 
     private EntryStateInterface lastOpend;
 
@@ -144,6 +155,22 @@ public class AP extends Model{
         return oldAP;
     }
 
+    public void setSignatureTenant(byte[] signatureTenant) {
+        this.signatureTenant = signatureTenant;
+    }
+
+    public byte[] getSignatureTenant() {
+        return signatureTenant;
+    }
+
+    public void setSignatureWoko(byte[] signatureWoko) {
+        this.signatureWoko = signatureWoko;
+    }
+
+    public byte[] getSignatureWoko() {
+        return signatureWoko;
+    }
+
     public void setLastOpend(EntryStateInterface lastOpend) {
         this.lastOpend = lastOpend;
     }
@@ -152,26 +179,57 @@ public class AP extends Model{
         return lastOpend;
     }
 
+    /**
+     * find a protocol by a room id
+     * @param room
+     * @return
+     */
     public static List<AP> findByRoom(Room room) {
         return new Select().from(AP.class).where("room = ?", room.getId()).orderBy("day DESC").orderBy("month DESC").orderBy("year DESC").execute();
     }
 
+    /**
+     * find a protocol by a apartment id
+     * @param apartment
+     * @return
+     */
     public static List<AP> findByApartment(Apartment apartment) {
         return new Select().from(AP.class).where("apartment = ?", apartment.getId()).orderBy("day DESC").orderBy("month DESC").orderBy("year DESC").execute();
     }
 
+    /**
+     * find a protocol by his id
+     * @param id
+     * @return
+     */
     public static AP findById(long id) {
         return new Select().from(AP.class).where("id = ?", id).executeSingle();
     }
 
+    /**
+     * find a protocol by a room id and a year
+     * @param room
+     * @param year
+     * @return
+     */
     public static List<AP> findByRoomAndYear(Room room, long year) {
         return new Select().from(AP.class).where("room = ? and year = ?", room.getId(), year).execute();
     }
 
+    /**
+     * find a protocol by a apartment id and a year
+     * @param apartment
+     * @param year
+     * @return
+     */
     public static List<AP> findByApartmentAndYear(Apartment apartment, long year) {
         return new Select().from(AP.class).where("apartment = ? and year = ?", apartment.getId(), year).execute();
     }
 
+    /**
+     * creates a new protocol and add all entries
+     * @param ap
+     */
     public void createNewAP(AP ap) {
 
         EntryStateInterface entryState = new FridgeState(ap.getKitchen(), ap);
@@ -223,6 +281,11 @@ public class AP extends Model{
         entryState.createNewEntry(ap);
     }
 
+    /**
+     * create a new protocol and duplicate all old entries
+     * @param ap
+     * @param oldAP
+     */
     public void duplicateAP(AP ap, AP oldAP) {
 
         EntryStateInterface entryState = new FridgeState(ap.getKitchen(), ap);
@@ -274,6 +337,11 @@ public class AP extends Model{
         entryState.duplicateEntries(ap, oldAP);
     }
 
+    /**
+     * fill in the db with initial data
+     * @param houses
+     * @return
+     */
     public static List<AP> initializeAPs(List<House> houses) {
         int size = new Select().from(AP.class).execute().size();
         List<AP> aps = new ArrayList<>();

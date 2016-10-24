@@ -4,6 +4,13 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.pageelements.CellAlign;
+import com.cete.dynamicpdf.pageelements.CellVAlign;
+import com.cete.dynamicpdf.pageelements.Image;
+import com.cete.dynamicpdf.pageelements.Row;
+import com.cete.dynamicpdf.pageelements.forms.CheckBox;
+import com.example.woko_app.R;
 import com.example.woko_app.fragment.DataGridFragment;
 
 import java.util.ArrayList;
@@ -23,10 +30,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isBedFrameOld = false;
 
     @Column(name = "bedFrameComment")
-    private String bedFrameComment;
+    private String bedFrameComment = null;
 
     @Column(name = "bedFrame_picture")
-    private byte[] bedFramePicture;
+    private byte[] bedFramePicture = null;
 
     @Column(name = "brokenMattress")
     private int brokenMattress = 0;
@@ -35,10 +42,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isMattressOld = false;
 
     @Column(name = "mattressComment")
-    private String mattressComment;
+    private String mattressComment = null;
 
     @Column(name = "mattress_picture")
-    private byte[] mattressPicture;
+    private byte[] mattressPicture = null;
 
     @Column(name = "brokenDesk")
     private int brokenDesk = 0;
@@ -47,10 +54,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isDeskOld = false;
 
     @Column(name = "deskComment")
-    private String deskComment;
+    private String deskComment = null;
 
     @Column(name = "desk_picture")
-    private byte[] deskPicture;
+    private byte[] deskPicture = null;
 
     @Column(name = "brokenBookShelf")
     private int brokenBookShelf = 0;
@@ -59,10 +66,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isBookShelfOld = false;
 
     @Column(name = "bookShelfComment")
-    private String bookShelfComment;
+    private String bookShelfComment = null;
 
     @Column(name = "bookShelf_picture")
-    private byte[] bookShelfPicture;
+    private byte[] bookShelfPicture = null;
 
     @Column(name = "brokenCupboard")
     private int brokenCupboard = 0;
@@ -71,10 +78,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isCupboardOld = false;
 
     @Column(name = "cupboardComment")
-    private String cupboardComment;
+    private String cupboardComment = null;
 
     @Column(name = "cupboard_picture")
-    private byte[] cupboardPicture;
+    private byte[] cupboardPicture = null;
 
     @Column(name = "brokenChair")
     private int brokenChair = 0;
@@ -83,10 +90,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isChairOld = false;
 
     @Column(name = "chairComment")
-    private String chairComment;
+    private String chairComment = null;
 
     @Column(name = "chair_picture")
-    private byte[] chairPicture;
+    private byte[] chairPicture = null;
 
     @Column(name = "brokenCurtain")
     private int brokenCurtain = 0;
@@ -95,10 +102,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isCurtainOld = false;
 
     @Column(name = "curtainComment")
-    private String curtainComment;
+    private String curtainComment = null;
 
     @Column(name = "curtain_picture")
-    private byte[] curtainPicture;
+    private byte[] curtainPicture = null;
 
     @Column(name = "brokenDayCurtain")
     private int brokenDayCurtain = 0;
@@ -107,10 +114,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isDayCurtainOld = false;
 
     @Column(name = "dayCurtainComment")
-    private String dayCurtainComment;
+    private String dayCurtainComment = null;
 
     @Column(name = "dayCurtain_picture")
-    private byte[] dayCurtainPicture;
+    private byte[] dayCurtainPicture = null;
 
     @Column(name = "brokenClothesHanger")
     private int brokenClothesHanger = 0;
@@ -119,10 +126,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isClothesHangerOld = false;
 
     @Column(name = "clothesHangerComment")
-    private String clothesHangerComment;
+    private String clothesHangerComment = null;
 
     @Column(name = "clothesHanger_picture")
-    private byte[] clothesHangerPicture;
+    private byte[] clothesHangerPicture = null;
 
     @Column(name = "brokenBlanket")
     private int brokenBlanket = 0;
@@ -131,10 +138,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isBlanketOld = false;
 
     @Column(name = "blanketComment")
-    private String blanketComment;
+    private String blanketComment = null;
 
     @Column(name = "blanket_picture")
-    private byte[] blanketPicture;
+    private byte[] blanketPicture = null;
 
     @Column(name = "brokenPillow")
     private int brokenPillow = 0;
@@ -143,10 +150,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isPillowOld = false;
 
     @Column(name = "pillowComment")
-    private String pillowComment;
+    private String pillowComment = null;
 
     @Column(name = "pillow_picture")
-    private byte[] pillowPicture;
+    private byte[] pillowPicture = null;
 
     @Column(name = "brokenBedSheet")
     private int brokenBedSheet = 0;
@@ -155,10 +162,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isBedSheetOld = false;
 
     @Column(name = "bedSheetComment")
-    private String bedSheetComment;
+    private String bedSheetComment = null;
 
     @Column(name = "bedSheet_picture")
-    private byte[] bedSheetPicture;
+    private byte[] bedSheetPicture = null;
 
     @Column(name = "brokenBedLinen")
     private int brokenBedLinen = 0;
@@ -167,10 +174,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isBedLinenOld = false;
 
     @Column(name = "bedLinenComment")
-    private String bedLinenComment;
+    private String bedLinenComment = null;
 
     @Column(name = "bedLinen_picture")
-    private byte[] bedLinenPicture;
+    private byte[] bedLinenPicture = null;
 
     @Column(name = "brokenTVBox")
     private int brokenTVBox = 0;
@@ -179,22 +186,22 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isTVBoxOld = false;
 
     @Column(name = "TVBoxComment")
-    private String TVBoxComment;
+    private String TVBoxComment = null;
 
     @Column(name = "TVBox_picture")
-    private byte[] TVBoxPicture;
+    private byte[] TVBoxPicture = null;
 
     @Column(name = "brokenTVControl")
-    private int brokenTVControl;
+    private int brokenTVControl = 0;
 
     @Column(name = "isTVControlOld")
     private boolean isTVControlOld = false;
 
     @Column(name = "TVControlComment")
-    private String TVControlComment;
+    private String TVControlComment = null;
 
     @Column(name = "TVControl_picture")
-    private byte[] TVControlPicture;
+    private byte[] TVControlPicture = null;
 
     @Column(name = "brokenAccessCard")
     private int brokenAccessCard = 0;
@@ -203,20 +210,22 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private boolean isAccessCardOld = false;
 
     @Column(name = "accessCardComment")
-    private String accessCardComment;
+    private String accessCardComment = null;
 
     @Column(name = "accessCard_picture")
-    private byte[] accessCardPicture;
-
-    private static final List<String> ROW_NAMES = Arrays.asList("Bettgestell", "Matratze", "Schreibtisch", "Bücherregal", "Schrank", "Stuhl", "Nachtvorhang", "Tagesvorhang", "Kleiderbügel", "Decke", "Kissen", "Spannbettlaken", "Bettbezüge", "TV-Empfänger Box inkl. Kabel", "TV-Fernbedingung", "TV Sat Access Card");
-
-    private static final List<Integer> COUNT = Arrays.asList(1, 1, 1, 1, 1, 2, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1);
+    private byte[] accessCardPicture = null;
 
     @Column(name = "room", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private Room room;
 
     @Column(name = "AP", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private AP ap;
+
+    @Column(name = "name")
+    private String name = "Mobiliar";
+
+    private static final List<String> ROW_NAMES = Arrays.asList("Bettgestell", "Matratze", "Schreibtisch", "Bücherregal", "Schrank", "Stuhl", "Nachtvorhang", "Tagesvorhang", "Kleiderbügel", "Decke", "Kissen", "Spannbettlaken", "Bettbezüge", "TV-Empfänger Box inkl. Kabel", "TV-Fernbedingung", "TV Sat Access Card");
+    private static final List<Integer> COUNT = Arrays.asList(1, 1, 1, 1, 1, 2, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1);
 
     public FurnitureState() {
         super();
@@ -740,14 +749,6 @@ public class FurnitureState extends Model implements EntryStateInterface {
         return accessCardPicture;
     }
 
-    public List<String> getRowNames() {
-        return ROW_NAMES;
-    }
-
-    public List<Integer> getCOUNT() {
-        return COUNT;
-    }
-
     public Room getRoom() {
         return room;
     }
@@ -756,19 +757,12 @@ public class FurnitureState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    private List<Integer> createBrokenList(FurnitureState furniture) {
-        return new ArrayList<>(Arrays.asList(furniture.getBrokenBedFrame(), furniture.getBrokenMattress(), furniture.getBrokenDesk(), furniture.getBrokenBookShelf(), furniture.getBrokenCupboard(), furniture.getBrokenChair(), furniture.getBrokenCurtain(), furniture.getBrokenDayCurtain(), furniture.getBrokenClothesHanger(), furniture.getBrokenBlanket(), furniture.getBrokenPillow(), furniture.getBrokenBedSheet(), furniture.getBrokenBedLinen(), furniture.getBrokenTVBox(), furniture.getBrokenTVControl(), furniture.getBrokenAccessCard()));
-    }
-    private List<String> createCommentsList(FurnitureState furniture) {
-        return new ArrayList<>(Arrays.asList(furniture.getBedFrameComment(), furniture.getMattressComment(), furniture.getDeskComment(), furniture.getBookShelfComment(), furniture.getCupboardComment(), furniture.getChairComment(), furniture.getCurtainComment(), furniture.getDayCurtainComment(), furniture.getClothesHangerComment(), furniture.getBlanketComment(), furniture.getPillowComment(), furniture.getBedSheetComment(), furniture.getBedLinenComment(), furniture.getTVBoxComment(), furniture.getTVControlComment(), furniture.getAccessCardComment()));
+    public void setName(String name) {
+        this.name = name;
     }
 
-    private List<Boolean> createCheckOldList(FurnitureState furniture) {
-        return new ArrayList<>(Arrays.asList(furniture.isBedFrameOld(), furniture.isMattressOld(), furniture.isDeskOld(), furniture.isBookShelfOld(), furniture.isCupboardOld(), furniture.isChairOld(), furniture.isCurtainOld(), furniture.isDayCurtainOld(), furniture.isClothesHangerOld(), furniture.isBlanketOld(), furniture.isPillowOld(), furniture.isBedSheetOld(), furniture.isBedLinenOld(), furniture.isTVBoxOld(), furniture.isTVControlOld(), furniture.isAccessCardOld()));
-    }
-
-    private List<byte[]> createPictureList(FurnitureState furniture) {
-        return new ArrayList<>(Arrays.asList(furniture.getBedFramePicture(), furniture.getMattressPicture(), furniture.getDeskPicture(), furniture.getBookShelfPicture(), furniture.getCupboardPicture(), furniture.getChairPicture(), furniture.getCurtainPicture(), furniture.getDayCurtainPicture(), furniture.getClothesHangerPicture(), furniture.getBlanketPicture(), furniture.getPillowPicture(), furniture.getBedSheetPicture(), furniture.getBedLinenPicture(), furniture.getTVBoxPicture(), furniture.getTVControlPicture(), furniture.getAccessCardPicture()));
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -786,14 +780,39 @@ public class FurnitureState extends Model implements EntryStateInterface {
         return createCheckOldList(this).get(pos);
     }
 
+    public int getCountBrokenAtPosition(int pos) {
+        return createBrokenList(this).get(pos);
+    }
     @Override
     public byte[] getPictureAtPosition(int pos) {
         return createPictureList(this).get(pos);
     }
 
     @Override
+    public int countPicturesOfLast5Years(int pos, EntryStateInterface entryStateInterface) {
+        FurnitureState furniture = (FurnitureState) entryStateInterface;
+        AP ap = furniture.getAp();
+
+        int counter = 0;
+        int year = 0;
+
+        while (year < 5) {
+
+            if (null != FurnitureState.findByRoomAndAP(ap.getRoom(), ap).getPictureAtPosition(pos)) {
+                counter++;
+            }
+            if (null != ap.getOldAP()) {
+                ap = ap.getOldAP();
+            } else
+                break;
+            year++;
+        }
+        return counter;
+    }
+
+    @Override
     public void getEntries(DataGridFragment frag) {
-        frag.setHeaderVariante2();
+        frag.setTableHeader(frag.getResources().getStringArray(R.array.header_variante2));
         frag.getRowNames().addAll(this.ROW_NAMES);
         frag.getCheckOld().addAll(createCheckOldList(this));
         frag.getComments().addAll(createCommentsList(this));
@@ -810,101 +829,32 @@ public class FurnitureState extends Model implements EntryStateInterface {
         this.save();
     }
 
-    private void copyOldEntries(FurnitureState oldFurniture) {
-        this.setBrokenBedFrame(oldFurniture.getBrokenBedFrame());
-        this.setIsBedFrameOld(oldFurniture.isBedFrameOld());
-        this.setBedFrameComment(oldFurniture.getBedFrameComment());
-        this.setBedFramePicture(oldFurniture.getBedFramePicture());
-        this.setBrokenMattress(oldFurniture.getBrokenMattress());
-        this.setIsMattressOld(oldFurniture.isMattressOld());
-        this.setMattressComment(oldFurniture.getMattressComment());
-        this.setMattressPicture(oldFurniture.getMattressPicture());
-        this.setBrokenDesk(oldFurniture.getBrokenDesk());
-        this.setIsDeskOld(oldFurniture.isDeskOld());
-        this.setDeskComment(oldFurniture.getDeskComment());
-        this.setDeskPicture(oldFurniture.getDeskPicture());
-        this.setBrokenBookShelf(oldFurniture.getBrokenBookShelf());
-        this.setIsBookShelfOld(oldFurniture.isBookShelfOld());
-        this.setBookShelfComment(oldFurniture.getBookShelfComment());
-        this.setBookShelfPicture(oldFurniture.getBookShelfPicture());
-        this.setBrokenCupboard(oldFurniture.getBrokenCupboard());
-        this.setIsCupboardOld(oldFurniture.isCupboardOld());
-        this.setCupboardComment(oldFurniture.getCupboardComment());
-        this.setCupboardPicture(oldFurniture.getCupboardPicture());
-        this.setBrokenChair(oldFurniture.getBrokenChair());
-        this.setIsChairOld(oldFurniture.isChairOld());
-        this.setChairComment(oldFurniture.getChairComment());
-        this.setChairPicture(oldFurniture.getChairPicture());
-        this.setBrokenCurtain(oldFurniture.getBrokenCurtain());
-        this.setIsCurtainOld(oldFurniture.isCurtainOld());
-        this.setCurtainComment(oldFurniture.getCurtainComment());
-        this.setCurtainPicture(oldFurniture.getCurtainPicture());
-        this.setBrokenDayCurtain(oldFurniture.getBrokenDayCurtain());
-        this.setIsDayCurtainOld(oldFurniture.isDayCurtainOld());
-        this.setDayCurtainComment(oldFurniture.getDayCurtainComment());
-        this.setDayCurtainPicture(oldFurniture.getDayCurtainPicture());
-        this.setBrokenClothesHanger(oldFurniture.getBrokenClothesHanger());
-        this.setIsClothesHangerOld(oldFurniture.isClothesHangerOld());
-        this.setClothesHangerComment(oldFurniture.getClothesHangerComment());
-        this.setClothesHangerPicture(oldFurniture.getClothesHangerPicture());
-        this.setBrokenBlanket(oldFurniture.getBrokenBlanket());
-        this.setIsBlanketOld(oldFurniture.isBlanketOld());
-        this.setBlanketComment(oldFurniture.getBlanketComment());
-        this.setBlanketPicture(oldFurniture.getBlanketPicture());
-        this.setBrokenPillow(oldFurniture.getBrokenPillow());
-        this.setIsPillowOld(oldFurniture.isPillowOld());
-        this.setPillowComment(oldFurniture.getPillowComment());
-        this.setPillowPicture(oldFurniture.getPillowPicture());
-        this.setBrokenBedSheet(oldFurniture.getBrokenBedSheet());
-        this.setIsBedSheetOld(oldFurniture.isBedSheetOld());
-        this.setBedSheetComment(oldFurniture.getBedSheetComment());
-        this.setBedSheetPicture(oldFurniture.getBedSheetPicture());
-        this.setBrokenBedLinen(oldFurniture.getBrokenBedLinen());
-        this.setIsBedLinenOld(oldFurniture.isBedLinenOld());
-        this.setBedLinenComment(oldFurniture.getBedLinenComment());
-        this.setBedLinenPicture(oldFurniture.getBedLinenPicture());
-        this.setBrokenTVBox(oldFurniture.getBrokenTVBox());
-        this.setIsTVBoxOld(oldFurniture.isTVBoxOld());
-        this.setTVBoxComment(oldFurniture.getTVBoxComment());
-        this.setTVBoxPicture(oldFurniture.getTVBoxPicture());
-        this.setBrokenTVControl(oldFurniture.getBrokenTVControl());
-        this.setIsTVControlOld(oldFurniture.isTVControlOld());
-        this.setTVControlComment(oldFurniture.getTVControlComment());
-        this.setTVControlPicture(oldFurniture.getTVControlPicture());
-        this.setBrokenAccessCard(oldFurniture.getBrokenAccessCard());
-        this.setIsAccessCardOld(oldFurniture.isAccessCardOld());
-        this.setAccessCardComment(oldFurniture.getAccessCardComment());
-        this.setAccessCardPicture(oldFurniture.getAccessCardPicture());
-    }
-
     @Override
     public void createNewEntry(AP ap) {
         this.save();
     }
 
     @Override
-    public void saveCheckEntries(List<Boolean> check) {
-
-    }
-
-    public void saveBrokenEntries(List<Integer> countBroken) {
-        this.setBrokenBedFrame(countBroken.get(0));
-        this.setBrokenMattress(countBroken.get(1));
-        this.setBrokenDesk(countBroken.get(2));
-        this.setBrokenBookShelf(countBroken.get(3));
-        this.setBrokenCupboard(countBroken.get(4));
-        this.setBrokenChair(countBroken.get(5));
-        this.setBrokenCurtain(countBroken.get(6));
-        this.setBrokenDayCurtain(countBroken.get(7));
-        this.setBrokenClothesHanger(countBroken.get(8));
-        this.setBrokenBlanket(countBroken.get(9));
-        this.setBrokenPillow(countBroken.get(10));
-        this.setBrokenBedSheet(countBroken.get(11));
-        this.setBrokenBedLinen(countBroken.get(12));
-        this.setBrokenTVBox(countBroken.get(13));
-        this.setBrokenTVControl(countBroken.get(14));
-        this.setBrokenAccessCard(countBroken.get(15));
+    public void saveCheckEntries(List<String> check, String ex) {
+        this.setBrokenBedFrame(Integer.parseInt(check.get(0)));
+        this.setBrokenMattress(Integer.parseInt(check.get(1)));
+        this.setBrokenDesk(Integer.parseInt(check.get(2)));
+        this.setBrokenBookShelf(Integer.parseInt(check.get(3)));
+        this.setBrokenCupboard(Integer.parseInt(check.get(4)));
+        this.setBrokenChair(Integer.parseInt(check.get(5)));
+        this.setBrokenCurtain(Integer.parseInt(check.get(6)));
+        this.setBrokenDayCurtain(Integer.parseInt(check.get(7)));
+        this.setBrokenClothesHanger(Integer.parseInt(check.get(8)));
+        this.setBrokenBlanket(Integer.parseInt(check.get(9)));
+        this.setBrokenPillow(Integer.parseInt(check.get(10)));
+        this.setBrokenBedSheet(Integer.parseInt(check.get(11)));
+        this.setBrokenBedLinen(Integer.parseInt(check.get(12)));
+        this.setBrokenTVBox(Integer.parseInt(check.get(13)));
+        this.setBrokenTVControl(Integer.parseInt(check.get(14)));
+        this.setBrokenAccessCard(Integer.parseInt(check.get(15)));
         this.save();
+
+        updateFurnitureName(ex);
     }
 
     @Override
@@ -1004,15 +954,152 @@ public class FurnitureState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    /**
+     * add all columns which contain the broken entries
+     * 0: everything is ok
+     * 0 <: something is incorrect
+     * @param furniture
+     * @return
+     */
+    private static List<Integer> createBrokenList(FurnitureState furniture) {
+        return new ArrayList<>(Arrays.asList(furniture.getBrokenBedFrame(), furniture.getBrokenMattress(), furniture.getBrokenDesk(), furniture.getBrokenBookShelf(), furniture.getBrokenCupboard(), furniture.getBrokenChair(), furniture.getBrokenCurtain(), furniture.getBrokenDayCurtain(), furniture.getBrokenClothesHanger(), furniture.getBrokenBlanket(), furniture.getBrokenPillow(), furniture.getBrokenBedSheet(), furniture.getBrokenBedLinen(), furniture.getBrokenTVBox(), furniture.getBrokenTVControl(), furniture.getBrokenAccessCard()));
+    }
+
+    /**
+     * add all columns which contain the comment to a list
+     * @param furniture
+     * @return
+     */
+    private static List<String> createCommentsList(FurnitureState furniture) {
+        return new ArrayList<>(Arrays.asList(furniture.getBedFrameComment(), furniture.getMattressComment(), furniture.getDeskComment(), furniture.getBookShelfComment(), furniture.getCupboardComment(), furniture.getChairComment(), furniture.getCurtainComment(), furniture.getDayCurtainComment(), furniture.getClothesHangerComment(), furniture.getBlanketComment(), furniture.getPillowComment(), furniture.getBedSheetComment(), furniture.getBedLinenComment(), furniture.getTVBoxComment(), furniture.getTVControlComment(), furniture.getAccessCardComment()));
+    }
+
+    /**
+     * add all columns which contain the verification if the entry is old to a list
+     * false when the entry is new
+     * true when the entry is old
+     * @param furniture
+     * @return
+     */
+    private static List<Boolean> createCheckOldList(FurnitureState furniture) {
+        return new ArrayList<>(Arrays.asList(furniture.isBedFrameOld(), furniture.isMattressOld(), furniture.isDeskOld(), furniture.isBookShelfOld(), furniture.isCupboardOld(), furniture.isChairOld(), furniture.isCurtainOld(), furniture.isDayCurtainOld(), furniture.isClothesHangerOld(), furniture.isBlanketOld(), furniture.isPillowOld(), furniture.isBedSheetOld(), furniture.isBedLinenOld(), furniture.isTVBoxOld(), furniture.isTVControlOld(), furniture.isAccessCardOld()));
+    }
+
+    /**
+     * add all columns which contain the picture to a list
+     * @param furniture
+     * @return
+     */
+    private static List<byte[]> createPictureList(FurnitureState furniture) {
+        return new ArrayList<>(Arrays.asList(furniture.getBedFramePicture(), furniture.getMattressPicture(), furniture.getDeskPicture(), furniture.getBookShelfPicture(), furniture.getCupboardPicture(), furniture.getChairPicture(), furniture.getCurtainPicture(), furniture.getDayCurtainPicture(), furniture.getClothesHangerPicture(), furniture.getBlanketPicture(), furniture.getPillowPicture(), furniture.getBedSheetPicture(), furniture.getBedLinenPicture(), furniture.getTVBoxPicture(), furniture.getTVControlPicture(), furniture.getAccessCardPicture()));
+    }
+
+    /**
+     * copies all columns
+     * @param oldFurniture
+     */
+    private void copyOldEntries(FurnitureState oldFurniture) {
+        this.setBrokenBedFrame(oldFurniture.getBrokenBedFrame());
+        this.setIsBedFrameOld(oldFurniture.isBedFrameOld());
+        this.setBedFrameComment(oldFurniture.getBedFrameComment());
+        this.setBedFramePicture(oldFurniture.getBedFramePicture());
+        this.setBrokenMattress(oldFurniture.getBrokenMattress());
+        this.setIsMattressOld(oldFurniture.isMattressOld());
+        this.setMattressComment(oldFurniture.getMattressComment());
+        this.setMattressPicture(oldFurniture.getMattressPicture());
+        this.setBrokenDesk(oldFurniture.getBrokenDesk());
+        this.setIsDeskOld(oldFurniture.isDeskOld());
+        this.setDeskComment(oldFurniture.getDeskComment());
+        this.setDeskPicture(oldFurniture.getDeskPicture());
+        this.setBrokenBookShelf(oldFurniture.getBrokenBookShelf());
+        this.setIsBookShelfOld(oldFurniture.isBookShelfOld());
+        this.setBookShelfComment(oldFurniture.getBookShelfComment());
+        this.setBookShelfPicture(oldFurniture.getBookShelfPicture());
+        this.setBrokenCupboard(oldFurniture.getBrokenCupboard());
+        this.setIsCupboardOld(oldFurniture.isCupboardOld());
+        this.setCupboardComment(oldFurniture.getCupboardComment());
+        this.setCupboardPicture(oldFurniture.getCupboardPicture());
+        this.setBrokenChair(oldFurniture.getBrokenChair());
+        this.setIsChairOld(oldFurniture.isChairOld());
+        this.setChairComment(oldFurniture.getChairComment());
+        this.setChairPicture(oldFurniture.getChairPicture());
+        this.setBrokenCurtain(oldFurniture.getBrokenCurtain());
+        this.setIsCurtainOld(oldFurniture.isCurtainOld());
+        this.setCurtainComment(oldFurniture.getCurtainComment());
+        this.setCurtainPicture(oldFurniture.getCurtainPicture());
+        this.setBrokenDayCurtain(oldFurniture.getBrokenDayCurtain());
+        this.setIsDayCurtainOld(oldFurniture.isDayCurtainOld());
+        this.setDayCurtainComment(oldFurniture.getDayCurtainComment());
+        this.setDayCurtainPicture(oldFurniture.getDayCurtainPicture());
+        this.setBrokenClothesHanger(oldFurniture.getBrokenClothesHanger());
+        this.setIsClothesHangerOld(oldFurniture.isClothesHangerOld());
+        this.setClothesHangerComment(oldFurniture.getClothesHangerComment());
+        this.setClothesHangerPicture(oldFurniture.getClothesHangerPicture());
+        this.setBrokenBlanket(oldFurniture.getBrokenBlanket());
+        this.setIsBlanketOld(oldFurniture.isBlanketOld());
+        this.setBlanketComment(oldFurniture.getBlanketComment());
+        this.setBlanketPicture(oldFurniture.getBlanketPicture());
+        this.setBrokenPillow(oldFurniture.getBrokenPillow());
+        this.setIsPillowOld(oldFurniture.isPillowOld());
+        this.setPillowComment(oldFurniture.getPillowComment());
+        this.setPillowPicture(oldFurniture.getPillowPicture());
+        this.setBrokenBedSheet(oldFurniture.getBrokenBedSheet());
+        this.setIsBedSheetOld(oldFurniture.isBedSheetOld());
+        this.setBedSheetComment(oldFurniture.getBedSheetComment());
+        this.setBedSheetPicture(oldFurniture.getBedSheetPicture());
+        this.setBrokenBedLinen(oldFurniture.getBrokenBedLinen());
+        this.setIsBedLinenOld(oldFurniture.isBedLinenOld());
+        this.setBedLinenComment(oldFurniture.getBedLinenComment());
+        this.setBedLinenPicture(oldFurniture.getBedLinenPicture());
+        this.setBrokenTVBox(oldFurniture.getBrokenTVBox());
+        this.setIsTVBoxOld(oldFurniture.isTVBoxOld());
+        this.setTVBoxComment(oldFurniture.getTVBoxComment());
+        this.setTVBoxPicture(oldFurniture.getTVBoxPicture());
+        this.setBrokenTVControl(oldFurniture.getBrokenTVControl());
+        this.setIsTVControlOld(oldFurniture.isTVControlOld());
+        this.setTVControlComment(oldFurniture.getTVControlComment());
+        this.setTVControlPicture(oldFurniture.getTVControlPicture());
+        this.setBrokenAccessCard(oldFurniture.getBrokenAccessCard());
+        this.setIsAccessCardOld(oldFurniture.isAccessCardOld());
+        this.setAccessCardComment(oldFurniture.getAccessCardComment());
+        this.setAccessCardPicture(oldFurniture.getAccessCardPicture());
+        this.setName(oldFurniture.getName());
+    }
+
+    /**
+     * set the name of the furniture
+     * if some broken entries are greater then 0 add an exclamation mark to the furniture name
+     * @param ex
+     */
+    private void updateFurnitureName(String ex) {
+        int i = 0;
+        while (i < createBrokenList(this).size()) {
+            if (createBrokenList(this).get(i) > 0) {
+                this.setName("Mobiliar " + ex);
+                break;
+            } else
+                this.setName("Mobiliar");
+            i++;
+        }
+        this.save();
+    }
+    /**
+     * search it in the db with the apartment id and protocol id
+     * @param room
+     * @param ap
+     * @return
+     */
     public static FurnitureState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(FurnitureState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
     }
 
-    public static FurnitureState findById(long id) {
-        return new Select().from(FurnitureState.class).where("id = ?", id).executeSingle();
-    }
-
-    public static void initializeRoomFurniture(List<AP> aps, byte[] image) {
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     * @param image
+     * @param ex
+     */
+    public static void initializeRoomFurniture(List<AP> aps, byte[] image, String ex) {
         for (AP ap : aps) {
             FurnitureState furniture = new FurnitureState(ap.getRoom(), ap);
             furniture.setBrokenMattress(1);
@@ -1022,7 +1109,65 @@ public class FurnitureState extends Model implements EntryStateInterface {
             furniture.setBrokenChair(1);
             furniture.setChairComment("Stuhlbein abgebrochen");
             furniture.setChairPicture(image);
+            furniture.setName(furniture.getName() + " " + ex);
             furniture.save();
         }
+    }
+
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(FurnitureState furniture, float pageWidth, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+
+        table.getColumns().add(150);
+        table.getColumns().add(42);
+        table.getColumns().add(50);
+        table.getColumns().add(50);
+        table.getColumns().add(160);
+        table.getColumns().add(298);
+
+        Row header = table.getRows().add(30);
+        header.setFont(Font.getHelveticaBold());
+        header.setFontSize(11);
+        header.setAlign(CellAlign.CENTER);
+        header.setVAlign(CellVAlign.CENTER);
+        header.getCellList().add("");
+        header.getCellList().add("Anzahl");
+        header.getCellList().add("fehlend/defekt");
+        header.getCellList().add("alter Eintrag");
+        header.getCellList().add("Kommentar");
+        header.getCellList().add("Foto");
+
+        int i = 0;
+        for (String s : ROW_NAMES) {
+            Row row = table.getRows().add(30);
+            row.setFontSize(11);
+            row.setAlign(CellAlign.CENTER);
+            row.setVAlign(CellVAlign.CENTER);
+
+            row.getCellList().add(s);
+
+            row.getCellList().add(COUNT.get(i).toString());
+
+            row.getCellList().add(createBrokenList(furniture).get(i).toString());
+
+            if (createCheckOldList(furniture).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+            } else
+                row.getCellList().add("");
+
+            if (null != createCommentsList(furniture).get(i)) {
+                row.getCellList().add(createCommentsList(furniture).get(i));
+            } else
+                row.getCellList().add("");
+
+            if (null != createPictureList(furniture).get(i)) {
+                Image image = new Image(createPictureList(furniture).get(i), 0, 0);
+                row.getCellList().add(image);
+            } else
+                row.getCellList().add("");
+
+            i++;
+        }
+        table.setHeight(table.getRequiredHeight());
+        return table;
     }
 }

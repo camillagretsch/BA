@@ -26,15 +26,9 @@ import com.example.woko_app.R;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * to handle interaction events.
- * create an instance of this fragment.
- */
 public class ShowOldFragment extends Fragment {
 
-    private List<AP> oldAPs = new ArrayList<>();
+    private List<AP> aps = new ArrayList<>();
     private Apartment currentApartment;
     private Room currentRoom;
     private int year;
@@ -46,14 +40,11 @@ public class ShowOldFragment extends Fragment {
     private LinearLayout fileContainer;
 
     private AP currentAP;
+    private HV_HomeActivity hv_homeActivity;
 
 
     public ShowOldFragment() {
         // Required empty public constructor
-    }
-
-    public ShowOldFragment(Typeface font) {
-        this.font = font;
     }
 
     public static ShowOldFragment newInstance() {
@@ -65,8 +56,12 @@ public class ShowOldFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_show_old, container, false);
 
+        //fontawesome
+        font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/fontawesome-webfont.ttf");
+
         fileContainer = (LinearLayout) view.findViewById(R.id.fileContainer);
 
+        // set buttons on click listener
         btnBack = (Button) view.findViewById(R.id.btnBack);
         btnBack.setTypeface(font);
         btnBack.setOnClickListener(new View.OnClickListener() {
@@ -75,6 +70,8 @@ public class ShowOldFragment extends Fragment {
                 getActivity().onBackPressed();
             }
         });
+
+        hv_homeActivity = (HV_HomeActivity) getActivity();
 
         return view;
     }
@@ -92,20 +89,26 @@ public class ShowOldFragment extends Fragment {
 
         }
 
+        // save all protocols from the selected year in a list
         if (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType())) {
-            oldAPs = AP.findByRoomAndYear(currentRoom, year);
-            Log.d("How many files are found:", String.valueOf(oldAPs.size()));
+            aps = AP.findByRoomAndYear(currentRoom, year);
+            Log.d("How many files:", String.valueOf(aps.size()));
         } else {
-            oldAPs = AP.findByApartmentAndYear(currentApartment, year);
-            Log.d("How many files are found:", String.valueOf(oldAPs.size()));
+            aps = AP.findByApartmentAndYear(currentApartment, year);
+            Log.d("How many files:", String.valueOf(aps.size()));
         }
 
-        if (oldAPs.isEmpty()) {
+        // checks if protocols for this year exists
+        if (aps.isEmpty()) {
             showMessageNoFilesFound();
         } else
-            createFilesOnScreen();
+            showFiles();
     }
 
+    /**
+     * no protocols are found for this year
+     * show a popup window and go bach to the main fragmnet
+     */
     private void showMessageNoFilesFound() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
 
@@ -116,6 +119,7 @@ public class ShowOldFragment extends Fragment {
         textView.setGravity(Gravity.CENTER);
         alertDialogBuilder.setView(textView);
 
+        // set button on click listener
         alertDialogBuilder.setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -126,15 +130,19 @@ public class ShowOldFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void createFilesOnScreen() {
-
+    /**
+     * go through each protocol in the list
+     * add an file icon, name, open button and edit button
+     */
+    private void showFiles() {
         int i = 0;
 
-        for (AP ap : oldAPs) {
+        for (AP ap : aps) {
 
             LinearLayout linearLayout = new LinearLayout(new ContextThemeWrapper(getActivity(), R.style.VerticalLayoutStyle), null);
             fileContainer.addView(linearLayout);
 
+            // icon for the file
             TextView fileicon = new TextView(getActivity());
             linearLayout.addView(fileicon);
             fileicon.setText(R.string.file_icon);
@@ -142,10 +150,12 @@ public class ShowOldFragment extends Fragment {
             fileicon.setGravity(Gravity.CENTER_HORIZONTAL);
             fileicon.setTypeface(font);
 
+            // name of the file
             TextView fileName = new TextView(new ContextThemeWrapper(getActivity(), R.style.TextViewStyle), null);
             fileName.setText(ap.getName());
             linearLayout.addView(fileName);
 
+            // button to open the protocol
             final Button btnOpen = new Button(new ContextThemeWrapper(getActivity(), R.style.ButtonStyle), null);
             btnOpen.setText(R.string.open_btn);
             btnOpen.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -159,6 +169,7 @@ public class ShowOldFragment extends Fragment {
                 }
             });
 
+            // button to edit the protocol
             final Button btnEdit = new Button(new ContextThemeWrapper(getActivity(), R.style.ButtonStyle), null);
             btnEdit.setText(R.string.edit_btn);
             btnEdit.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -176,18 +187,25 @@ public class ShowOldFragment extends Fragment {
         }
     }
 
+    /**
+     * TODO
+     * @param btnOpen
+     */
     private void setOnClickOpen(Button btnOpen) {
         Log.d("Button ID", String.valueOf(btnOpen.getId()));
-        currentAP = oldAPs.get(btnOpen.getId());
+        currentAP = aps.get(btnOpen.getId());
         Log.d("Open: ", currentAP.getApartment().getHouse().getHV().getName() + " opens AP with the id " + currentAP.getId());
     }
 
+    /**
+     * call the root activity to open the edit activity
+     * @param btnEdit
+     */
     private void setOnClickEdit(Button btnEdit) {
         Log.d("Button ID", String.valueOf(btnEdit.getId()));
-        currentAP = oldAPs.get(btnEdit.getId());
+        currentAP = aps.get(btnEdit.getId());
         currentAP.save();
         Log.d("Edit: ", currentAP.getApartment().getHouse().getHV().getName() + " edits AP with the id " + currentAP.getId());
-        HV_HomeActivity hv_homeActivity = (HV_HomeActivity) getActivity();
         hv_homeActivity.callEditActivity(currentAP.getId());
     }
 }

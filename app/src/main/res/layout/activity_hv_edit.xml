@@ -76,10 +76,12 @@
         android:layout_height="match_parent">
 
         <RelativeLayout
-            android:layout_width="200sp"
+            android:layout_width="245sp"
             android:layout_height="match_parent"
             android:id="@+id/list_holder"
             android:background="@color/grey_dark" />
+
+        <View style="@style/VerticalDividerStyle"/>
 
         <RelativeLayout
             android:layout_width="match_parent"

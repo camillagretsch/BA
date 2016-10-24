@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.woko_app.activity.SignatureActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_above="@+id/signatureContainer"
+        android:layout_marginBottom="20sp"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:id="@+id/txtSignature"/>
+
+    <RelativeLayout
+        android:layout_width="600sp"
+        android:layout_height="80sp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/table_white"
+        android:id="@+id/signatureContainer"/>
+
+    <Button
+        style="@style/ButtonStyle"
+        android:text="@string/done_btn"
+        android:id="@+id/btnDone"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"/>
+
+    <Button
+        style="@style/ButtonStyle"
+        android:text="@string/clear_btn"
+        android:id="@+id/btnClear"
+        android:layout_alignParentBottom="true" />
+
+    <Button
+        style="@style/ButtonStyle"
+        android:text="@string/save_btn"
+        android:id="@+id/btnSave"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>

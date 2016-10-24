@@ -30,7 +30,7 @@ public class House extends Model{
     private User HV;
 
     @Column(name = "apartments", onUpdate = Column.ForeignKeyAction.CASCADE)
-    private List<Apartment> apartments = new ArrayList<Apartment>();
+    private List<Apartment> apartments = new ArrayList<>();
 
     private int numberOfApartment;
 
@@ -77,30 +77,6 @@ public class House extends Model{
     }
 
     /**
-     * creates houses and save them to the table
-     * @param users
-     * @return
-     */
-    public static List<House> initializeHouses(List<User> users) {
-        int i = new Select().from(House.class).execute().size();
-        List<House> houses = new ArrayList<>();
-
-        if (i == 0) {
-            User user = users.get(0);
-            House house = new House("Musterstrasse", "1" , "Zürich", 8000, user, 4);
-            house.save();
-            houses.add(house);
-
-            user = users.get(1);
-            house = new House("Musterstrasse", "2" , "Zürich", 8000, users.get(1), 6);
-            house.save();
-            houses.add(house);
-
-        }
-        return houses;
-    }
-
-    /**
      * find a house by id
      * @param id
      * @return
@@ -116,5 +92,29 @@ public class House extends Model{
      */
     public static House findByHV(User user) {
         return new Select().from(House.class).where("HV = ?", user.getId()).executeSingle();
+    }
+
+    /**
+     * creates houses and save them to the table
+     * @param users
+     * @return
+     */
+    public static List<House> initializeHouses(List<User> users) {
+        int i = new Select().from(House.class).execute().size();
+        List<House> houses = new ArrayList<>();
+
+        if (i == 0) {
+            User user = users.get(0);
+            House house = new House("Musterstrasse", "1" , "Zürich", 8000, user, 4);
+            house.save();
+            houses.add(house);
+
+            user = users.get(1);
+            house = new House("Musterstrasse", "2" , "Zürich", 8000, users.get(1), 7);
+            house.save();
+            houses.add(house);
+
+        }
+        return houses;
     }
 }

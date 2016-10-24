@@ -44,7 +44,7 @@ public class HV_HomeActivity extends Activity {
 
     private ArrayList<String> parentItems = new ArrayList<>();
     private ArrayList<Object> childItems = new ArrayList<>();
-
+    private static int prev = -1;
 
     private TextView userIcon;
     private TextView txtName;
@@ -138,7 +138,7 @@ public class HV_HomeActivity extends Activity {
      * shared room: expandablelistview
      * studio: listview
      */
-    public void generateSideView() {
+    private void generateSideView() {
         currentHouse = House.findByHV(currentUser);
 
         setParentData();
@@ -182,12 +182,25 @@ public class HV_HomeActivity extends Activity {
     private void setExpandableListView() {
 
         final ExpandableListView expandableListView = new ExpandableListView(this);
+        expandableListView.setDivider(new ColorDrawable(this.getResources().getColor(R.color.black)));
         expandableListView.setDividerHeight(3);
+        expandableListView.setChildDivider(new ColorDrawable(this.getResources().getColor(R.color.black)));
         expandableListView.setClickable(true);
 
-        ExpandableListAdapter adapter = new ExpandableListAdapter(parentItems, childItems, R.layout.home_expandablelist_parent, R.layout.home_expandablelist_child, null);
+        ExpandableListAdapter adapter = new ExpandableListAdapter(parentItems, childItems, R.layout.home_expandablelist_parent, R.layout.home_expandablelist_child, null, null);
         adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE), this);
         expandableListView.setAdapter(adapter);
+        // expand group listener takes care that only one group ist expanded at the time
+        expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                if (prev != groupPosition) {
+                    expandableListView.collapseGroup(prev);
+                }
+                prev = groupPosition;
+            }
+        });
+        // child click listener opens the main fragment or create protocol fragment
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
@@ -209,6 +222,7 @@ public class HV_HomeActivity extends Activity {
                 return true;
             }
         });
+        // collapse group listener close the current open fragment
         expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int groupPosition) {
@@ -222,19 +236,11 @@ public class HV_HomeActivity extends Activity {
      * creates the list only with parent items
      */
     private void setListView() {
-        View v = new View(this);
-        v.setMinimumHeight(3);
-        v.setMinimumWidth(sidebarContainer.getWidth());
-        v.setBackgroundColor(R.color.black);
-
         ListView listView = new ListView(this);
-        //listView.setFooterDividersEnabled(false);
-        listView.addFooterView(v);
-        ColorDrawable black = new ColorDrawable(this.getResources().getColor(R.color.black));
-        listView.setDivider(black);
+        listView.setDivider(new ColorDrawable(this.getResources().getColor(R.color.black)));
         listView.setDividerHeight(3);
 
-        ArrayAdapter adapter = new ArrayAdapter<String>(this, R.layout.home_listview, parentItems);
+        ArrayAdapter adapter = new ArrayAdapter<>(this, R.layout.home_listview, parentItems);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -258,8 +264,13 @@ public class HV_HomeActivity extends Activity {
         sidebarContainer.addView(listView);
     }
 
+    /**
+     * opens the main fragment
+     * this contains a search function for protocols
+     * and the newest protocol
+     */
     public void callMainFragment() {
-        mainFragment = new MainFragment(font);
+        mainFragment = new MainFragment();
         openFragment = mainFragment;
         bundle = new Bundle();
         bundle.putLong("AP_ID", currentAP.getId());
@@ -268,6 +279,10 @@ public class HV_HomeActivity extends Activity {
         fragmentTransaction.replace(R.id.fragment_container, mainFragment, null).addToBackStack(null).commit();
     }
 
+    /**
+     * opens the create new protocol fragment
+     * this fragmnet is opened, when no protocol for this apartment or room exists
+     */
     public void callCreateProtocolFragment() {
         createProtocolFragment = new CreateProtocolFragment();
         openFragment = createProtocolFragment;
@@ -275,8 +290,12 @@ public class HV_HomeActivity extends Activity {
         fragmentTransaction.replace(R.id.fragment_container, createProtocolFragment, null).addToBackStack(null).commit();
     }
 
+    /**
+     * open the duplicate fragment
+     * when the duplicate button in the main fragment is pressed
+     */
     public void callDuplicateFragment() {
-        duplicateFragment = new DuplicateFragment(font);
+        duplicateFragment = new DuplicateFragment();
         openFragment = duplicateFragment;
         bundle = new Bundle();
         bundle.putLong("House", currentHouse.getId());
@@ -292,8 +311,12 @@ public class HV_HomeActivity extends Activity {
         fragmentTransaction.replace(R.id.fragment_container, duplicateFragment, null).addToBackStack(null).commit();
     }
 
+    /**
+     * open the show old fragment
+     * when an old protocol in the main fragment is searched
+     */
     public void callShowOldFragment(int year) {
-        showOldFragment = new ShowOldFragment(font);
+        showOldFragment = new ShowOldFragment();
         openFragment = showOldFragment;
         bundle = new Bundle();
         bundle.putLong("Apartment", currentApartment.getId());
@@ -306,6 +329,9 @@ public class HV_HomeActivity extends Activity {
         fragmentTransaction.replace(R.id.fragment_container, showOldFragment, null).addToBackStack(null).commit();
     }
 
+    /**
+     * close the current open fragment
+     */
     public void closeOpenFragment() {
         if (openFragment != null) {
             fragmentTransaction = fragmentManager.beginTransaction();
@@ -313,6 +339,11 @@ public class HV_HomeActivity extends Activity {
         }
     }
 
+    /**
+     * open the edit activity
+     * when the edit button is pressed or a new protocl is created
+     * @param currentAP_Id
+     */
     public void callEditActivity(long currentAP_Id) {
         Intent intent = new Intent(this, HV_EditActivity.class);
         intent.putExtra("Username", currentUser.getUsername());
@@ -321,6 +352,15 @@ public class HV_HomeActivity extends Activity {
         startActivity(intent);
     }
 
+    public void callOpenActivity() {
+        Intent intent = new Intent(this, OpenActivity.class);
+        intent.putExtra("ID", currentAP.getId());
+        startActivity(intent);
+    }
+    /**
+     * close the create new protocol fragmnet when stop is pressed
+     * close show old Fragment when back is pressed
+     */
     @Override
     public void onBackPressed() {
         int fragments = getFragmentManager().getBackStackEntryCount();
@@ -339,11 +379,12 @@ public class HV_HomeActivity extends Activity {
     }
 
     /**
+     * logout button is pressed
      * set user to offline
      * opens the login screen
      * @param v
      */
-    public void onClickLogout(View v) {
+    private void onClickLogout(View v) {
 
         currentUser.setUserOffline(currentUser);
         Log.d("Status: ", currentUser.getName() + " is " + currentUser.getStatus().toString());

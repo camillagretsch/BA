@@ -3,11 +3,8 @@ package com.example.woko_app.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Picture;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,7 +22,7 @@ import com.example.woko_app.models.BasementState;
 import com.example.woko_app.models.Bathroom;
 import com.example.woko_app.models.CupboardState;
 import com.example.woko_app.models.CutleryState;
-import com.example.woko_app.models.DbBitmapUtility;
+import com.example.woko_app.models.PersonalSerializer;
 import com.example.woko_app.models.DoorState;
 import com.example.woko_app.models.FloorState;
 import com.example.woko_app.models.FridgeState;
@@ -53,7 +50,7 @@ public class LoginActivity extends Activity {
     private EditText etUsername;
     private EditText etPassword;
 
-    private Typeface font;
+    private Typeface fontawesome;
 
 
     private User currentUser;
@@ -65,13 +62,13 @@ public class LoginActivity extends Activity {
         initializeDB();
 
         //fontawesome
-        font = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
+        fontawesome = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
 
         etUsername = (EditText)findViewById(R.id.etUsername_login);
         etPassword = (EditText)findViewById(R.id.etPassword);
         btnLogin = (Button)findViewById(R.id.login_btn);
 
-        btnLogin.setTypeface(font);
+        btnLogin.setTypeface(fontawesome);
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -86,7 +83,7 @@ public class LoginActivity extends Activity {
      * opens the right home screen depends of the user type
      * @param v
      */
-    public void onClickLogin(View v) {
+    private void onClickLogin(View v) {
 
         String username = etUsername.getText().toString();
         String password = etPassword.getText().toString();
@@ -112,7 +109,7 @@ public class LoginActivity extends Activity {
                     break;
             }
         } else {
-            Toast toast = Toast.makeText(getBaseContext(), "falscher Benutzername oder Passwort!", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(getBaseContext(), R.string.wrong_entry, Toast.LENGTH_LONG);
 
             LinearLayout toastlayout = (LinearLayout) toast.getView();
             TextView txtToast = (TextView) toastlayout.getChildAt(0);
@@ -125,45 +122,46 @@ public class LoginActivity extends Activity {
      * fills the DB with start data
      */
     private void initializeDB() {
+        String ex = getResources().getString(R.string.exclamation_mark);
         Bitmap bitmap = null;
         ActiveAndroid.dispose();
         ActiveAndroid.initialize(this);
         List<User> users = User.initializeUsers();
         List<House> houses = House.initializeHouses(users);
         List<Apartment> apartments = Apartment.initializeApartments(houses);
-        List<Room> rooms = Room.initializeRooms(apartments);
+        Room.initializeRooms(apartments);
         Bathroom.initializeBathroom(apartments);
         Kitchen.initializeKitchen(apartments);
         List<AP> aps = AP.initializeAPs(houses);
-        FloorState.initializeRoomFloor(aps);
-        FloorState.initializeBathroomFloor(aps);
+        FloorState.initializeRoomFloor(aps, ex);
+        FloorState.initializeBathroomFloor(aps, ex);
         FloorState.initializeKitchenFloor(aps);
-        WallState.initializeRoomWall(aps);
-        WallState.initializeBathroomWall(aps);
+        WallState.initializeRoomWall(aps, ex);
+        WallState.initializeBathroomWall(aps, ex);
         bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.kitchen_wall_spot)).getBitmap();
-        WallState.initializeKitchenWall(aps, DbBitmapUtility.getBytes(bitmap));
-        DoorState.initializeRoomDoor(aps);
+        WallState.initializeKitchenWall(aps, PersonalSerializer.getBytes(bitmap), ex);
+        DoorState.initializeRoomDoor(aps, ex);
         DoorState.initializeBathroomDoor(aps);
-        DoorState.initializeKitchenDoor(aps);
+        DoorState.initializeKitchenDoor(aps, ex);
         WindowState.initializeRoomWindow(aps);
         WindowState.initializeBathroomWindow(aps);
-        WindowState.initializeKitchenWindow(aps);
-        SocketState.initializeRoomSocket(aps);
+        WindowState.initializeKitchenWindow(aps, ex);
+        SocketState.initializeRoomSocket(aps, ex);
         SocketState.initializeBathroomSocket(aps);
-        SocketState.initializeKitchenSocket(aps);
-        RadiatorState.initializeRoomRadiator(aps);
+        SocketState.initializeKitchenSocket(aps, ex);
+        RadiatorState.initializeRoomRadiator(aps, ex);
         RadiatorState.initializeBathroomRadiator(aps);
-        RadiatorState.initializeKitchenRadiator(aps);
-        MattressState.initializeRoomMattress(aps);
+        RadiatorState.initializeKitchenRadiator(aps, ex);
+        MattressState.initializeRoomMattress(aps, ex);
         bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.broken_chair)).getBitmap();
-        FurnitureState.initializeRoomFurniture(aps, DbBitmapUtility.getBytes(bitmap));
-        ShowerState.initializeBathroomShower(aps);
-        FridgeState.initializeKitchenFridge(aps);
-        OvenState.initializeKitchenOven(aps);
+        FurnitureState.initializeRoomFurniture(aps, PersonalSerializer.getBytes(bitmap), ex);
+        ShowerState.initializeBathroomShower(aps, ex);
+        FridgeState.initializeKitchenFridge(aps, ex);
+        OvenState.initializeKitchenOven(aps, ex);
         bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.broken_pan)).getBitmap();
-        CutleryState.initializeKitchenCutlery(aps, DbBitmapUtility.getBytes(bitmap));
+        CutleryState.initializeKitchenCutlery(aps, PersonalSerializer.getBytes(bitmap), ex);
         bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.ventilation_damage)).getBitmap();
-        VentilationState.initializeKitchenVentilation(aps, DbBitmapUtility.getBytes(bitmap));
+        VentilationState.initializeKitchenVentilation(aps, PersonalSerializer.getBytes(bitmap), ex);
         CupboardState.initializeKitchenCupboard(aps);
         BalconyState.initializeBalcony(aps);
         BasementState.initializeBasement(aps);

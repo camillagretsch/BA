@@ -4,6 +4,12 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.pageelements.CellAlign;
+import com.cete.dynamicpdf.pageelements.CellVAlign;
+import com.cete.dynamicpdf.pageelements.Image;
+import com.cete.dynamicpdf.pageelements.Row;
+import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
 
@@ -24,10 +30,10 @@ public class CupboardState extends Model implements EntryStateInterface{
     private boolean isCleanOld = false;
 
     @Column(name = "clean_comment")
-    private String cleanComment;
+    private String cleanComment = null;
 
     @Column(name = "clean_picture")
-    private byte[] cleanPicture;
+    private byte[] cleanPicture = null;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -36,18 +42,21 @@ public class CupboardState extends Model implements EntryStateInterface{
     private boolean isDamageOld = false;
 
     @Column(name = "damage_comment")
-    private String damageComment;
+    private String damageComment = null;
 
     @Column(name = "damage_picture")
-    private byte[] damagePicture;
-
-    private static final List<String> ROW_NAMES = Arrays.asList("Sind gereinigt?", "Ist alles intakt?");
+    private byte[] damagePicture = null;
 
     @Column(name = "kitchen", onUpdate = Column.ForeignKeyAction.CASCADE)
     private Kitchen kitchen;
 
     @Column(name = "AP", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private AP ap;
+
+    @Column(name = "name")
+    private String name = "Schränke";
+
+    private static final List<String> ROW_NAMES = Arrays.asList("Sind gereinigt?", "Ist alles intakt?");
 
     public CupboardState() {
         super();
@@ -123,10 +132,6 @@ public class CupboardState extends Model implements EntryStateInterface{
         return damagePicture;
     }
 
-    public List<String> getRowNames() {
-        return ROW_NAMES;
-    }
-
     public Kitchen getKitchen() {
         return kitchen;
     }
@@ -135,20 +140,12 @@ public class CupboardState extends Model implements EntryStateInterface{
         return ap;
     }
 
-    private List<Boolean> createCheckList(CupboardState cupboard) {
-        return new ArrayList<>(Arrays.asList(cupboard.isClean(), cupboard.hasNoDamage()));
+    public void setName(String name) {
+        this.name = name;
     }
 
-    private List<String> createCommentsList(CupboardState cupboard) {
-        return new ArrayList<>(Arrays.asList(cupboard.getCleanComment(), cupboard.getDamageComment()));
-    }
-
-    private List<Boolean> createCheckOldList(CupboardState cupboard) {
-        return new ArrayList<>(Arrays.asList(cupboard.isCleanOld(), cupboard.isDamageOld()));
-    }
-
-    private List<byte[]> createPictureList(CupboardState cupboard) {
-        return new ArrayList<>(Arrays.asList(cupboard.getCleanPicture(), cupboard.getDamagePicture()));
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -172,8 +169,30 @@ public class CupboardState extends Model implements EntryStateInterface{
     }
 
     @Override
+    public int countPicturesOfLast5Years(int pos, EntryStateInterface entryStateInterface) {
+        CupboardState cupboard = (CupboardState) entryStateInterface;
+        AP ap = cupboard.getAp();
+
+        int counter = 0;
+        int year = 0;
+
+        while (year < 5) {
+
+            if (null != CupboardState.findByKitchenAndAP(ap.getKitchen(), ap).getPictureAtPosition(pos)) {
+                counter++;
+            }
+            if (null != ap.getOldAP()) {
+                ap = ap.getOldAP();
+            } else
+                break;
+            year++;
+        }
+        return counter;
+    }
+
+    @Override
     public void getEntries(DataGridFragment frag) {
-        frag.setHeaderVariante1();
+        frag.setTableHeader(frag.getResources().getStringArray(R.array.header_variante1));
         frag.getRowNames().addAll(this.ROW_NAMES);
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
@@ -191,17 +210,6 @@ public class CupboardState extends Model implements EntryStateInterface{
         }
     }
 
-    private void copyOldEntries(CupboardState oldCupboard) {
-        this.setIsClean(oldCupboard.isClean());
-        this.setIsCleanOld(oldCupboard.isCleanOld());
-        this.setCleanComment(oldCupboard.getCleanComment());
-        this.setCleanPicture(oldCupboard.getCleanPicture());
-        this.setHasNoDamage(oldCupboard.hasNoDamage());
-        this.setIsDamageOld(oldCupboard.isDamageOld());
-        this.setDamageComment(oldCupboard.getDamageComment());
-        this.setDamagePicture(oldCupboard.getDamagePicture());
-    }
-
     @Override
     public void createNewEntry(AP ap) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
@@ -210,9 +218,13 @@ public class CupboardState extends Model implements EntryStateInterface{
     }
 
     @Override
-    public void saveCheckEntries(List<Boolean> check) {
-        this.setIsClean(check.get(0));
-        this.setHasNoDamage(check.get(1));
+    public void saveCheckEntries(List<String> check, String ex) {
+        this.setIsClean(Boolean.parseBoolean(check.get(0)));
+        this.setHasNoDamage(Boolean.parseBoolean(check.get(1)));
+        if (check.contains("false")) {
+            this.setName("Schränke " + ex);
+        } else
+            this.setName("Schränke");
         this.save();
     }
 
@@ -243,18 +255,141 @@ public class CupboardState extends Model implements EntryStateInterface{
         this.save();
     }
 
+    /**
+     * add all columns which contain the verification of the correctness of the entries to a list
+     * false when something is incorrect
+     * true when something is correct
+     * @param cupboard
+     * @return
+     */
+    private static List<Boolean> createCheckList(CupboardState cupboard) {
+        return new ArrayList<>(Arrays.asList(cupboard.isClean(), cupboard.hasNoDamage()));
+    }
+
+    /**
+     * add all columns which contain the comment to a list
+     * @param cupboard
+     * @return
+     */
+    private static List<String> createCommentsList(CupboardState cupboard) {
+        return new ArrayList<>(Arrays.asList(cupboard.getCleanComment(), cupboard.getDamageComment()));
+    }
+
+    /**
+     * add all columns which contain the verification if the entry is old to a list
+     * false when the entry is new
+     * true when the entry is old
+     * @param cupboard
+     * @return
+     */
+    private static List<Boolean> createCheckOldList(CupboardState cupboard) {
+        return new ArrayList<>(Arrays.asList(cupboard.isCleanOld(), cupboard.isDamageOld()));
+    }
+
+    /**
+     * add all columns which contain the picture to a list
+     * @param cupboard
+     * @return
+     */
+    private static List<byte[]> createPictureList(CupboardState cupboard) {
+        return new ArrayList<>(Arrays.asList(cupboard.getCleanPicture(), cupboard.getDamagePicture()));
+    }
+
+    /**
+     * copies all columns
+     * @param oldCupboard
+     */
+    private void copyOldEntries(CupboardState oldCupboard) {
+        this.setIsClean(oldCupboard.isClean());
+        this.setIsCleanOld(oldCupboard.isCleanOld());
+        this.setCleanComment(oldCupboard.getCleanComment());
+        this.setCleanPicture(oldCupboard.getCleanPicture());
+        this.setHasNoDamage(oldCupboard.hasNoDamage());
+        this.setIsDamageOld(oldCupboard.isDamageOld());
+        this.setDamageComment(oldCupboard.getDamageComment());
+        this.setDamagePicture(oldCupboard.getDamagePicture());
+        this.setName(oldCupboard.getName());
+    }
+
+    /**
+     * search it in the db with the kitchen id and protocol id
+     * @param kitchen
+     * @param ap
+     * @return
+     */
     public static CupboardState findByKitchenAndAP(Kitchen kitchen, AP ap) {
         return new Select().from(CupboardState.class).where("kitchen = ? and AP = ?", kitchen.getId(), ap.getId()).executeSingle();
     }
 
-    public static CupboardState findById(long id) {
-        return new Select().from(CupboardState.class).where("id = ?", id).executeSingle();
-    }
-
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     */
     public static void initializeKitchenCupboard(List<AP> aps) {
         for (AP ap : aps) {
             CupboardState cupboard = new CupboardState(ap.getKitchen(), ap);
             cupboard.save();
         }
+    }
+
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(CupboardState cupboard, float pageWidth, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+
+        table.getColumns().add(150);
+        table.getColumns().add(30);
+        table.getColumns().add(30);
+        table.getColumns().add(50);
+        table.getColumns().add(170);
+        table.getColumns().add(320);
+
+        Row header = table.getRows().add(30);
+        header.setFont(Font.getHelveticaBold());
+        header.setFontSize(11);
+        header.setAlign(CellAlign.CENTER);
+        header.setVAlign(CellVAlign.CENTER);
+        header.getCellList().add("");
+        header.getCellList().add("Ja");
+        header.getCellList().add("Nein");
+        header.getCellList().add("alter Eintrag");
+        header.getCellList().add("Kommentar");
+        header.getCellList().add("Foto");
+
+        int i = 0;
+        for (String s : ROW_NAMES) {
+            Row row = table.getRows().add(30);
+            row.setFontSize(11);
+            row.setAlign(CellAlign.CENTER);
+            row.setVAlign(CellVAlign.CENTER);
+
+            row.getCellList().add(s);
+
+            if (createCheckList(cupboard).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+                row.getCellList().add("");
+            } else {
+                row.getCellList().add("");
+                row.getCellList().add(new Image(cross, 0, 0));
+            }
+
+            if (createCheckOldList(cupboard).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+            } else
+                row.getCellList().add("");
+
+            if (null != createCommentsList(cupboard).get(i)) {
+                row.getCellList().add(createCommentsList(cupboard).get(i));
+            } else
+                row.getCellList().add("");
+
+            if (null != createPictureList(cupboard).get(i)) {
+                Image image = new Image(createPictureList(cupboard).get(i), 0, 0);
+                row.getCellList().add(image);
+            } else
+                row.getCellList().add("");
+
+            i++;
+        }
+        table.setHeight(table.getRequiredHeight());
+        return table;
     }
 }

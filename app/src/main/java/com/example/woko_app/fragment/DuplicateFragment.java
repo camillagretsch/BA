@@ -23,13 +23,6 @@ import com.example.woko_app.models.Kitchen;
 import com.example.woko_app.models.Room;
 import com.example.woko_app.models.TenantOld;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * to handle interaction events.
- * Use the {@link DuplicateFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class DuplicateFragment extends Fragment {
 
     private Typeface font;
@@ -54,10 +47,6 @@ public class DuplicateFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public DuplicateFragment(Typeface font) {
-        this.font = font;
-    }
-
     public static DuplicateFragment newInstance() {
         DuplicateFragment fragment = new DuplicateFragment();
         return fragment;
@@ -67,6 +56,9 @@ public class DuplicateFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_duplicate, container, false);
 
+        //fontawesome
+        font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/fontawesome-webfont.ttf");
+
         etAdress = (EditText) view.findViewById(R.id.etAddress);
         etApartmentNr = (EditText) view.findViewById(R.id.etApartmentNr);
         etRoomNr = (EditText) view.findViewById(R.id.etRoomNr);
@@ -75,33 +67,13 @@ public class DuplicateFragment extends Fragment {
 
         datePicker = (DatePicker) view.findViewById(R.id.datePicker);
 
+        // set buttons on click listener
         btnNext = (Button) view.findViewById(R.id.btnNext);
         btnNext.setTypeface(font);
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AP ap;
-                if (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType())) {
-                    ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentRoom, TenantOld.saveNewTenantOld());
-                    ap.setSharedApartmentName(currentHouse.getStreet(), currentHouse.getStreetNumber(), currentApartment.getApartmentNumber(), currentRoom.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
-                } else {
-                    ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentApartment.getRooms().get(0), Bathroom.findByApartment(currentApartment), Kitchen.findByApartment(currentApartment), TenantOld.saveNewTenantOld());
-                    ap.setStudioName(currentHouse.getStreet(), currentHouse.getStreetNumber(), currentApartment.getApartmentNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
-
-                }
-                ap.setOldAP(oldAP);
-                ap.save();
-                if (oldAP != null) {
-                    ap.duplicateAP(ap, oldAP);
-                } else {
-                    ap.createNewAP(ap);
-                }
-
-                HV_HomeActivity hv_homeActivity = (HV_HomeActivity) getActivity();
-                hv_homeActivity.callEditActivity(ap.getId());
-
-
-                Log.d("new AP", ap.getName());
+                setOnClickNext();
             }
         });
 
@@ -116,8 +88,9 @@ public class DuplicateFragment extends Fragment {
         return view;
     }
 
-   @Override
-     public void onActivityCreated(Bundle savedInstanceState) {
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         Bundle bundle = getArguments();
@@ -128,16 +101,45 @@ public class DuplicateFragment extends Fragment {
             oldAP = AP.findById(bundle.getLong("Old AP"));
         }
 
-       etAdress.setText(currentHouse.getStreet() + " " + currentHouse.getStreetNumber() + ", " + currentHouse.getPLZ() + " " + currentHouse.getTown());
-       etApartmentNr.setText(String.valueOf(currentApartment.getApartmentNumber()));
+        etAdress.setText(currentHouse.getStreet() + " " + currentHouse.getStreetNumber() + ", " + currentHouse.getPLZ() + " " + currentHouse.getTown());
+        etApartmentNr.setText(String.valueOf(currentApartment.getApartmentNumber()));
 
-       if (currentRoom != null) {
-           txtRoom.setVisibility(View.VISIBLE);
-           etRoomNr.setVisibility(View.VISIBLE);
-           etRoomNr.setText(String.valueOf(currentRoom.getRoomNumber()));
-       } else {
-           txtRoom.setVisibility(View.INVISIBLE);
-           etRoomNr.setVisibility(View.INVISIBLE);
-       }
+        if (currentRoom != null) {
+            txtRoom.setVisibility(View.VISIBLE);
+            etRoomNr.setVisibility(View.VISIBLE);
+            etRoomNr.setText(String.valueOf(currentRoom.getRoomNumber()));
+        } else {
+             txtRoom.setVisibility(View.INVISIBLE);
+            etRoomNr.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    /**
+     * creates a new protocol
+     * if there is an old protocol it duplicates all old entries and save them to the new protocol
+     */
+    private void setOnClickNext() {
+        AP ap;
+        if (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType())) {
+            ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentRoom, TenantOld.saveNewTenantOld());
+            ap.setSharedApartmentName(currentHouse.getStreet(), currentHouse.getStreetNumber(), currentApartment.getApartmentNumber(), currentRoom.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
+        } else {
+            ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentApartment.getRooms().get(0), Bathroom.findByApartment(currentApartment), Kitchen.findByApartment(currentApartment), TenantOld.saveNewTenantOld());
+            ap.setStudioName(currentHouse.getStreet(), currentHouse.getStreetNumber(), currentApartment.getApartmentNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
+
+        }
+        ap.setOldAP(oldAP);
+        ap.save();
+        if (oldAP != null) {
+            ap.duplicateAP(ap, oldAP);
+        } else {
+            ap.createNewAP(ap);
+        }
+
+        HV_HomeActivity hv_homeActivity = (HV_HomeActivity) getActivity();
+        hv_homeActivity.callEditActivity(ap.getId());
+
+
+        Log.d("new AP", ap.getName());
     }
 }

@@ -4,6 +4,12 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.pageelements.CellAlign;
+import com.cete.dynamicpdf.pageelements.CellVAlign;
+import com.cete.dynamicpdf.pageelements.Image;
+import com.cete.dynamicpdf.pageelements.Row;
+import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
 
@@ -24,10 +30,10 @@ public class ShowerState extends Model implements EntryStateInterface {
     private boolean isShowerCurtainOld = false;
 
     @Column(name = "showerCurtain_comment")
-    private String showerCurtainComment;
+    private String showerCurtainComment = null;
 
     @Column(name = "showerCurtain_picture")
-    private byte[] showerCurtainPicture;
+    private byte[] showerCurtainPicture = null;
 
     @Column(name = "showerIsOK")
     private boolean showerIsOK = true;
@@ -36,10 +42,10 @@ public class ShowerState extends Model implements EntryStateInterface {
     private boolean isShowerOKOld = false;
 
     @Column(name = "shower_comment")
-    private String showerComment;
+    private String showerComment = null;
 
     @Column(name = "shower_picture")
-    private byte[] showerPicture;
+    private byte[] showerPicture = null;
 
     @Column(name = "toiletIsOK")
     private boolean toiletIsOK = true;
@@ -48,22 +54,22 @@ public class ShowerState extends Model implements EntryStateInterface {
     private boolean isToiletOKOld = false;
 
     @Column(name = "toilet_comment")
-    private String toiletComment;
+    private String toiletComment = null;
 
     @Column(name = "toilet_picture")
-    private byte[] toiletPicture;
+    private byte[] toiletPicture = null;
 
     @Column(name = "sinkIsOK")
-    private boolean sinkIsOK;
+    private boolean sinkIsOK = true;
 
     @Column(name = "isSinkOKOld")
     private boolean isSinkOKOld = false;
 
     @Column(name = "sink_comment")
-    private String sinkComment;
+    private String sinkComment = null;
 
     @Column(name = "sink_picture")
-    private byte[] sinkPicture;
+    private byte[] sinkPicture = null;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -72,18 +78,21 @@ public class ShowerState extends Model implements EntryStateInterface {
     private boolean isDamageOld = false;
 
     @Column(name = "damage_comment")
-    private String damageComment;
+    private String damageComment = null;
 
     @Column(name = "damage_picture")
-    private byte[] damagePicture;
-
-    private static final List<String> ROW_NAMES = Arrays.asList("Duschvorhang wurde gewaschen & aufgehängt", "Dusche ist in Ordnung", "WC ist in Ordnung", "Lavabo ist in Ordnung", "Ist alles intakt?");
+    private byte[] damagePicture = null;
 
     @Column(name = "bathroom", onUpdate = Column.ForeignKeyAction.CASCADE)
     private Bathroom bathroom;
 
     @Column(name = "AP", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private AP ap;
+
+    @Column(name = "name")
+    private String name = "WC, Dusche, Lavabo";
+
+    private static final List<String> ROW_NAMES = Arrays.asList("Duschvorhang wurde gewaschen & aufgehängt", "Dusche ist in Ordnung", "WC ist in Ordnung", "Lavabo ist in Ordnung", "Ist alles intakt?");
 
     public ShowerState() {
         super();
@@ -255,10 +264,6 @@ public class ShowerState extends Model implements EntryStateInterface {
         return damagePicture;
     }
 
-    public List<String> getRowNames() {
-        return ROW_NAMES;
-    }
-
     public Bathroom getBathroom() {
         return bathroom;
     }
@@ -267,20 +272,12 @@ public class ShowerState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    private List<Boolean> createCheckList(ShowerState shower) {
-        return new ArrayList<>(Arrays.asList(shower.getShowerCurtainIsClean(), shower.getShowerIsOK(), shower.getToiletIsOK(), shower.getSinkIsOK(), shower.hasNoDamage()));
+    public void setName(String name) {
+        this.name = name;
     }
 
-    private List<String> createCommentsList(ShowerState shower) {
-        return new ArrayList<>(Arrays.asList(shower.getShowerCurtainComment(), shower.getShowerComment(), shower.getToiletComment(), shower.getSinkComment(), shower.getDamageComment()));
-    }
-
-    private List<Boolean> createCheckOldList(ShowerState shower) {
-        return new ArrayList<>(Arrays.asList(shower.isShowerCurtainOld(), shower.isShowerOKOld(), shower.isToiletOKOld(), shower.isSinkOKOld(), shower.isDamageOld()));
-    }
-
-    private List<byte[]> createPictureList(ShowerState shower) {
-        return new ArrayList<>(Arrays.asList(shower.getShowerCurtainPicture(), shower.getShowerPicture(), shower.getToiletPicture(), shower.getSinkPicture(), shower.getDamagePicture()));
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -304,8 +301,30 @@ public class ShowerState extends Model implements EntryStateInterface {
     }
 
     @Override
+    public int countPicturesOfLast5Years(int pos, EntryStateInterface entryStateInterface) {
+        ShowerState shower = (ShowerState) entryStateInterface;
+        AP ap = shower.getAp();
+
+        int counter = 0;
+        int year = 0;
+
+        while (year < 5) {
+
+            if (null != ShowerState.findByBathroomAndAP(ap.getBathroom(), ap).getPictureAtPosition(pos)) {
+                counter++;
+            }
+            if (null != ap.getOldAP()) {
+                ap = ap.getOldAP();
+            } else
+                break;
+            year++;
+        }
+        return counter;
+    }
+
+    @Override
     public void getEntries(DataGridFragment frag) {
-        frag.setHeaderVariante1();
+        frag.setTableHeader(frag.getResources().getStringArray(R.array.header_variante1));
         frag.getRowNames().addAll(this.ROW_NAMES);
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
@@ -323,29 +342,6 @@ public class ShowerState extends Model implements EntryStateInterface {
         }
     }
 
-    private void copyOldEntries(ShowerState oldShower) {
-        this.setShowerCurtainIsClean(oldShower.getShowerCurtainIsClean());
-        this.setIsShowerCurtainOld(oldShower.isShowerCurtainOld());
-        this.setShowerCurtainComment(oldShower.getShowerCurtainComment());
-        this.setShowerCurtainPicture(oldShower.getShowerCurtainPicture());
-        this.setShowerIsOK(oldShower.getShowerIsOK());
-        this.setIsShowerOKOld(oldShower.isShowerOKOld());
-        this.setShowerComment(oldShower.getShowerComment());
-        this.setShowerPicture(oldShower.getShowerPicture());
-        this.setToiletIsOK(oldShower.getToiletIsOK());
-        this.setIsToiletOKOld(oldShower.isToiletOKOld());
-        this.setToiletComment(oldShower.getToiletComment());
-        this.setToiletPicture(oldShower.getToiletPicture());
-        this.setSinkIsOK(oldShower.getSinkIsOK());
-        this.setIsSinkOKOld(oldShower.isSinkOKOld());
-        this.setSinkComment(oldShower.getSinkComment());
-        this.setSinkPicture(oldShower.getSinkPicture());
-        this.setHasNoDamage(oldShower.hasNoDamage());
-        this.setIsDamageOld(oldShower.isDamageOld());
-        this.setDamageComment(oldShower.getDamageComment());
-        this.setDamagePicture(oldShower.getDamagePicture());
-    }
-
     @Override
     public void createNewEntry(AP ap) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
@@ -354,12 +350,16 @@ public class ShowerState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<Boolean> check) {
-        this.setShowerCurtainIsClean(check.get(0));
-        this.setShowerIsOK(check.get(1));
-        this.setToiletIsOK(check.get(2));
-        this.setSinkIsOK(check.get(3));
-        this.setHasNoDamage(check.get(4));
+    public void saveCheckEntries(List<String> check, String ex) {
+        this.setShowerCurtainIsClean(Boolean.parseBoolean(check.get(0)));
+        this.setShowerIsOK(Boolean.parseBoolean(check.get(1)));
+        this.setToiletIsOK(Boolean.parseBoolean(check.get(2)));
+        this.setSinkIsOK(Boolean.parseBoolean(check.get(3)));
+        this.setHasNoDamage(Boolean.parseBoolean(check.get(4)));
+        if (check.contains("false")) {
+            this.setName("WC, Dusche, Lavabo " + ex);
+        } else
+            this.setName("WC, Dusche, Lavabo");
         this.save();
     }
 
@@ -405,22 +405,159 @@ public class ShowerState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    /**
+     * add all columns which contain the verification of the correctness of the entries to a list
+     * false when something is incorrect
+     * true when something is correct
+     * @param shower
+     * @return
+     */
+    private static List<Boolean> createCheckList(ShowerState shower) {
+        return new ArrayList<>(Arrays.asList(shower.getShowerCurtainIsClean(), shower.getShowerIsOK(), shower.getToiletIsOK(), shower.getSinkIsOK(), shower.hasNoDamage()));
+    }
+
+    /**
+     * add all columns which contain the comment to a list
+     * @param shower
+     * @return
+     */
+    private static List<String> createCommentsList(ShowerState shower) {
+        return new ArrayList<>(Arrays.asList(shower.getShowerCurtainComment(), shower.getShowerComment(), shower.getToiletComment(), shower.getSinkComment(), shower.getDamageComment()));
+    }
+
+    /**
+     * add all columns which contain the verification if the entry is old to a list
+     * false when the entry is new
+     * true when the entry is old
+     * @param shower
+     * @return
+     */
+    private static List<Boolean> createCheckOldList(ShowerState shower) {
+        return new ArrayList<>(Arrays.asList(shower.isShowerCurtainOld(), shower.isShowerOKOld(), shower.isToiletOKOld(), shower.isSinkOKOld(), shower.isDamageOld()));
+    }
+
+    /**
+     * add all columns which contain the picture to a list
+     * @param shower
+     * @return
+     */
+    private static List<byte[]> createPictureList(ShowerState shower) {
+        return new ArrayList<>(Arrays.asList(shower.getShowerCurtainPicture(), shower.getShowerPicture(), shower.getToiletPicture(), shower.getSinkPicture(), shower.getDamagePicture()));
+    }
+
+    /**
+     * copies all columns
+     * @param oldShower
+     */
+    private void copyOldEntries(ShowerState oldShower) {
+        this.setShowerCurtainIsClean(oldShower.getShowerCurtainIsClean());
+        this.setIsShowerCurtainOld(oldShower.isShowerCurtainOld());
+        this.setShowerCurtainComment(oldShower.getShowerCurtainComment());
+        this.setShowerCurtainPicture(oldShower.getShowerCurtainPicture());
+        this.setShowerIsOK(oldShower.getShowerIsOK());
+        this.setIsShowerOKOld(oldShower.isShowerOKOld());
+        this.setShowerComment(oldShower.getShowerComment());
+        this.setShowerPicture(oldShower.getShowerPicture());
+        this.setToiletIsOK(oldShower.getToiletIsOK());
+        this.setIsToiletOKOld(oldShower.isToiletOKOld());
+        this.setToiletComment(oldShower.getToiletComment());
+        this.setToiletPicture(oldShower.getToiletPicture());
+        this.setSinkIsOK(oldShower.getSinkIsOK());
+        this.setIsSinkOKOld(oldShower.isSinkOKOld());
+        this.setSinkComment(oldShower.getSinkComment());
+        this.setSinkPicture(oldShower.getSinkPicture());
+        this.setHasNoDamage(oldShower.hasNoDamage());
+        this.setIsDamageOld(oldShower.isDamageOld());
+        this.setDamageComment(oldShower.getDamageComment());
+        this.setDamagePicture(oldShower.getDamagePicture());
+        this.setName(oldShower.getName());
+    }
+
+    /**
+     * search it in the db with the bathroom id and protocol id
+     * @param bathroom
+     * @param ap
+     * @return
+     */
     public static ShowerState findByBathroomAndAP(Bathroom bathroom, AP ap) {
         return new Select().from(ShowerState.class).where("bathroom = ? and AP = ?", bathroom.getId(), ap.getId()).executeSingle();
     }
 
-    public static ShowerState findById(long id) {
-        return new Select().from(ShowerState.class).where("id = ?", id).executeSingle();
-    }
-
-    public static void initializeBathroomShower(List<AP> aps) {
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     * @param ex
+     */
+    public static void initializeBathroomShower(List<AP> aps, String ex) {
         for (AP ap : aps) {
             ShowerState shower = new ShowerState(ap.getBathroom(), ap);
             shower.setSinkIsOK(false);
             shower.setSinkComment("Risse im Lavabo");
             shower.setToiletIsOK(false);
             shower.setToiletComment("WC Deckel hat einen Sprung");
+            shower.setName(shower.getName() + " " + ex);
             shower.save();
         }
+    }
+
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(ShowerState shower, float pageWidth, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+
+        table.getColumns().add(150);
+        table.getColumns().add(30);
+        table.getColumns().add(30);
+        table.getColumns().add(50);
+        table.getColumns().add(170);
+        table.getColumns().add(320);
+
+        Row header = table.getRows().add(30);
+        header.setFont(Font.getHelveticaBold());
+        header.setFontSize(11);
+        header.setAlign(CellAlign.CENTER);
+        header.setVAlign(CellVAlign.CENTER);
+        header.getCellList().add("");
+        header.getCellList().add("Ja");
+        header.getCellList().add("Nein");
+        header.getCellList().add("alter Eintrag");
+        header.getCellList().add("Kommentar");
+        header.getCellList().add("Foto");
+
+        int i = 0;
+        for (String s : ROW_NAMES) {
+            Row row = table.getRows().add(30);
+            row.setFontSize(11);
+            row.setAlign(CellAlign.CENTER);
+            row.setVAlign(CellVAlign.CENTER);
+
+            row.getCellList().add(s);
+
+            if (createCheckList(shower).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+                row.getCellList().add("");
+            } else {
+                row.getCellList().add("");
+                row.getCellList().add(new Image(cross, 0, 0));
+            }
+
+            if (createCheckOldList(shower).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+            } else
+                row.getCellList().add("");
+
+            if (null != createCommentsList(shower).get(i)) {
+                row.getCellList().add(createCommentsList(shower).get(i));
+            } else
+                row.getCellList().add("");
+
+            if (null != createPictureList(shower).get(i)) {
+                Image image = new Image(createPictureList(shower).get(i), 0, 0);
+                row.getCellList().add(image);
+            } else
+                row.getCellList().add("");
+
+            i++;
+        }
+        table.setHeight(table.getRequiredHeight());
+        return table;
     }
 }

@@ -7,6 +7,7 @@
     <string name="login_username">Benutzername</string>
     <string name="login_hint">Max Muster</string>
     <string name="login_password">Passwort</string>
+    <string name="wrong_entry">Falscher Benutzername oder Passwort!</string>
 
     <!-- Header -->
     <string name="header_name">Max Muster</string>
@@ -19,44 +20,11 @@
 
     <!-- Edit Screens -->
     <string name="edit_title">Abnahmeprotokoll</string>
-    <array name="studio_parent">
-        <item>&#xf0f5; Küche</item>
-        <item>Badezimmer</item>
-        <item>&#xf236; Zimmer</item>
-        <item>Balkon</item>
-        <item>Keller</item>
-        <item>&#xf007; Personalien</item>
-        <item>&#xf0c7; Speichern</item>
-        <item>&#xf00d; Abbrechen</item>
-    </array>
-    <array name="shared_apartment_parent">
-        <item>&#xf236; Zimmer</item>
-        <item>&#xf007; Personalien</item>
-        <item>&#xf0c7; Speichern</item>
-        <item>&#xf00d; Abbrechen</item>
-    </array>
-    <array name="kitchen_children">
-        <item>Kühlschrank, Tiefkühlfach</item>
-        <item>Backofen, Herdplatte</item>
-        <item>Dampfabzug</item>
-        <item>Pfannen, Geschirr, Besteck</item>
-        <item>Schränke</item>
-    </array>
-    <array name="bathroom_children">
-        <item>WC, Dusche, Lavabo</item>
-    </array>
-    <array name="room_children">
-        <item>Bettwäsche, Matratze</item>
-        <item>Mobiliar</item>
-    </array>
-    <array name="children">
-        <item>Wände, Decke</item>
-        <item>Boden</item>
-        <item>Fenster</item>
-        <item>Tür</item>
-        <item>Lampen, Steckdosen</item>
-        <item>Heizkörper, Ventil</item>
-    </array>
+    <string name="stop_message">Das Protokoll wird nicht gespeichert. Soll das Protokoll geschlossen werden?</string>
+    <!-- Datagrid Fragment -->
+    <string name="personal_data"> Personalien</string>
+    <string name="save"> Speichern</string>
+    <string name="close"> Abbrechen</string>
     <string-array name="header_variante1">
         <item></item>
         <item>Ja</item>
@@ -73,6 +41,7 @@
         <item>Kommentar</item>
         <item>Foto</item>
     </string-array>
+    <!-- Personaldata Fragment -->
     <string name="new_address">Neue Adresse des Mieters</string>
     <string name="street_nr">Strasse, Nr.:</string>
     <string name="PLZ_town_contry">PLZ, Stadt, Land: </string>
@@ -88,21 +57,28 @@
     <string name="SWIFT">SWIFT: </string>
     <string name="IBAN">IBAN: </string>
     <string name="acc_clearing_number">Account und Clearing Nummer: </string>
-    <string name="stop_message">Das Protokoll wird nicht gespeichert. Soll das Protokoll geschlossen werden?</string>
     <string name="signature">Unterschriften</string>
     <string name="date">Datum: </string>
     <string name="old_tenant">Mieter: </string>
     <string name="new_tenant">Nachmieter: </string>
     <string name="WOKO">WOKO: </string>
+    <string name="signature_oldTenant">Unterschrift von Mieter:</string>
+    <string name="signature_newTenant">Unterschrift von Nachmieter:</string>
+    <string name="signature_woko">Unterschrift von WOKO:</string>
+    <string name="save_message">Unterschrift wurde gespeichert</string>
 
     <!-- icons -->
     <string name="user_icon">&#xf007;</string>
-    <string name="cutlery_icon">&#xf0f5;</string>
-    <string name="bed_icon">&#xf236;</string>
+    <string name="cutlery_icon"></string>
+    <string name="bed_icon"></string>
     <string name="save_icon">&#xf0c7;</string>
     <string name="close_icon">&#xf00d;</string>
     <string name="file_icon">&#xf15c;</string>
-    <string name="exclamation_mark">&#xf12a;</string>
+    <string name="exclamation_mark"></string>
+    <string name="camera_icon">&#xf030;</string>
+    <string name="house_icon"></string>
+    <string name="balcony_icon"></string>
+    <string name="shower_icon"></string>
 
     <!-- buttons -->
     <string name="logout_btn">Logout &#xf08b;</string>
@@ -114,11 +90,13 @@
     <string name="duplicate_btn">&#xf0c5; Duplizieren</string>
     <string name="close_btn">&#xf00d; Schliessen</string>
     <string name="stop_btn">&#xf053; Abbrechen</string>
-    <string name="save_btn">Speichern &#xf0c7;</string>
+    <string name="save_btn">&#xf0c7; Speichern</string>
     <string name="send_btn">Senden &#xf1d9;</string>
     <string name="picture_btn">&#xf03e;</string>
     <string name="camera_btn">&#xf030; Foto aufnehmen</string>
     <string name="search_btn">&#xf002; Suchen</string>
+    <string name="clear_btn">&#xf014; Löschen</string>
+    <string name="done_btn">&#xf00c; Fertig</string>
 
     <!-- Duplicate Fragment -->
     <string name="control_date">Abnahmetermin:</string>

@@ -25,15 +25,17 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private ArrayList<String> parentItems, child;
     private int parentLayout;
     private int childLayout;
-    private Typeface font;
+    private Typeface fontawesome;
+    private Typeface fonticon;
     private AP ap;
 
-    public ExpandableListAdapter(ArrayList<String> parents, ArrayList<Object> childern, int parentLayout, int childLayout, Typeface font) {
+    public ExpandableListAdapter(ArrayList<String> parents, ArrayList<Object> childern, int parentLayout, int childLayout, Typeface fontawesome, Typeface fonticon) {
         this.parentItems = parents;
         this.childitems = childern;
         this.parentLayout = parentLayout;
         this.childLayout = childLayout;
-        this.font = font;
+        this.fontawesome = fontawesome;
+        this.fonticon = fonticon;
     }
 
     public void setInflater(LayoutInflater inflater, Activity activity) {
@@ -52,7 +54,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
         textView = (TextView) convertView.findViewById(R.id.child_text);
         textView.setText(child.get(childPosition));
-        textView.setTypeface(font);
+        textView.setTypeface(fonticon);
 
         return convertView;
     }
@@ -63,9 +65,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         }
 
         ((CheckedTextView) convertView).setText(parentItems.get(groupPosition));
-        ((CheckedTextView) convertView).setTypeface(font);
+        ((CheckedTextView) convertView).setTypeface(fonticon);
         ((CheckedTextView) convertView).setChecked(isExpanded);
 
+        if (isExpanded) {
+            convertView.setBackgroundColor(parent.getResources().getColor(R.color.selector));
+        } else {
+            convertView.setBackgroundColor(parent.getResources().getColor(R.color.grey_dark));
+        }
         return convertView;
     }
 

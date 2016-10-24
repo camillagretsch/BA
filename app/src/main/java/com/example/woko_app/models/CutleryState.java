@@ -4,6 +4,12 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.pageelements.CellAlign;
+import com.cete.dynamicpdf.pageelements.CellVAlign;
+import com.cete.dynamicpdf.pageelements.Image;
+import com.cete.dynamicpdf.pageelements.Row;
+import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
 
@@ -24,10 +30,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isForkOld = false;
 
     @Column(name = "forkComment")
-    private String forkComment;
+    private String forkComment = null;
 
     @Column(name = "fork_picture")
-    private byte[] forkPicture;
+    private byte[] forkPicture = null;
 
     @Column(name = "brokenKnife")
     private int brokenKnife = 0;
@@ -36,10 +42,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isKnifeOld = false;
 
     @Column(name = "knifeComment")
-    private String knifeComment;
+    private String knifeComment = null;
 
     @Column(name = "knife_picture")
-    private byte[] knifePicture;
+    private byte[] knifePicture = null;
 
     @Column(name = "brokenBigSpoon")
     private int brokenBigSpoon = 0;
@@ -48,10 +54,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isBigSpoonOld = false;
 
     @Column(name = "bigSpoonComment")
-    private String bigSpoonComment;
+    private String bigSpoonComment = null;
 
     @Column(name = "bigSpoon_picture")
-    private byte[] bigSpoonPicture;
+    private byte[] bigSpoonPicture = null;
 
     @Column(name = "brokenSmallSpoon")
     private int brokenSmallSpoon = 0;
@@ -60,10 +66,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isSmallSpoonOld = false;
 
     @Column(name = "smallSpoonComment")
-    private String smallSpoonComment;
+    private String smallSpoonComment = null;
 
     @Column(name = "smallSpoon_picture")
-    private byte[] smallSpoonPicture;
+    private byte[] smallSpoonPicture = null;
 
     @Column(name = "brokenCookingKnife")
     private int brokenCookingKnife = 0;
@@ -72,10 +78,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isCookingKnifeOld = false;
 
     @Column(name = "cookingKnifeComment")
-    private String cookingKnifeComment;
+    private String cookingKnifeComment = null;
 
     @Column(name = "cookingKnife_picture")
-    private byte[] cookingKnifePicture;
+    private byte[] cookingKnifePicture = null;
 
     @Column(name = "brokenBreadKnife")
     private int brokingBreadKnife = 0;
@@ -84,10 +90,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isBreadKnifeOld = false;
 
     @Column(name = "breadKnifeComment")
-    private String breadKnifeComment;
+    private String breadKnifeComment = null;
 
     @Column(name = "breadKnife_picture")
-    private byte[] breadKnifePicture;
+    private byte[] breadKnifePicture = null;
 
     @Column(name = "brokenPlate")
     private int brokenPlate = 0;
@@ -96,10 +102,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isPlateOld = false;
 
     @Column(name = "plateComment")
-    private String plateComment;
+    private String plateComment = null;
 
     @Column(name = "plate_picture")
-    private byte[] platePicture;
+    private byte[] platePicture = null;
 
     @Column(name = "brokenSoupPlate")
     private int brokenSoupPlate = 0;
@@ -108,10 +114,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isSoupPlateOld = false;
 
     @Column(name = "soupPlateComment")
-    private String soupPlateComment;
+    private String soupPlateComment = null;
 
     @Column(name = "soupPlate_picture")
-    private byte[] soupPlatePicture;
+    private byte[] soupPlatePicture = null;
 
     @Column(name = "brokenSmallPlate")
     private int brokenSmallPlate = 0;
@@ -120,10 +126,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isSmallPlateOld = false;
 
     @Column(name = "smallPlateComment")
-    private String smallPlateComment;
+    private String smallPlateComment = null;
 
     @Column(name = "smallPlate_picture")
-    private byte[] smallPlatePicture;
+    private byte[] smallPlatePicture = null;
 
     @Column(name = "brokenMug")
     private int brokenMug = 0;
@@ -132,10 +138,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isMugOld = false;
 
     @Column(name = "mugComment")
-    private String mugComment;
+    private String mugComment = null;
 
     @Column(name = "mug_picture")
-    private byte[] mugPicture;
+    private byte[] mugPicture = null;
 
     @Column(name = "brokenTeaPot")
     private int brokenTeaPot = 0;
@@ -144,10 +150,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isTeaPotOld = false;
 
     @Column(name = "teaPotComment")
-    private String teaPotComment;
+    private String teaPotComment = null;
 
     @Column(name = "teaPot_picture")
-    private byte[] teaPotPicture;
+    private byte[] teaPotPicture = null;
 
     @Column(name = "brokenSmallBowl")
     private int brokenSmallBowl = 0;
@@ -156,10 +162,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isSmallBowlOld = false;
 
     @Column(name = "smallBowlComment")
-    private String smallBowlComment;
+    private String smallBowlComment = null;
 
     @Column(name = "smallBowl_picture")
-    private byte[] smallBowlPicture;
+    private byte[] smallBowlPicture = null;
 
     @Column(name = "brokenFryingPan")
     private int brokenFryingPan = 0;
@@ -168,10 +174,10 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isFryingPanOld = false;
 
     @Column(name = "fryingPanComment")
-    private String fryingPanComment;
+    private String fryingPanComment = null;
 
     @Column(name = "fryingPan_picture")
-    private byte[] fryingPanPicture;
+    private byte[] fryingPanPicture = null;
 
     @Column(name = "brokenGlass")
     private int brokenGlass = 0;
@@ -180,20 +186,22 @@ public class CutleryState extends Model implements EntryStateInterface {
     private boolean isGlassOld = false;
 
     @Column(name = "glassComment")
-    private String glassComment;
+    private String glassComment = null;
 
     @Column(name = "glass_picture")
-    private byte[] glassPicture;
-
-    private static final List<String> ROW_NAMES = Arrays.asList("Essgabel", "Messer", "Esslöffel", "Dessertlöffel", "Küchenmeser", "Brotmesser", "Essteller", "Suppenteller", "Dessertteller", "Becher", "Teekanne", "Schälchen", "Bratpfanne", "Glas");
-    private static final List<Integer> COUNT = Arrays.asList(3, 3, 3, 3, 3, 1, 3, 2, 3, 3, 1, 3, 1, 3);
-
+    private byte[] glassPicture = null;
 
     @Column(name = "kitchen", onUpdate = Column.ForeignKeyAction.CASCADE)
     private Kitchen kitchen;
 
     @Column(name = "AP", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private AP ap;
+
+    @Column(name = "name")
+    private String name = "Pfannen, Geschirr, Besteck";
+
+    private static final List<String> ROW_NAMES = Arrays.asList("Essgabel", "Messer", "Esslöffel", "Dessertlöffel", "Küchenmeser", "Brotmesser", "Essteller", "Suppenteller", "Dessertteller", "Becher", "Teekanne", "Schälchen", "Bratpfanne", "Glas");
+    private static final List<Integer> COUNT = Arrays.asList(3, 3, 3, 3, 3, 1, 3, 2, 3, 3, 1, 3, 1, 3);
 
     public CutleryState() {
         super();
@@ -653,28 +661,16 @@ public class CutleryState extends Model implements EntryStateInterface {
         return glassPicture;
     }
 
-    public List<String> getRowNames() {
-        return ROW_NAMES;
+    public AP getAp() {
+        return ap;
     }
 
-    public List<Integer> getCOUNT() {
-        return COUNT;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    private List<Integer> createBrokenList(CutleryState cutlery) {
-        return new ArrayList<>(Arrays.asList(cutlery.getBrokenFork(), cutlery.getBrokenKnife(), cutlery.getBrokenBigSpoon(), cutlery.getBrokenSmallSpoon(), cutlery.getBrokenCookingKnife(), cutlery.getBrokingBreadKnife(), cutlery.getBrokenPlate(), cutlery.getBrokenSoupPlate(), cutlery.getBrokenSmallPlate(), cutlery.getBrokenMug(), cutlery.getBrokenTeaPot(), cutlery.getBrokenSmallBowl(), cutlery.getBrokenFryingPan(), cutlery.getBrokenGlass()));
-    }
-
-    private List<String> createCommentsList(CutleryState cutlery) {
-        return new ArrayList<>(Arrays.asList(cutlery.getForkComment(), cutlery.getKnifeComment(), cutlery.getBigSpoonComment(), cutlery.getSmallSpoonComment(), cutlery.getCookingKnifeComment(), cutlery.getBreadKnifeComment(), cutlery.getPlateComment(), cutlery.getSoupPlateComment(), cutlery.getSmallPlateComment(), cutlery.getMugComment(), cutlery.getTeaPotComment(), cutlery.getSmallBowlComment(), cutlery.getFryingPanComment(), cutlery.getGlassComment()));
-    }
-
-    private List<Boolean> createCheckOldList(CutleryState cutlery) {
-        return new ArrayList<>(Arrays.asList(cutlery.isForkOld(), cutlery.isKnifeOld(), cutlery.isBigSpoonOld(), cutlery.isSmallSpoonOld(), cutlery.isCookingKnifeOld(), cutlery.isBreadKnifeOld(), cutlery.isPlateOld(), cutlery.isSoupPlateOld(), cutlery.isSmallPlateOld(), cutlery.isMugOld(), cutlery.isTeaPotOld(), cutlery.isSmallBowlOld(), cutlery.isFryingPanOld(), cutlery.isGlassOld()));
-    }
-
-    private List<byte[]> createPictureList(CutleryState cutlery) {
-        return new ArrayList<>(Arrays.asList(cutlery.getForkPicture(), cutlery.getKnifePicture(), cutlery.getBigSpoonPicture(), cutlery.getSmallSpoonPicture(), cutlery.getCookingKnifePicture(), cutlery.getBreadKnifePicture(), cutlery.getPlatePicture(), cutlery.getSoupPlatePicture(), cutlery.getSmallPlatePicture(), cutlery.getMugPicture(), cutlery.getTeaPotPicture(), cutlery.getSmallBowlPicture(), cutlery.getFryingPanPicture(), cutlery.getGlassPicture()));
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -697,9 +693,35 @@ public class CutleryState extends Model implements EntryStateInterface {
         return createPictureList(this).get(pos);
     }
 
+    public int getCountBrokenAtPosition(int pos) {
+        return createBrokenList(this).get(pos);
+    }
+
+    @Override
+    public int countPicturesOfLast5Years(int pos, EntryStateInterface entryStateInterface) {
+        CutleryState cutlery = (CutleryState) entryStateInterface;
+        AP ap = cutlery.getAp();
+
+        int counter = 0;
+        int year = 0;
+
+        while (year < 5) {
+
+            if (null != CutleryState.findByKitchenAndAP(ap.getKitchen(), ap).getPictureAtPosition(pos)) {
+                counter++;
+            }
+            if (null != ap.getOldAP()) {
+                ap = ap.getOldAP();
+            } else
+                break;
+            year++;
+        }
+        return counter;
+    }
+
     @Override
     public void getEntries(DataGridFragment frag) {
-        frag.setHeaderVariante2();
+        frag.setTableHeader(frag.getResources().getStringArray(R.array.header_variante2));
         frag.getRowNames().addAll(this.ROW_NAMES);
         frag.getCount().addAll(this.COUNT);
         frag.getCheckOld().addAll(createCheckOldList(this));
@@ -718,65 +740,6 @@ public class CutleryState extends Model implements EntryStateInterface {
         }
     }
 
-    private void copyOldEntries(CutleryState oldCutlery) {
-        this.setBrokenFork(oldCutlery.getBrokenFork());
-        this.setIsForkOld(oldCutlery.isForkOld());
-        this.setForkComment(oldCutlery.getForkComment());
-        this.setForkPicture(oldCutlery.getForkPicture());
-        this.setBrokenKnife(oldCutlery.getBrokenKnife());
-        this.setIsKnifeOld(oldCutlery.isKnifeOld());
-        this.setKnifeComment(oldCutlery.getKnifeComment());
-        this.setKnifePicture(oldCutlery.getKnifePicture());
-        this.setBrokenBigSpoon(oldCutlery.getBrokenBigSpoon());
-        this.setIsBigSpoonOld(oldCutlery.isBigSpoonOld());
-        this.setBigSpoonComment(oldCutlery.getBigSpoonComment());
-        this.setBigSpoonPicture(oldCutlery.getBigSpoonPicture());
-        this.setBrokenSmallSpoon(oldCutlery.getBrokenSmallSpoon());
-        this.setIsSmallSpoonOld(oldCutlery.isSmallSpoonOld());
-        this.setSmallSpoonComment(oldCutlery.getSmallSpoonComment());
-        this.setSmallSpoonPicture(oldCutlery.getSmallSpoonPicture());
-        this.setBrokenCookingKnife(oldCutlery.getBrokenCookingKnife());
-        this.setIsCookingKnifeOld(oldCutlery.isCookingKnifeOld());
-        this.setCookingKnifeComment(oldCutlery.getCookingKnifeComment());
-        this.setCookingKnifePicture(oldCutlery.getCookingKnifePicture());
-        this.setBrokingBreadKnife(oldCutlery.getBrokingBreadKnife());
-        this.setIsBreadKnifeOld(oldCutlery.isBreadKnifeOld());
-        this.setBreadKnifeComment(oldCutlery.getBreadKnifeComment());
-        this.setBreadKnifePicture(oldCutlery.getBreadKnifePicture());
-        this.setBrokenPlate(oldCutlery.getBrokenPlate());
-        this.setIsPlateOld(oldCutlery.isPlateOld());
-        this.setPlateComment(oldCutlery.getPlateComment());
-        this.setPlatePicture(oldCutlery.getPlatePicture());
-        this.setBrokenSoupPlate(oldCutlery.getBrokenSoupPlate());
-        this.setIsSoupPlateOld(oldCutlery.isSoupPlateOld());
-        this.setSoupPlateComment(oldCutlery.getSoupPlateComment());
-        this.setSoupPlatePicture(oldCutlery.getSoupPlatePicture());
-        this.setBrokenSmallPlate(oldCutlery.getBrokenSmallPlate());
-        this.setIsSmallPlateOld(oldCutlery.isSmallPlateOld());
-        this.setSmallPlateComment(oldCutlery.getSmallPlateComment());
-        this.setSmallPlatePicture(oldCutlery.getSmallPlatePicture());
-        this.setBrokenMug(oldCutlery.getBrokenMug());
-        this.setIsMugOld(oldCutlery.isMugOld());
-        this.setMugComment(oldCutlery.getMugComment());
-        this.setMugPicture(oldCutlery.getMugPicture());
-        this.setBrokenTeaPot(oldCutlery.getBrokenTeaPot());
-        this.setIsTeaPotOld(oldCutlery.isTeaPotOld());
-        this.setTeaPotComment(oldCutlery.getTeaPotComment());
-        this.setTeaPotPicture(oldCutlery.getTeaPotPicture());
-        this.setBrokenSmallBowl(oldCutlery.getBrokenSmallBowl());
-        this.setIsSmallBowlOld(oldCutlery.isSmallBowlOld());
-        this.setSmallBowlComment(oldCutlery.getSmallBowlComment());
-        this.setSmallBowlPicture(oldCutlery.getSmallBowlPicture());
-        this.setBrokenFryingPan(oldCutlery.getBrokenFryingPan());
-        this.setIsFryingPanOld(oldCutlery.isFryingPanOld());
-        this.setFryingPanComment(oldCutlery.getFryingPanComment());
-        this.setFryingPanPicture(oldCutlery.getFryingPanPicture());
-        this.setBrokenGlass(oldCutlery.getBrokenGlass());
-        this.setIsGlassOld(oldCutlery.isGlassOld());
-        this.setGlassComment(oldCutlery.getGlassComment());
-        this.setGlassPicture(oldCutlery.getGlassPicture());
-    }
-
     @Override
     public void createNewEntry(AP ap) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
@@ -785,26 +748,24 @@ public class CutleryState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<Boolean> check) {
-
-    }
-
-    public void saveBrokenEntries(List<Integer> countBroken) {
-        this.setBrokenFork(countBroken.get(0));
-        this.setBrokenKnife(countBroken.get(1));
-        this.setBrokenBigSpoon(countBroken.get(2));
-        this.setBrokenSmallSpoon(countBroken.get(3));
-        this.setBrokenCookingKnife(countBroken.get(4));
-        this.setBrokingBreadKnife(countBroken.get(5));
-        this.setBrokenPlate(countBroken.get(6));
-        this.setBrokenSoupPlate(countBroken.get(7));
-        this.setBrokenSmallPlate(countBroken.get(8));
-        this.setBrokenMug(countBroken.get(9));
-        this.setBrokenTeaPot(countBroken.get(10));
-        this.setBrokenSmallBowl(countBroken.get(11));
-        this.setBrokenFryingPan(countBroken.get(12));
-        this.setBrokenGlass(countBroken.get(13));
+    public void saveCheckEntries(List<String> check, String ex) {
+        this.setBrokenFork(Integer.parseInt(check.get(0)));
+        this.setBrokenKnife(Integer.parseInt(check.get(1)));
+        this.setBrokenBigSpoon(Integer.parseInt(check.get(2)));
+        this.setBrokenSmallSpoon(Integer.parseInt(check.get(3)));
+        this.setBrokenCookingKnife(Integer.parseInt(check.get(4)));
+        this.setBrokingBreadKnife(Integer.parseInt(check.get(5)));
+        this.setBrokenPlate(Integer.parseInt(check.get(6)));
+        this.setBrokenSoupPlate(Integer.parseInt(check.get(7)));
+        this.setBrokenSmallPlate(Integer.parseInt(check.get(8)));
+        this.setBrokenMug(Integer.parseInt(check.get(9)));
+        this.setBrokenTeaPot(Integer.parseInt(check.get(10)));
+        this.setBrokenSmallBowl(Integer.parseInt(check.get(11)));
+        this.setBrokenFryingPan(Integer.parseInt(check.get(12)));
+        this.setBrokenGlass(Integer.parseInt(check.get(13)));
         this.save();
+
+        updateCutleryName(ex);
     }
 
     @Override
@@ -894,22 +855,209 @@ public class CutleryState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    /**
+     * add all columns which contain the broken entries
+     * 0: everything is ok
+     * 0 <: something is incorrect
+     * @param cutlery
+     * @return
+     */
+    private static List<Integer> createBrokenList(CutleryState cutlery) {
+        return new ArrayList<>(Arrays.asList(cutlery.getBrokenFork(), cutlery.getBrokenKnife(), cutlery.getBrokenBigSpoon(), cutlery.getBrokenSmallSpoon(), cutlery.getBrokenCookingKnife(), cutlery.getBrokingBreadKnife(), cutlery.getBrokenPlate(), cutlery.getBrokenSoupPlate(), cutlery.getBrokenSmallPlate(), cutlery.getBrokenMug(), cutlery.getBrokenTeaPot(), cutlery.getBrokenSmallBowl(), cutlery.getBrokenFryingPan(), cutlery.getBrokenGlass()));
+    }
+
+    /**
+     * add all columns which contain the comment to a list
+     * @param cutlery
+     * @return
+     */
+    private static List<String> createCommentsList(CutleryState cutlery) {
+        return new ArrayList<>(Arrays.asList(cutlery.getForkComment(), cutlery.getKnifeComment(), cutlery.getBigSpoonComment(), cutlery.getSmallSpoonComment(), cutlery.getCookingKnifeComment(), cutlery.getBreadKnifeComment(), cutlery.getPlateComment(), cutlery.getSoupPlateComment(), cutlery.getSmallPlateComment(), cutlery.getMugComment(), cutlery.getTeaPotComment(), cutlery.getSmallBowlComment(), cutlery.getFryingPanComment(), cutlery.getGlassComment()));
+    }
+
+    /**
+     * add all columns which contain the verification if the entry is old to a list
+     * false when the entry is new
+     * true when the entry is old
+     * @param cutlery
+     * @return
+     */
+    private static List<Boolean> createCheckOldList(CutleryState cutlery) {
+        return new ArrayList<>(Arrays.asList(cutlery.isForkOld(), cutlery.isKnifeOld(), cutlery.isBigSpoonOld(), cutlery.isSmallSpoonOld(), cutlery.isCookingKnifeOld(), cutlery.isBreadKnifeOld(), cutlery.isPlateOld(), cutlery.isSoupPlateOld(), cutlery.isSmallPlateOld(), cutlery.isMugOld(), cutlery.isTeaPotOld(), cutlery.isSmallBowlOld(), cutlery.isFryingPanOld(), cutlery.isGlassOld()));
+    }
+
+    /**
+     * add all columns which contain the picture to a list
+     * @param cutlery
+     * @return
+     */
+    private static List<byte[]> createPictureList(CutleryState cutlery) {
+        return new ArrayList<>(Arrays.asList(cutlery.getForkPicture(), cutlery.getKnifePicture(), cutlery.getBigSpoonPicture(), cutlery.getSmallSpoonPicture(), cutlery.getCookingKnifePicture(), cutlery.getBreadKnifePicture(), cutlery.getPlatePicture(), cutlery.getSoupPlatePicture(), cutlery.getSmallPlatePicture(), cutlery.getMugPicture(), cutlery.getTeaPotPicture(), cutlery.getSmallBowlPicture(), cutlery.getFryingPanPicture(), cutlery.getGlassPicture()));
+    }
+
+    /**
+     * copies all columns
+     * @param oldCutlery
+     */
+    private void copyOldEntries(CutleryState oldCutlery) {
+        this.setBrokenFork(oldCutlery.getBrokenFork());
+        this.setIsForkOld(oldCutlery.isForkOld());
+        this.setForkComment(oldCutlery.getForkComment());
+        this.setForkPicture(oldCutlery.getForkPicture());
+        this.setBrokenKnife(oldCutlery.getBrokenKnife());
+        this.setIsKnifeOld(oldCutlery.isKnifeOld());
+        this.setKnifeComment(oldCutlery.getKnifeComment());
+        this.setKnifePicture(oldCutlery.getKnifePicture());
+        this.setBrokenBigSpoon(oldCutlery.getBrokenBigSpoon());
+        this.setIsBigSpoonOld(oldCutlery.isBigSpoonOld());
+        this.setBigSpoonComment(oldCutlery.getBigSpoonComment());
+        this.setBigSpoonPicture(oldCutlery.getBigSpoonPicture());
+        this.setBrokenSmallSpoon(oldCutlery.getBrokenSmallSpoon());
+        this.setIsSmallSpoonOld(oldCutlery.isSmallSpoonOld());
+        this.setSmallSpoonComment(oldCutlery.getSmallSpoonComment());
+        this.setSmallSpoonPicture(oldCutlery.getSmallSpoonPicture());
+        this.setBrokenCookingKnife(oldCutlery.getBrokenCookingKnife());
+        this.setIsCookingKnifeOld(oldCutlery.isCookingKnifeOld());
+        this.setCookingKnifeComment(oldCutlery.getCookingKnifeComment());
+        this.setCookingKnifePicture(oldCutlery.getCookingKnifePicture());
+        this.setBrokingBreadKnife(oldCutlery.getBrokingBreadKnife());
+        this.setIsBreadKnifeOld(oldCutlery.isBreadKnifeOld());
+        this.setBreadKnifeComment(oldCutlery.getBreadKnifeComment());
+        this.setBreadKnifePicture(oldCutlery.getBreadKnifePicture());
+        this.setBrokenPlate(oldCutlery.getBrokenPlate());
+        this.setIsPlateOld(oldCutlery.isPlateOld());
+        this.setPlateComment(oldCutlery.getPlateComment());
+        this.setPlatePicture(oldCutlery.getPlatePicture());
+        this.setBrokenSoupPlate(oldCutlery.getBrokenSoupPlate());
+        this.setIsSoupPlateOld(oldCutlery.isSoupPlateOld());
+        this.setSoupPlateComment(oldCutlery.getSoupPlateComment());
+        this.setSoupPlatePicture(oldCutlery.getSoupPlatePicture());
+        this.setBrokenSmallPlate(oldCutlery.getBrokenSmallPlate());
+        this.setIsSmallPlateOld(oldCutlery.isSmallPlateOld());
+        this.setSmallPlateComment(oldCutlery.getSmallPlateComment());
+        this.setSmallPlatePicture(oldCutlery.getSmallPlatePicture());
+        this.setBrokenMug(oldCutlery.getBrokenMug());
+        this.setIsMugOld(oldCutlery.isMugOld());
+        this.setMugComment(oldCutlery.getMugComment());
+        this.setMugPicture(oldCutlery.getMugPicture());
+        this.setBrokenTeaPot(oldCutlery.getBrokenTeaPot());
+        this.setIsTeaPotOld(oldCutlery.isTeaPotOld());
+        this.setTeaPotComment(oldCutlery.getTeaPotComment());
+        this.setTeaPotPicture(oldCutlery.getTeaPotPicture());
+        this.setBrokenSmallBowl(oldCutlery.getBrokenSmallBowl());
+        this.setIsSmallBowlOld(oldCutlery.isSmallBowlOld());
+        this.setSmallBowlComment(oldCutlery.getSmallBowlComment());
+        this.setSmallBowlPicture(oldCutlery.getSmallBowlPicture());
+        this.setBrokenFryingPan(oldCutlery.getBrokenFryingPan());
+        this.setIsFryingPanOld(oldCutlery.isFryingPanOld());
+        this.setFryingPanComment(oldCutlery.getFryingPanComment());
+        this.setFryingPanPicture(oldCutlery.getFryingPanPicture());
+        this.setBrokenGlass(oldCutlery.getBrokenGlass());
+        this.setIsGlassOld(oldCutlery.isGlassOld());
+        this.setGlassComment(oldCutlery.getGlassComment());
+        this.setGlassPicture(oldCutlery.getGlassPicture());
+        this.setName(oldCutlery.getName());
+    }
+
+    /**
+     * set the name of the cutlery
+     * if some broken entries are greater then 0 add an exclamation mark to the cutlery name
+     * @param ex
+     */
+    private void updateCutleryName(String ex) {
+        int i = 0;
+        while (i < createBrokenList(this).size()) {
+            if (createBrokenList(this).get(i) > 0) {
+                this.setName("Pfannen, Geschirr, Besteck " + ex);
+                break;
+            } else
+                this.setName("Pfannen, Geschirr, Besteck");
+            i++;
+        }
+        this.save();
+    }
+
+    /**
+     * search it in the db with the kitchen id and protocol id
+     * @param kitchen
+     * @param ap
+     * @return
+     */
     public static CutleryState findByKitchenAndAP(Kitchen kitchen, AP ap) {
         return new Select().from(CutleryState.class).where("kitchen = ? and AP = ?", kitchen.getId(), ap.getId()).executeSingle();
     }
 
-    public static CutleryState findById(long id) {
-        return new Select().from(CutleryState.class).where("id = ?", id).executeSingle();
-    }
-
-    public static void initializeKitchenCutlery(List<AP> aps, byte[] image) {
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     * @param image
+     */
+    public static void initializeKitchenCutlery(List<AP> aps, byte[] image, String ex) {
         for (AP ap : aps) {
             CutleryState cutlery = new CutleryState(ap.getKitchen(), ap);
             cutlery.setBrokenBigSpoon(2);
             cutlery.setBrokenFryingPan(1);
             cutlery.setFryingPanComment("Kratzer in der Pfanne");
             cutlery.setFryingPanPicture(image);
+            cutlery.setName(cutlery.getName() + " " + ex);
             cutlery.save();
         }
+    }
+
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(CutleryState cutlery, float pageWidth, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+
+        table.getColumns().add(150);
+        table.getColumns().add(42);
+        table.getColumns().add(50);
+        table.getColumns().add(50);
+        table.getColumns().add(150);
+        table.getColumns().add(350);
+
+        Row header = table.getRows().add(30);
+        header.setFont(Font.getHelveticaBold());
+        header.setFontSize(11);
+        header.setAlign(CellAlign.CENTER);
+        header.setVAlign(CellVAlign.CENTER);
+        header.getCellList().add("");
+        header.getCellList().add("Anzahl");
+        header.getCellList().add("fehlend/defekt");
+        header.getCellList().add("alter Eintrag");
+        header.getCellList().add("Kommentar");
+        header.getCellList().add("Foto");
+
+        int i = 0;
+        for (String s : ROW_NAMES) {
+            Row row = table.getRows().add(30);
+            row.setFontSize(11);
+            row.setAlign(CellAlign.CENTER);
+            row.setVAlign(CellVAlign.CENTER);
+
+            row.getCellList().add(s);
+
+            row.getCellList().add(COUNT.get(i).toString());
+
+            row.getCellList().add(createBrokenList(cutlery).get(i).toString());
+
+            if (createCheckOldList(cutlery).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+            } else
+                row.getCellList().add("");
+
+            if (null != createCommentsList(cutlery).get(i)) {
+                row.getCellList().add(createCommentsList(cutlery).get(i));
+            } else
+                row.getCellList().add("");
+
+            if (null != createPictureList(cutlery).get(i)) {
+                Image image = new Image(createPictureList(cutlery).get(i), 0, 0);
+                row.getCellList().add(image);
+            } else
+                row.getCellList().add("");
+
+            i++;
+        }
+        table.setHeight(table.getRequiredHeight());
+        return table;
     }
 }

@@ -11,11 +11,6 @@ import android.widget.Button;
 import com.example.woko_app.R;
 import com.example.woko_app.activity.HV_HomeActivity;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * create an instance of this fragment.
- */
 public class CreateProtocolFragment extends Fragment {
 
     private Button btnNew;
@@ -25,11 +20,7 @@ public class CreateProtocolFragment extends Fragment {
     }
 
     public static CreateProtocolFragment newInstance() {
-
-        Bundle args = new Bundle();
-
         CreateProtocolFragment fragment = new CreateProtocolFragment();
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -42,6 +33,7 @@ public class CreateProtocolFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d("new Protocol", "is initialized");
+                // to create a new protocol the screen change to the duplicate fragment
                 HV_HomeActivity hv_homeActivity = (HV_HomeActivity) getActivity();
                 hv_homeActivity.callDuplicateFragment();
             }
@@ -52,10 +44,5 @@ public class CreateProtocolFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        Bundle bundle = new Bundle();
-        if (bundle != null) {
-
-        }
     }
 }

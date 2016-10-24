@@ -15,7 +15,7 @@ public interface EntryStateInterface {
 
     public void createNewEntry(AP ap);
 
-    public void saveCheckEntries(List<Boolean> check);
+    public void saveCheckEntries(List<String> check, String ex);
 
     public void saveCheckOldEntries(List<Boolean> checkOld);
 
@@ -30,4 +30,7 @@ public interface EntryStateInterface {
     public void savePicture(int pos, byte[] picture);
 
     public byte[] getPictureAtPosition(int pos);
+
+    public int countPicturesOfLast5Years(int pos, EntryStateInterface entryStateInterface);
+
 }

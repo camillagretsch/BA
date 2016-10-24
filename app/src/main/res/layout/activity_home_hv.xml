@@ -103,6 +103,7 @@
 
                 <Button
                     style="@style/ButtonStyle"
+                    android:layout_width="wrap_content"
                     android:text="@string/logout_btn"
                     android:id="@+id/btnLogout"
                     android:layout_gravity="right"
@@ -122,7 +123,9 @@
                 android:layout_width="200sp"
                 android:layout_height="match_parent"
                 android:id="@+id/list_holder"
-                android:background="@color/grey_dark" />
+                android:background="@color/grey_dark"/>
+
+            <View style="@style/VerticalDividerStyle"/>
 
             <LinearLayout
                 android:orientation="horizontal"

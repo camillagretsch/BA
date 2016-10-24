@@ -7,5 +7,7 @@
     <color name="grey_hell">#CCCCCC</color>
     <color name="grey_dark">#999999</color>
     <color name="white">#FFFFFF</color>
+    <color name="hint">#FFDBDBDB</color>
+    <color name="selector">#FFE17C84</color>
     <color name="bright_foreground_light_disabled">#000000</color>
 </resources>

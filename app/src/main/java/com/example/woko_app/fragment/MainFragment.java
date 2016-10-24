@@ -17,14 +17,6 @@ import com.example.woko_app.models.AP;
 
 import java.lang.reflect.Field;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * to handle interaction events.
- * Use the {@link MainFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MainFragment extends Fragment {
 
     private Typeface font;
@@ -45,10 +37,6 @@ public class MainFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public MainFragment(Typeface font) {
-        this.font = font;
-    }
-
     public static MainFragment newInstance() {
         MainFragment fragment = new MainFragment();
         return fragment;
@@ -63,6 +51,10 @@ public class MainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
+        //fontawesome
+        font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/fontawesome-webfont.ttf");
+
+        //home activity is the root activity of this fragment
         final HV_HomeActivity rootActivity = (HV_HomeActivity) getActivity();
 
         fileIcon = (TextView) view.findViewById(R.id.fileicon);
@@ -70,12 +62,14 @@ public class MainFragment extends Fragment {
 
         txtFileName = (TextView) view.findViewById(R.id.txtFileName);
 
+        // set buttons on click listener
         btnOpen = (Button) view.findViewById(R.id.btnOpen);
         btnOpen.setTypeface(font);
         btnOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("Open: ", currentAP.getApartment().getHouse().getHV().getName() + " opens AP with the id " + currentAP.getId());
+                rootActivity.callOpenActivity();
             }
         });
 
@@ -127,6 +121,11 @@ public class MainFragment extends Fragment {
         }
     }
 
+    /**
+     * hide the day and month of the android datepicker
+     * @param object
+     * @param name
+     */
     private static void findAndHideField(Object object, String name) {
         try {
             final Field field = object.getClass().getDeclaredField(name);

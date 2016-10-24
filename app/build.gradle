@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.woko_app"
-        minSdkVersion 11
+        minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -27,4 +27,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:design:23.3.0'
     compile 'com.android.support:support-v4:23.3.0'
+    compile files('libs/DynamicPDF.jar')
 }

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -25,30 +26,33 @@ import com.example.woko_app.adapter.ExpandableListAdapter;
 import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
-import com.example.woko_app.fragment.MainFragment;
 import com.example.woko_app.fragment.PersonalDataFragment;
 import com.example.woko_app.fragment.SaveFragment;
 import com.example.woko_app.models.AP;
 import com.example.woko_app.models.Apartment;
-import com.example.woko_app.models.EntryStateInterface;
+import com.example.woko_app.models.BalconyState;
+import com.example.woko_app.models.BasementState;
+import com.example.woko_app.models.Bathroom;
 import com.example.woko_app.models.House;
-import com.example.woko_app.models.MattressState;
+import com.example.woko_app.models.Kitchen;
 import com.example.woko_app.models.Room;
 import com.example.woko_app.models.User;
 
+import java.security.interfaces.RSAKey;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class HV_EditActivity extends Activity {
 
-    private ArrayList<String> parentItems;
+    private ArrayList<String> parentItems = new ArrayList<>();
     private ArrayList<Object> childItems = new ArrayList<>();
+    private int prev = -1;
 
-    private Typeface font;
+    private Typeface fontawesome;
+    private Typeface fonticon;
 
-    private Button btnBack;
     private Button btnNext;
+    private Button btnBack;
 
     private TextView usericon;
     private TextView txtName;
@@ -56,10 +60,11 @@ public class HV_EditActivity extends Activity {
 
     private User currentUser;
     private AP currentAP;
-    private AP unsavedAP;
     private Apartment currentApartment;
     private House currentHouse;
     private Room currentRoom;
+
+    private ExpandableListAdapter adapter;
 
     private RelativeLayout sidebarContainer;
     private DataGridFragment dataGridFragment;
@@ -76,32 +81,37 @@ public class HV_EditActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hv_edit);
 
-        //fontawesome
-        font = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
+        //typefaces
+        fontawesome = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
+        fonticon = Typeface.createFromAsset(getAssets(), "fonts/Flaticon.ttf");
 
         intentReceiver();
 
         currentApartment = currentAP.getApartment();
-        unsavedAP = currentAP;
         sidebarContainer = (RelativeLayout)findViewById(R.id.list_holder);
         fragmentManager = getFragmentManager();
 
+        // TODO set buttons on click listener
         btnBack = (Button)findViewById(R.id.btnBack);
-        btnBack.setTypeface(font);
         btnNext = (Button)findViewById(R.id.btnNext);
-        btnNext.setTypeface(font);
 
         setHeader();
 
         generateSideView();
+        currentRoom.setUnsavedAP(currentAP);
     }
 
     /**
-     *
+     *  set the header in the screen, it contains
+     *  name of the user
+     *  type of the user
+     *  logo
+     *  logout button
+     *  address of the protocol
      */
     private void setHeader() {
         usericon = (TextView)findViewById(R.id.usericon);
-        usericon.setTypeface(font);
+        usericon.setTypeface(fontawesome);
 
         txtName = (TextView)findViewById(R.id.txtName);
         txtName.setText(currentUser.getName());
@@ -111,17 +121,87 @@ public class HV_EditActivity extends Activity {
 
     }
 
-    public void generateSideView() {
+    /**
+     * generates the list on side depends on the apartment type
+     * set the parent items and add the icons
+     */
+    private void generateSideView() {
         if (ApartmentType.SHARED_APARTMENT.equals(currentHouse.getApartments().get(0).getType())) {
             currentRoom = currentAP.getRoom();
-            parentItems = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.shared_apartment_parent)));
-            setChildDataSharedApartment();
+            setParentItemsShared();
         } else {
-            parentItems = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.studio_parent)));
-            setChildDataStudio();
+            setParentItemsStudio();
         }
 
         setExpandableListView();
+    }
+
+    /**
+     * add parent items for the apartment type studio
+     */
+    private void setParentItemsStudio() {
+        String ex = getResources().getString(R.string.exclamation_mark);
+        parentItems.clear();
+        parentItems.add(Kitchen.updateKitchenName(currentAP, ex, getResources().getString(R.string.cutlery_icon)));
+        parentItems.add(Bathroom.updateBathroomName(currentAP, ex, getResources().getString(R.string.shower_icon)));
+        parentItems.add(Room.updateRoomName(currentAP, ex, getResources().getString(R.string.bed_icon)));
+        parentItems.add(BalconyState.updateBalconyName(currentAP, ex, getResources().getString(R.string.balcony_icon)));
+        parentItems.add(BasementState.updateBasamentName(currentAP, ex, getResources().getString(R.string.house_icon)));
+        parentItems.add(getResources().getString(R.string.personal_data));
+        parentItems.add(getResources().getString(R.string.save));
+        parentItems.add(getResources().getString(R.string.close));
+        setStudioItems();
+    }
+
+    /**
+     * add parent items for the apartment type shared
+     */
+    private void setParentItemsShared() {
+        String ex = getResources().getString(R.string.exclamation_mark);
+        parentItems.clear();
+        parentItems.add(Room.updateRoomName(currentAP, ex, getResources().getString(R.string.bed_icon)));
+        parentItems.add(getResources().getString(R.string.personal_data));
+        parentItems.add(getResources().getString(R.string.save));
+        parentItems.add(getResources().getString(R.string.close));
+        setSharedApartmentItems();
+    }
+
+    /**
+     * add the children items for the apartment type studio
+     */
+    private void setStudioItems() {
+        childItems.clear();
+        // kitchen
+        childItems.add(Kitchen.updateKitchenItems(currentAP));
+        // bathroom
+        childItems.add(Bathroom.updateBathroomItems(currentAP));
+        // room
+        childItems.add(Room.updateRoomItems(currentAP));
+        // balcony
+        childItems.add(new ArrayList<>());
+        // basement
+        childItems.add(new ArrayList<>());
+        // personal data
+        childItems.add(new ArrayList<>());
+        // save
+        childItems.add(new ArrayList<>());
+        // stop
+        childItems.add(new ArrayList<>());
+    }
+
+    /**
+     * add the children items for the apartment type shared
+     */
+    public void setSharedApartmentItems() {
+        childItems.clear();
+        // room
+        childItems.add(Room.updateRoomItems(currentAP));
+        // personal data
+        childItems.add(new ArrayList<>(Arrays.asList("")));
+        // save
+        childItems.add(new ArrayList<>());
+        // stop
+        childItems.add(new ArrayList<>());
     }
 
     /**
@@ -129,66 +209,40 @@ public class HV_EditActivity extends Activity {
      */
     public void setExpandableListView() {
         final ExpandableListView expandableListView = new ExpandableListView(this);
+        expandableListView.setDivider(new ColorDrawable(this.getResources().getColor(R.color.black)));
+        expandableListView.setChildDivider(new ColorDrawable(this.getResources().getColor(R.color.black)));
         expandableListView.setDividerHeight(3);
         expandableListView.setGroupIndicator(null);
         expandableListView.setClickable(true);
 
-        ExpandableListAdapter adapter = new ExpandableListAdapter(parentItems, childItems, R.layout.edit_expandablelist_parent, R.layout.edit_expandablelist_child, font);
+        adapter = new ExpandableListAdapter(parentItems, childItems, R.layout.edit_expandablelist_parent, R.layout.edit_expandablelist_child, fontawesome, fonticon);
         adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE), this);
         expandableListView.setAdapter(adapter);
+        expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                if (prev != groupPosition) {
+                    expandableListView.collapseGroup(prev);
+                }
+                prev = groupPosition;
+            }
+        });
+        // child click listener
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 v.setSelected(true);
-                btnBack.setVisibility(View.INVISIBLE);
-                btnNext.setVisibility(View.INVISIBLE);
-                btnNext.setText(getResources().getText(R.string.next_btn));
-                Log.d("parent at position: ", String.valueOf(groupPosition) + " is clicked and child at position: " + String.valueOf(childPosition));
-                List<String> children;
-                if ((ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 0) || (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 2)) {
-                    children = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.room_children)));
-                    children.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
-                    callDatagridFargment(groupPosition, children.get(childPosition));
-                } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 0) {
-                    children = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.kitchen_children)));
-                    children.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
-                    callDatagridFargment(groupPosition, children.get(childPosition));
-                } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 1) {
-                    children = new ArrayList<String>(Arrays.asList(getResources().getStringArray(R.array.bathroom_children)));
-                    children.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
-                    callDatagridFargment(groupPosition, children.get(childPosition));
-                }
-                return false;
+                return setOnClickChild(groupPosition, childPosition);
             }
         });
+        // set on group click
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                btnBack.setVisibility(View.INVISIBLE);
-                btnNext.setVisibility(View.INVISIBLE);
-                btnNext.setText(getResources().getText(R.string.next_btn));
-                //1. Balcony, 2. Basement, 3. Personal Data, 4. Save, 5. Stop
-                if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 3) {
-                    callDatagridFargment(groupPosition, "Balkon");
-                } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 4) {
-                    callDatagridFargment(groupPosition, "Kellerabteil");
-                } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 5) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 1)) {
-                    Log.d("Personal data of", currentAP.getName() + "is opened" );
-                    callPersonalDataFragment();
-                } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 6) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 2)) {
-                    callSaveFragment();
-                    Toast toast = Toast.makeText(getBaseContext(), getResources().getText(R.string.saved), Toast.LENGTH_LONG);
-                    LinearLayout toastLayout = (LinearLayout) toast.getView();
-                    TextView toastText = (TextView) toastLayout.getChildAt(0);
-                    toastText.setTextSize(25);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toast.show();
-                } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 7) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 3)) {
-                    setAPtoUnsavedAP();
-                }
-                return false;
+                return setOnClickGroup(groupPosition);
             }
         });
+        // collapse group listener close the current open fragment
         expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int groupPosition) {
@@ -199,68 +253,78 @@ public class HV_EditActivity extends Activity {
     }
 
     /**
-     *
+     * opens the datagrid fragment with different arguments
+     * depends on the group and child position
+     * @param groupPosition
+     * @param childPosition
+     * @return
      */
-    public void setChildDataStudio() {
-
-        // kitchen
-        ArrayList<String> child = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.kitchen_children)));
-        child.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
-        childItems.add(child);
-
-        // bathroom
-        child = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.bathroom_children)));
-        child.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
-        childItems.add(child);
-
-        // room
-        setChildDataSharedApartment();
-
-        // balcony
-        child = new ArrayList<>();
-        childItems.add(child);
-
-        // basement
-        child = new ArrayList<>();
-        childItems.add(child);
-
-        // personal data
-        child = new ArrayList<>();
-        childItems.add(child);
-
-        // save
-        child = new ArrayList<>();
-        childItems.add(child);
-
-        // stop
-        child = new ArrayList<>();
-        childItems.add(child);
-
+    private boolean setOnClickChild(int groupPosition, int childPosition) {
+        Log.d("parent at position: ", String.valueOf(groupPosition) + " is clicked and child at position: " + String.valueOf(childPosition));
+        if ((ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 0) || (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 2)) {
+            callDatagridFargment(groupPosition, Room.updateRoomItems(currentAP).get(childPosition));
+        } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 0) {
+            callDatagridFargment(groupPosition, Kitchen.updateKitchenItems(currentAP).get(childPosition));
+        } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 1) {
+            callDatagridFargment(groupPosition, Bathroom.updateBathroomItems(currentAP).get(childPosition));
+        }
+        return false;
     }
 
-    public void setChildDataSharedApartment() {
-
-        // room
-        ArrayList<String> child = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.room_children)));
-        child.addAll(Arrays.asList(getResources().getStringArray(R.array.children)));
-        childItems.add(child);
-
-        // personal data
-        child = new ArrayList<>();
-        childItems.add(child);
-
-        // save
-        child = new ArrayList<>();
-        childItems.add(child);
-
-        // stop
-        child = new ArrayList<>();
-        childItems.add(child);
+    /**
+     * opens the datagrid fragment, personal data fragment or save fragment
+     * depends on the group position
+     * @param groupPosition
+     * @return
+     */
+    private boolean setOnClickGroup(int groupPosition) {
+        //1. Balcony, 2. Basement, 3. Personal Data, 4. Save, 5. Stop
+        if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 3) {
+            callDatagridFargment(groupPosition, "Balkon");
+            return true;
+        } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 4) {
+            callDatagridFargment(groupPosition, "Kellerabteil");
+            return true;
+        } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 5) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 1)) {
+            Log.d("Personal data of", currentAP.getName() + "is opened");
+            callPersonalDataFragment();
+            return true;
+        } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 6) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 2)) {
+            callSaveFragment();
+            Toast toast = Toast.makeText(getBaseContext(), getResources().getText(R.string.saved), Toast.LENGTH_SHORT);
+            LinearLayout toastLayout = (LinearLayout) toast.getView();
+            TextView toastText = (TextView) toastLayout.getChildAt(0);
+            toastText.setTextSize(25);
+            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+            toast.show();
+            return true;
+        } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 7) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 3)) {
+            setAPtoUnsavedAP();
+            return true;
+        }
+        return false;
     }
 
+    /**
+     * updates the sideview when the content of parent or child items change
+     */
+    public void updateSideView() {
+        if (ApartmentType.SHARED_APARTMENT.equals(currentHouse.getApartments().get(0).getType())) {
+            setParentItemsShared();
+        } else {
+            setParentItemsStudio();
+        }
+        adapter.notifyDataSetChanged();
+        adapter.notifyDataSetInvalidated();
+    }
 
+    /**
+     * open the datagrid fragment
+     * @param parent
+     * @param child
+     */
     public void callDatagridFargment(int parent, String child) {
-        dataGridFragment = new DataGridFragment(font);
+        dataGridFragment = new DataGridFragment();
         openFragment = dataGridFragment;
         bundle = new Bundle();
         bundle.putLong("AP", currentAP.getId());
@@ -271,32 +335,36 @@ public class HV_EditActivity extends Activity {
         fragmentTransaction.replace(R.id.datagrid_container, dataGridFragment, null).addToBackStack(null).commit();
     }
 
+    /**
+     * open the personal data fragment
+     */
     public void callPersonalDataFragment() {
         personalDataFragment = new PersonalDataFragment();
         openFragment = personalDataFragment;
         bundle = new Bundle();
         bundle.putLong("AP", currentAP.getId());
         personalDataFragment.setArguments(bundle);
-        btnBack.setVisibility(View.VISIBLE);
-        btnNext.setVisibility(View.VISIBLE);
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.datagrid_container, personalDataFragment, null).addToBackStack(null).commit();
     }
 
+    /**
+     * open the save fragment
+     */
     public void callSaveFragment() {
-        saveFragment = new SaveFragment(font);
+        saveFragment = new SaveFragment();
         openFragment = saveFragment;
         bundle = new Bundle();
         bundle.putString("Username", currentUser.getUsername());
         bundle.putLong("AP", currentAP.getId());
         saveFragment.setArguments(bundle);
-        btnBack.setVisibility(View.VISIBLE);
-        btnNext.setVisibility(View.VISIBLE);
-        btnNext.setText(getResources().getText(R.string.logout_btn));
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.datagrid_container, saveFragment, null).addToBackStack(null).commit();
     }
 
+    /**
+     * TODO
+     */
     public void setAPtoUnsavedAP() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
@@ -309,8 +377,7 @@ public class HV_EditActivity extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // TODO AP zurücksetzen
-                currentAP = unsavedAP;
-                currentAP.save();
+                currentRoom.resetRoomEntries(currentAP);
                 callHomeActivity();
             }
         });
@@ -319,6 +386,11 @@ public class HV_EditActivity extends Activity {
         alertDialog.show();
     }
 
+    /**
+     * open the history activity
+     * when the picture button is pressed
+     * @param pos
+     */
     public void callHistoryActivity(int pos) {
         Intent intent = new Intent(this, HistoryActivity.class);
         intent.putExtra("AP", currentAP.getId());
@@ -326,16 +398,22 @@ public class HV_EditActivity extends Activity {
         startActivity(intent);
     }
 
+    /**
+     * open the home activity
+     * when the last group item in the expandable listview is pressed
+     */
     public void callHomeActivity() {
         Intent intent = new Intent(this, HV_HomeActivity.class);
         intent.putExtra("Username", currentUser.getUsername());
         startActivity(intent);
     }
 
+    /**
+     * close the current open fragment
+     */
     public void closeOpenFragment() {
         btnBack.setVisibility(View.INVISIBLE);
         btnNext.setVisibility(View.INVISIBLE);
-        btnNext.setText(getResources().getText(R.string.next_btn));
         if (openFragment != null) {
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.remove(openFragment).commit();
@@ -352,19 +430,4 @@ public class HV_EditActivity extends Activity {
         currentHouse = House.findById(intent.getLongExtra("House", 0));
     }
 
-    public void setBtnBackVisible() {
-        btnBack.setVisibility(View.VISIBLE);
-    }
-
-    public void setBtnBackInvisible() {
-        btnBack.setVisibility(View.INVISIBLE);
-    }
-
-    public void setBtnNextVisible() {
-        btnNext.setVisibility(View.VISIBLE);
-    }
-
-    public void setBtnNextInvisible() {
-        btnNext.setVisibility(View.INVISIBLE);
-    }
 }

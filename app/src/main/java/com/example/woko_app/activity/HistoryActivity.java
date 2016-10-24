@@ -4,47 +4,34 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.hardware.Camera;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.woko_app.R;
-import com.example.woko_app.fragment.DataGridFragment;
 import com.example.woko_app.models.AP;
 import com.example.woko_app.models.BalconyState;
 import com.example.woko_app.models.BasementState;
 import com.example.woko_app.models.CupboardState;
 import com.example.woko_app.models.CutleryState;
-import com.example.woko_app.models.DbBitmapUtility;
+import com.example.woko_app.models.PersonalSerializer;
 import com.example.woko_app.models.DoorState;
 import com.example.woko_app.models.EntryStateInterface;
 import com.example.woko_app.models.FloorState;
 import com.example.woko_app.models.FridgeState;
 import com.example.woko_app.models.FurnitureState;
-import com.example.woko_app.models.House;
 import com.example.woko_app.models.MattressState;
 import com.example.woko_app.models.OvenState;
 import com.example.woko_app.models.RadiatorState;
 import com.example.woko_app.models.ShowerState;
 import com.example.woko_app.models.SocketState;
-import com.example.woko_app.models.User;
 import com.example.woko_app.models.VentilationState;
 import com.example.woko_app.models.WallState;
 import com.example.woko_app.models.WindowState;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.concurrent.BlockingDeque;
 
 public class HistoryActivity extends Activity{
 
@@ -73,10 +60,23 @@ public class HistoryActivity extends Activity{
         //fontawesome
         font = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
 
+        //set button on click listener
         btnCamera = (Button)findViewById(R.id.btnCamera);
         btnCamera.setTypeface(font);
-        if (tableEntries.getCheckAtPosition(pos) == true && tableEntries.getCheckOldAtPosition(pos) == false) {
-            btnCamera.setVisibility(View.INVISIBLE);
+        if (tableEntries.getClass().getName().equals(FurnitureState.class.getName())) {
+            FurnitureState furniture = (FurnitureState) tableEntries;
+            if (furniture.getCountBrokenAtPosition(pos) == 0 || tableEntries.getCheckOldAtPosition(pos) == true) {
+                btnCamera.setVisibility(View.INVISIBLE);
+            }
+        } else if (tableEntries.getClass().getName().equals(CutleryState.class.getName())) {
+            CutleryState cutlery = (CutleryState) tableEntries;
+            if (cutlery.getCountBrokenAtPosition(pos) == 0 || tableEntries.getCheckOldAtPosition(pos) == true) {
+                btnCamera.setVisibility(View.INVISIBLE);
+            }
+        } else {
+            if (tableEntries.getCheckAtPosition(pos) == true || tableEntries.getCheckOldAtPosition(pos) == true) {
+                btnCamera.setVisibility(View.INVISIBLE);
+            }
         }
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,6 +89,9 @@ public class HistoryActivity extends Activity{
         fillInDateAndComment();
     }
 
+    /**
+     *
+     */
     private void fillInDateAndComment() {
         int i = 1;
         AP ap = currentAP;
@@ -140,8 +143,8 @@ public class HistoryActivity extends Activity{
             getComment(WallState.checkBelonging((WallState) tableEntries, ap));
             getPicture(WallState.checkBelonging((WallState) tableEntries, ap));
         } else if (tableEntries.getClass().getName().equals(FloorState.class.getName())) {
-            getComment(FloorState.checkBelongin((FloorState) tableEntries, ap));
-            getPicture(FloorState.checkBelongin((FloorState) tableEntries, ap));
+            getComment(FloorState.checkBelonging((FloorState) tableEntries, ap));
+            getPicture(FloorState.checkBelonging((FloorState) tableEntries, ap));
         } else if (tableEntries.getClass().getName().equals(WindowState.class.getName())) {
             getComment(WindowState.checkBelonging((WindowState) tableEntries, ap));
             getPicture(WindowState.checkBelonging((WindowState) tableEntries, ap));
@@ -187,7 +190,7 @@ public class HistoryActivity extends Activity{
 
     private void getPicture(EntryStateInterface tableEntries) {
         if (null != tableEntries.getPictureAtPosition(pos)) {
-            picture = DbBitmapUtility.getImage(tableEntries.getPictureAtPosition(pos));
+            picture = PersonalSerializer.getImage(tableEntries.getPictureAtPosition(pos));
         }
     }
 
@@ -199,7 +202,7 @@ public class HistoryActivity extends Activity{
 
         Bitmap bmPicture = (Bitmap) data.getExtras().get("data");
         // save picture to DB
-        tableEntries.savePicture(pos, DbBitmapUtility.getBytes(bmPicture));
+        tableEntries.savePicture(pos, PersonalSerializer.getBytes(bmPicture));
         // show picture on device
         ivPicture.setImageBitmap(bmPicture);
     }

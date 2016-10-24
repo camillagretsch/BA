@@ -4,6 +4,13 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.pageelements.CellAlign;
+import com.cete.dynamicpdf.pageelements.CellVAlign;
+import com.cete.dynamicpdf.pageelements.Image;
+import com.cete.dynamicpdf.pageelements.Row;
+import com.cete.dynamicpdf.pageelements.forms.CheckBox;
+import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
 
@@ -24,10 +31,10 @@ public class FloorState extends Model implements EntryStateInterface {
     private boolean isCleanOld = false;
 
     @Column(name = "clean_comment")
-    private String cleanComment;
+    private String cleanComment = null;
 
     @Column(name = "clean_picture")
-    private byte[] cleanPicture;
+    private byte[] cleanPicture = null;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -36,12 +43,10 @@ public class FloorState extends Model implements EntryStateInterface {
     private boolean isDamageOld = false;
 
     @Column(name = "damage_comment")
-    private String damageComment;
+    private String damageComment = null;
 
     @Column(name = "damage_picture")
-    private byte[] damagePicture;
-
-    private static final List<String> ROW_NAMES = Arrays.asList("Ist besenrein?", "Ist alles intakt?");
+    private byte[] damagePicture = null;
 
     @Column(name = "room", onUpdate = Column.ForeignKeyAction.CASCADE)
     private Room room;
@@ -54,6 +59,11 @@ public class FloorState extends Model implements EntryStateInterface {
 
     @Column(name = "AP", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private AP ap;
+
+    @Column(name = "name")
+    private String name = "Boden";
+
+    private static final List<String> ROW_NAMES = Arrays.asList("Ist besenrein?", "Ist alles intakt?");
 
     public FloorState() {
         super();
@@ -141,10 +151,6 @@ public class FloorState extends Model implements EntryStateInterface {
         return damagePicture;
     }
 
-    public List<String> getRowNames() {
-        return ROW_NAMES;
-    }
-
     public Room getRoom() {
         return room;
     }
@@ -161,20 +167,12 @@ public class FloorState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    private List<Boolean> createCheckList(FloorState floor) {
-        return new ArrayList<>(Arrays.asList(floor.isClean(), floor.hasNoDamage()));
+    public void setName(String name) {
+        this.name = name;
     }
 
-    private List<String> createCommentsList(FloorState floor) {
-       return new ArrayList<>(Arrays.asList(floor.getCleanComment(), floor.getDamageComment()));
-    }
-
-    private List<Boolean> createCheckOldList(FloorState floor) {
-        return new ArrayList<>(Arrays.asList(floor.isCleanOld(), floor.isDamageOld()));
-    }
-
-    private List<byte[]> createPictureList(FloorState floor) {
-        return new ArrayList<>(Arrays.asList(floor.getCleanPicture(), floor.getDamagePicture()));
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -198,6 +196,28 @@ public class FloorState extends Model implements EntryStateInterface {
     }
 
     @Override
+    public int countPicturesOfLast5Years(int pos, EntryStateInterface entryStateInterface) {
+        FloorState floor = (FloorState) entryStateInterface;
+        AP ap = floor.getAp();
+
+        int counter = 0;
+        int year = 0;
+
+        while (year < 5) {
+
+            if (null != FloorState.checkBelonging(floor, ap).getPictureAtPosition(pos)) {
+                counter++;
+            }
+            if (null != ap.getOldAP()) {
+                ap = ap.getOldAP();
+            } else
+                break;
+            year++;
+        }
+        return counter;
+    }
+
+    @Override
     public void getEntries(DataGridFragment frag) {
         FloorState floor = FloorState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
 
@@ -210,7 +230,7 @@ public class FloorState extends Model implements EntryStateInterface {
                 frag.setTableEntries(FloorState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP()));
             }
         }
-        frag.setHeaderVariante1();
+        frag.setTableHeader(frag.getResources().getStringArray(R.array.header_variante1));
         frag.getRowNames().addAll(floor.ROW_NAMES);
         frag.getCheck().addAll(createCheckList(floor));
         frag.getCheckOld().addAll(createCheckOldList(floor));
@@ -238,17 +258,6 @@ public class FloorState extends Model implements EntryStateInterface {
         }
     }
 
-    private void copyOldEntries(FloorState oldFloor) {
-        this.setIsClean(oldFloor.isClean());
-        this.setIsCleanOld(oldFloor.isCleanOld());
-        this.setCleanComment(oldFloor.getCleanComment());
-        this.setCleanPicture(oldFloor.getCleanPicture());
-        this.setHasNoDamage(oldFloor.hasNoDamage());
-        this.setIsDamageOld(oldFloor.isDamageOld());
-        this.setDamageComment(oldFloor.getDamageComment());
-        this.setDamagePicture(oldFloor.getDamagePicture());
-    }
-
     @Override
     public void createNewEntry(AP ap) {
         this.save();
@@ -263,9 +272,13 @@ public class FloorState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<Boolean> check) {
-        this.setIsClean(check.get(0));
-        this.setHasNoDamage(check.get(1));
+    public void saveCheckEntries(List<String> check, String ex) {
+        this.setIsClean(Boolean.parseBoolean(check.get(0)));
+        this.setHasNoDamage(Boolean.parseBoolean(check.get(1)));
+        if (check.contains("false")) {
+            this.setName("Boden " + ex);
+        } else
+            this.setName("Boden");
         this.save();
     }
 
@@ -296,23 +309,99 @@ public class FloorState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    /**
+     * add all columns which contain the verification of the correctness of the entries to a list
+     * false when something is incorrect
+     * true when something is correct
+     * @param floor
+     * @return
+     */
+    private static List<Boolean> createCheckList(FloorState floor) {
+        return new ArrayList<>(Arrays.asList(floor.isClean(), floor.hasNoDamage()));
+    }
+
+    /**
+     * add all columns which contain the comment to a list
+     * @param floor
+     * @return
+     */
+    private static List<String> createCommentsList(FloorState floor) {
+        return new ArrayList<>(Arrays.asList(floor.getCleanComment(), floor.getDamageComment()));
+    }
+
+    /**
+     * add all columns which contain the verification if the entry is old to a list
+     * false when the entry is new
+     * true when the entry is old
+     * @param floor
+     * @return
+     */
+    private static List<Boolean> createCheckOldList(FloorState floor) {
+        return new ArrayList<>(Arrays.asList(floor.isCleanOld(), floor.isDamageOld()));
+    }
+
+    /**
+     * add all columns which contain the picture to a list
+     * @param floor
+     * @return
+     */
+    private static List<byte[]> createPictureList(FloorState floor) {
+        return new ArrayList<>(Arrays.asList(floor.getCleanPicture(), floor.getDamagePicture()));
+    }
+
+    /**
+     * copies all columns
+     * @param oldFloor
+     */
+    private void copyOldEntries(FloorState oldFloor) {
+        this.setIsClean(oldFloor.isClean());
+        this.setIsCleanOld(oldFloor.isCleanOld());
+        this.setCleanComment(oldFloor.getCleanComment());
+        this.setCleanPicture(oldFloor.getCleanPicture());
+        this.setHasNoDamage(oldFloor.hasNoDamage());
+        this.setIsDamageOld(oldFloor.isDamageOld());
+        this.setDamageComment(oldFloor.getDamageComment());
+        this.setDamagePicture(oldFloor.getDamagePicture());
+        this.setName(oldFloor.getName());
+    }
+
+    /**
+     * search it in the db with the room id and protocol id
+     * @param room
+     * @param ap
+     * @return
+     */
     public static FloorState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(FloorState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
     }
 
+    /**
+     * search it in the db with the bathroom id and protocol id
+     * @param bathroom
+     * @param ap
+     * @return
+     */
     public static FloorState findByBathroomAndAP(Bathroom bathroom, AP ap) {
         return new Select().from(FloorState.class).where("bathroom = ? and AP = ?", bathroom.getId(), ap.getId()).executeSingle();
     }
 
+    /**
+     * search it in the db with the kitchen id and protocol id
+     * @param kitchen
+     * @param ap
+     * @return
+     */
     public static FloorState findByKitchenAndAP(Kitchen kitchen, AP ap) {
         return new Select().from(FloorState.class).where("kitchen = ? and AP = ?", kitchen.getId(), ap.getId()).executeSingle();
     }
 
-    public static FloorState findById(long id) {
-        return new Select().from(FloorState.class).where("id = ?", id).executeSingle();
-    }
-
-    public static FloorState checkBelongin(FloorState floor, AP ap) {
+    /**
+     * check if the entry belong to the kitchen, bathroom or room
+     * @param floor
+     * @param ap
+     * @return
+     */
+    public static FloorState checkBelonging(FloorState floor, AP ap) {
         if (floor.getRoom() != null) {
             return FloorState.findByRoomAndAP(ap.getRoom(), ap);
         } else if (floor.getBathroom() != null) {
@@ -321,26 +410,42 @@ public class FloorState extends Model implements EntryStateInterface {
             return FloorState.findByKitchenAndAP(ap.getKitchen(), ap);
     }
 
-    public static void initializeRoomFloor(List<AP> aps) {
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     * @param ex
+     */
+    public static void initializeRoomFloor(List<AP> aps, String ex) {
         for (AP ap : aps) {
             FloorState floor = new FloorState(ap.getRoom(), ap);
             floor.setIsClean(true);
             floor.setHasNoDamage(false);
             floor.setDamageComment("Risse im Boden");
+            floor.setName(floor.getName() + " " + ex);
             floor.save();
         }
     }
 
-    public static void initializeBathroomFloor(List<AP> aps) {
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     * @param ex
+     */
+    public static void initializeBathroomFloor(List<AP> aps, String ex) {
         for (AP ap :aps) {
             FloorState floor = new FloorState(ap.getBathroom(), ap);
             floor.setIsClean(false);
             floor.setCleanComment("Krümmel am Boden");
+            floor.setName(floor.getName() + " " + ex);
             floor.setHasNoDamage(true);
             floor.save();
         }
     }
 
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     */
     public static void initializeKitchenFloor(List<AP> aps) {
         for (AP ap :aps) {
             FloorState floor = new FloorState(ap.getKitchen(), ap);
@@ -348,5 +453,66 @@ public class FloorState extends Model implements EntryStateInterface {
             floor.setHasNoDamage(true);
             floor.save();
         }
+    }
+
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(FloorState floor, float pageWidth, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+
+        table.getColumns().add(150);
+        table.getColumns().add(30);
+        table.getColumns().add(30);
+        table.getColumns().add(50);
+        table.getColumns().add(170);
+        table.getColumns().add(320);
+
+        Row header = table.getRows().add(30);
+        header.setFont(Font.getHelveticaBold());
+        header.setFontSize(11);
+        header.setAlign(CellAlign.CENTER);
+        header.setVAlign(CellVAlign.CENTER);
+        header.getCellList().add("");
+        header.getCellList().add("Ja");
+        header.getCellList().add("Nein");
+        header.getCellList().add("alter Eintrag");
+        header.getCellList().add("Kommentar");
+        header.getCellList().add("Foto");
+
+        int i = 0;
+        for (String s : ROW_NAMES) {
+            Row row = table.getRows().add(30);
+            row.setFontSize(11);
+            row.setAlign(CellAlign.CENTER);
+            row.setVAlign(CellVAlign.CENTER);
+
+            row.getCellList().add(s);
+
+            if (createCheckList(floor).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+                row.getCellList().add("");
+            } else {
+                row.getCellList().add("");
+                row.getCellList().add(new Image(cross, 0, 0));
+            }
+
+            if (createCheckOldList(floor).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+            } else
+                row.getCellList().add("");
+
+            if (null != createCommentsList(floor).get(i)) {
+                row.getCellList().add(createCommentsList(floor).get(i));
+            } else
+                row.getCellList().add("");
+
+            if (null != createPictureList(floor).get(i)) {
+                Image image = new Image(createPictureList(floor).get(i), 0, 0);
+                row.getCellList().add(image);
+            } else
+                row.getCellList().add("");
+
+            i++;
+        }
+        table.setHeight(table.getRequiredHeight());
+        return table;
     }
 }

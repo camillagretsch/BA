@@ -4,8 +4,7 @@
     android:layout_height="match_parent"
     tools:context="com.example.woko_app.fragment.CreateProtocolFragment">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -13,16 +12,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/no_protocol"
-            android:layout_marginTop="50sp"
-            android:layout_marginLeft="50sp" />
+            android:layout_centerInParent="true"
+            android:textSize="25sp"
+            android:id="@+id/text"/>
 
         <Button
             style="@style/ButtonStyle"
             android:layout_width="wrap_content"
             android:text="@string/create_new"
             android:id="@+id/btnNew"
-            android:layout_marginLeft="50sp"
-            android:layout_marginTop="20sp" />
-    </LinearLayout>
+            android:layout_marginTop="20sp"
+            android:layout_centerInParent="true"
+            android:layout_below="@id/text"/>
+    </RelativeLayout>
 
 </FrameLayout>

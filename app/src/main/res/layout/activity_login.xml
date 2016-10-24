@@ -39,11 +39,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/etUsername_login"
-                    android:ems="10"
+                    android:ems="12"
                     android:hint="@string/login_hint"
                     android:layout_marginLeft="10sp"
                     android:textSize="18sp"
                     android:inputType="text"
+                    android:textColorHint="@color/hint"
                     android:text="mm" />
             </LinearLayout>
 
@@ -66,11 +67,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:ems="10"
                     android:id="@+id/etPassword"
                     android:layout_marginLeft="10sp"
                     android:hint="********"
+                    android:textColorHint="@color/hint"
                     android:textSize="18sp"
+                    android:ems="12"
                     android:text="1234" />
             </LinearLayout>
 

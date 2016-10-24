@@ -4,6 +4,12 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.pageelements.CellAlign;
+import com.cete.dynamicpdf.pageelements.CellVAlign;
+import com.cete.dynamicpdf.pageelements.Image;
+import com.cete.dynamicpdf.pageelements.Row;
+import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
 
@@ -24,10 +30,10 @@ public class VentilationState extends Model implements EntryStateInterface {
     private boolean isCleanOld = false;
 
     @Column(name = "clean_comment")
-    private String cleanComment;
+    private String cleanComment = null;
 
     @Column(name = "clean_picture")
-    private byte[] cleanPicture;
+    private byte[] cleanPicture = null;
 
     @Column(name = "isWorking")
     private boolean isWorking = true;
@@ -36,10 +42,10 @@ public class VentilationState extends Model implements EntryStateInterface {
     private boolean isWorkingOld = false;
 
     @Column(name = "working_comment")
-    private String workingComment;
+    private String workingComment = null;
 
     @Column(name = "working_picture")
-    private byte[] workingPicture;
+    private byte[] workingPicture = null;
 
     @Column(name = "lampIsWorking")
     private boolean lampIsWorking = true;
@@ -48,10 +54,10 @@ public class VentilationState extends Model implements EntryStateInterface {
     private boolean isLampWorkingOld = false;
 
     @Column(name = "lamp_comment")
-    private String lampComment;
+    private String lampComment = null;
 
     @Column(name = "lamp_picture")
-    private byte[] lampPicture;
+    private byte[] lampPicture = null;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -60,18 +66,21 @@ public class VentilationState extends Model implements EntryStateInterface {
     private boolean isDamageOld = false;
 
     @Column(name = "damage_comment")
-    private String damageComment;
+    private String damageComment = null;
 
     @Column(name = "damage_picture")
-    private byte[] damagePicture;
-
-    private static final List<String> ROW_NAMES = Arrays.asList("st gereinigt?", "Funktioniert?", "Lämpchen sind intakt?", "Ist alles intakt?");
+    private byte[] damagePicture = null;
 
     @Column(name = "kitchen", onUpdate = Column.ForeignKeyAction.CASCADE)
     private Kitchen kitchen;
 
     @Column(name = "AP", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private AP ap;
+
+    @Column(name = "name")
+    private String name = "Dampfabzug";
+
+    private static final List<String> ROW_NAMES = Arrays.asList("Ist gereinigt?", "Funktioniert?", "Lämpchen sind intakt?", "Ist alles intakt?");
 
     public VentilationState() {
         super();
@@ -211,10 +220,6 @@ public class VentilationState extends Model implements EntryStateInterface {
         return damagePicture;
     }
 
-    public List<String> getRowNames() {
-        return ROW_NAMES;
-    }
-
     public Kitchen getKitchen() {
         return kitchen;
     }
@@ -223,21 +228,14 @@ public class VentilationState extends Model implements EntryStateInterface {
         return ap;
     }
 
-    private List<Boolean> createCheckList(VentilationState ventilation) {
-        return new ArrayList<>(Arrays.asList(ventilation.isClean(), ventilation.isWorking(), ventilation.getLampIsWorking(), ventilation.hasNoDamage()));
+    public void setName(String name) {
+        this.name = name;
     }
 
-    private List<String> createCommentsList(VentilationState ventilation) {
-        return new ArrayList<>(Arrays.asList(ventilation.getCleanComment(), ventilation.getWorkingComment(), ventilation.getLampComment(), ventilation.getDamageComment()));
+    public String getName() {
+        return name;
     }
 
-    private List<Boolean> createCheckOldList(VentilationState ventilation) {
-        return new ArrayList<>(Arrays.asList(ventilation.isCleanOld(), ventilation.isWorkingOld(), ventilation.isLampWorkingOld(), ventilation.isDamageOld()));
-    }
-
-    private List<byte[]> createPictureList(VentilationState ventilation) {
-        return new ArrayList<>(Arrays.asList(ventilation.getCleanPicture(), ventilation.getWorkingPicture(), ventilation.getLampPicture(), ventilation.getDamagePicture()));
-    }
     @Override
     public String getCommentAtPosition(int pos) {
         return createCommentsList(this).get(pos);
@@ -259,8 +257,30 @@ public class VentilationState extends Model implements EntryStateInterface {
     }
 
     @Override
+    public int countPicturesOfLast5Years(int pos, EntryStateInterface entryStateInterface) {
+        VentilationState ventilation = (VentilationState) entryStateInterface;
+        AP ap = ventilation.getAp();
+
+        int counter = 0;
+        int year = 0;
+
+        while (year < 5) {
+
+            if (null != VentilationState.findByKitchenAndAP(ap.getKitchen(), ap).getPictureAtPosition(pos)) {
+                counter++;
+            }
+            if (null != ap.getOldAP()) {
+                ap = ap.getOldAP();
+            } else
+                break;
+            year++;
+        }
+        return counter;
+    }
+
+    @Override
     public void getEntries(DataGridFragment frag) {
-        frag.setHeaderVariante1();
+        frag.setTableHeader(frag.getResources().getStringArray(R.array.header_variante1));
         frag.getRowNames().addAll(this.ROW_NAMES);
         frag.getCheck().addAll(createCheckList(this));
         frag.getCheckOld().addAll(createCheckOldList(this));
@@ -278,25 +298,6 @@ public class VentilationState extends Model implements EntryStateInterface {
         }
     }
 
-    private void copyOldEntries(VentilationState oldVentilation) {
-        this.setIsClean(oldVentilation.isClean());
-        this.setIsCleanOld(oldVentilation.isCleanOld());
-        this.setCleanComment(oldVentilation.getCleanComment());
-        this.setCleanPicture(oldVentilation.getCleanPicture());
-        this.setIsWorking(oldVentilation.isWorking());
-        this.setIsWorkingOld(oldVentilation.isWorkingOld());
-        this.setWorkingComment(oldVentilation.getWorkingComment());
-        this.setWorkingPicture(oldVentilation.getWorkingPicture());
-        this.setLampIsWorking(oldVentilation.getLampIsWorking());
-        this.setIsLampWorkingOld(oldVentilation.isLampWorkingOld());
-        this.setLampComment(oldVentilation.getLampComment());
-        this.setLampPicture(oldVentilation.getLampPicture());
-        this.setHasNoDamage(oldVentilation.hasNoDamage());
-        this.setIsDamageOld(oldVentilation.isDamageOld());
-        this.setDamageComment(oldVentilation.getDamageComment());
-        this.setDamagePicture(oldVentilation.getDamagePicture());
-    }
-
     @Override
     public void createNewEntry(AP ap) {
         if (ApartmentType.STUDIO.equals(ap.getApartment().getType())) {
@@ -305,11 +306,15 @@ public class VentilationState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<Boolean> check) {
-        this.setIsClean(check.get(0));
-        this.setIsWorking(check.get(1));
-        this.setLampIsWorking(check.get(2));
-        this.setHasNoDamage(check.get(3));
+    public void saveCheckEntries(List<String> check, String ex) {
+        this.setIsClean(Boolean.parseBoolean(check.get(0)));
+        this.setIsWorking(Boolean.parseBoolean(check.get(1)));
+        this.setLampIsWorking(Boolean.parseBoolean(check.get(2)));
+        this.setHasNoDamage(Boolean.parseBoolean(check.get(3)));
+        if (check.contains("false")) {
+            this.setName("Dampfabzug " + ex);
+        } else
+            this.setName("Dampfabzug");
         this.save();
     }
 
@@ -349,22 +354,155 @@ public class VentilationState extends Model implements EntryStateInterface {
         this.save();
     }
 
+    /**
+     * add all columns which contain the verification of the correctness of the entries to a list
+     * false when something is incorrect
+     * true when something is correct
+     * @param ventilation
+     * @return
+     */
+    private static List<Boolean> createCheckList(VentilationState ventilation) {
+        return new ArrayList<>(Arrays.asList(ventilation.isClean(), ventilation.isWorking(), ventilation.getLampIsWorking(), ventilation.hasNoDamage()));
+    }
+
+    /**
+     * add all columns which contain the comment to a list
+     * @param ventilation
+     * @return
+     */
+    private static List<String> createCommentsList(VentilationState ventilation) {
+        return new ArrayList<>(Arrays.asList(ventilation.getCleanComment(), ventilation.getWorkingComment(), ventilation.getLampComment(), ventilation.getDamageComment()));
+    }
+
+    /**
+     * add all columns which contain the verification if the entry is old to a list
+     * false when the entry is new
+     * true when the entry is old
+     * @param ventilation
+     * @return
+     */
+    private static List<Boolean> createCheckOldList(VentilationState ventilation) {
+        return new ArrayList<>(Arrays.asList(ventilation.isCleanOld(), ventilation.isWorkingOld(), ventilation.isLampWorkingOld(), ventilation.isDamageOld()));
+    }
+
+    /**
+     * add all columns which contain the picture to a list
+     * @param ventilation
+     * @return
+     */
+    private static List<byte[]> createPictureList(VentilationState ventilation) {
+        return new ArrayList<>(Arrays.asList(ventilation.getCleanPicture(), ventilation.getWorkingPicture(), ventilation.getLampPicture(), ventilation.getDamagePicture()));
+    }
+
+    /**
+     * copies all columns
+     * @param oldVentilation
+     */
+    private void copyOldEntries(VentilationState oldVentilation) {
+        this.setIsClean(oldVentilation.isClean());
+        this.setIsCleanOld(oldVentilation.isCleanOld());
+        this.setCleanComment(oldVentilation.getCleanComment());
+        this.setCleanPicture(oldVentilation.getCleanPicture());
+        this.setIsWorking(oldVentilation.isWorking());
+        this.setIsWorkingOld(oldVentilation.isWorkingOld());
+        this.setWorkingComment(oldVentilation.getWorkingComment());
+        this.setWorkingPicture(oldVentilation.getWorkingPicture());
+        this.setLampIsWorking(oldVentilation.getLampIsWorking());
+        this.setIsLampWorkingOld(oldVentilation.isLampWorkingOld());
+        this.setLampComment(oldVentilation.getLampComment());
+        this.setLampPicture(oldVentilation.getLampPicture());
+        this.setHasNoDamage(oldVentilation.hasNoDamage());
+        this.setIsDamageOld(oldVentilation.isDamageOld());
+        this.setDamageComment(oldVentilation.getDamageComment());
+        this.setDamagePicture(oldVentilation.getDamagePicture());
+        this.setName(oldVentilation.getName());
+    }
+
+    /**
+     * search it in the db with the kitchen id and protocol id
+     * @param kitchen
+     * @param ap
+     * @return
+     */
     public static VentilationState findByKitchenAndAP(Kitchen kitchen, AP ap) {
         return new Select().from(VentilationState.class).where("kitchen = ? and AP = ?", kitchen.getId(), ap.getId()).executeSingle();
     }
 
-    public static VentilationState findById(long id) {
-        return new Select().from(VentilationState.class).where("id = ?", id).executeSingle();
-    }
-
-    public static void initializeKitchenVentilation(List<AP> aps, byte[] image) {
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     * @param image
+     * @param ex
+     */
+    public static void initializeKitchenVentilation(List<AP> aps, byte[] image, String ex) {
         for (AP ap : aps) {
             VentilationState ventilation = new VentilationState(ap.getKitchen(), ap);
             ventilation.setHasNoDamage(false);
             ventilation.setDamageComment("Verdeckung ist abgebrochen");
+            ventilation.setName(ventilation.getName() + " " + ex);
             ventilation.setDamagePicture(image);
             ventilation.save();
         }
     }
 
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(VentilationState ventilation, float pageWidth, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+
+        table.getColumns().add(150);
+        table.getColumns().add(30);
+        table.getColumns().add(30);
+        table.getColumns().add(50);
+        table.getColumns().add(170);
+        table.getColumns().add(320);
+
+        Row header = table.getRows().add(30);
+        header.setFont(Font.getHelveticaBold());
+        header.setFontSize(11);
+        header.setAlign(CellAlign.CENTER);
+        header.setVAlign(CellVAlign.CENTER);
+        header.getCellList().add("");
+        header.getCellList().add("Ja");
+        header.getCellList().add("Nein");
+        header.getCellList().add("alter Eintrag");
+        header.getCellList().add("Kommentar");
+        header.getCellList().add("Foto");
+
+        int i = 0;
+        for (String s : ROW_NAMES) {
+            Row row = table.getRows().add(30);
+            row.setFontSize(11);
+            row.setAlign(CellAlign.CENTER);
+            row.setVAlign(CellVAlign.CENTER);
+
+            row.getCellList().add(s);
+
+            if (createCheckList(ventilation).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+                row.getCellList().add("");
+            } else {
+                row.getCellList().add("");
+                row.getCellList().add(new Image(cross, 0, 0));
+            }
+
+            if (createCheckOldList(ventilation).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+            } else
+                row.getCellList().add("");
+
+            if (null != createCommentsList(ventilation).get(i)) {
+                row.getCellList().add(createCommentsList(ventilation).get(i));
+            } else
+                row.getCellList().add("");
+
+            if (null != createPictureList(ventilation).get(i)) {
+                Image image = new Image(createPictureList(ventilation).get(i), 0, 0);
+                row.getCellList().add(image);
+            } else
+                row.getCellList().add("");
+
+            i++;
+        }
+        table.setHeight(table.getRequiredHeight());
+        return table;
+    }
 }

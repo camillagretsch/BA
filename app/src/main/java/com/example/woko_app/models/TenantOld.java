@@ -3,6 +3,7 @@ package com.example.woko_app.models;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Select;
 import com.example.woko_app.constants.Account;
 
 import java.util.List;
@@ -48,6 +49,9 @@ public class TenantOld extends Model{
 
     @Column(name = "AP")
     private AP ap;
+
+    @Column(name = "signature")
+    private byte[] signature = null;
 
     public TenantOld() {
         super();
@@ -146,6 +150,22 @@ public class TenantOld extends Model{
         return iban;
     }
 
+    public void setSignature(byte[] signature) {
+        this.signature = signature;
+    }
+
+    public byte[] getSignature() {
+        return signature;
+    }
+
+    public static TenantOld findById(long id) {
+        return new Select().from(TenantOld.class).where("id = ?", id).executeSingle();
+    }
+
+    /**
+     * fill in the db with initial entries
+     * @return
+     */
     public static TenantOld initializeTenantOld() {
             TenantOld tenantOld = new TenantOld();
             tenantOld.setRefunder(true);
@@ -155,6 +175,10 @@ public class TenantOld extends Model{
         return tenantOld;
     }
 
+    /**
+     * create a new tenant
+     * @return
+     */
     public static TenantOld saveNewTenantOld() {
         TenantOld tenantOld = new TenantOld();
         tenantOld.save();

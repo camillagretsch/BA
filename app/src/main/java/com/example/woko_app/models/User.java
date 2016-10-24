@@ -119,7 +119,7 @@ public class User extends Model {
     }
 
     /**
-     * creates differnet users and save them to the table
+     * creates different users and save them to the table
      * @return
      */
     public static List<User> initializeUsers() {

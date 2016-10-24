@@ -86,6 +86,11 @@ public class Apartment extends Model {
         return numberOfRooms;
     }
 
+    /**
+     * find the apartment by his id
+     * @param id
+     * @return
+     */
     public static Apartment findById(long id) {
         return new Select().from(Apartment.class).where("id = ?", id).executeSingle();
     }

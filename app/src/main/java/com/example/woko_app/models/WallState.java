@@ -4,6 +4,13 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.pageelements.CellAlign;
+import com.cete.dynamicpdf.pageelements.CellVAlign;
+import com.cete.dynamicpdf.pageelements.Image;
+import com.cete.dynamicpdf.pageelements.Row;
+import com.cete.dynamicpdf.pageelements.forms.CheckBox;
+import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
 
@@ -24,10 +31,10 @@ public class WallState extends Model implements EntryStateInterface{
     private boolean isSpotOld = false;
 
     @Column(name = "spot_comment")
-    private String spotComment;
+    private String spotComment = null;
 
     @Column(name = "spot_picture")
-    private byte[] spotPicture;
+    private byte[] spotPicture = null;
 
     @Column(name = "hasNoHole")
     private boolean hasNoHole = true;
@@ -36,10 +43,10 @@ public class WallState extends Model implements EntryStateInterface{
     private boolean isHoleOld = false;
 
     @Column(name = "hole_comment")
-    private String holeComment;
+    private String holeComment = null;
 
     @Column(name = "hole_picture")
-    private byte[] holePicture;
+    private byte[] holePicture = null;
 
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
@@ -48,12 +55,10 @@ public class WallState extends Model implements EntryStateInterface{
     private boolean isDamageOld = false;
 
     @Column(name = "damage_comment")
-    private String damageComment;
+    private String damageComment = null;
 
     @Column(name = "damage_picture")
-    private byte[] damagePicture;
-
-    private static final List<String> ROW_NAMES = Arrays.asList("Sind alle Flecken entfernt?", "Sind keine Löcher zusehen?", "Ist alles intakt?");
+    private byte[] damagePicture = null;
 
     @Column(name = "room", onUpdate = Column.ForeignKeyAction.CASCADE)
     private Room room;
@@ -66,6 +71,11 @@ public class WallState extends Model implements EntryStateInterface{
 
     @Column(name = "AP", onUpdate = Column.ForeignKeyAction.CASCADE, notNull = true)
     private AP ap;
+
+    @Column(name = "name")
+    private String name = "Wände, Decke";
+
+    private static final List<String> ROW_NAMES = Arrays.asList("Sind alle Flecken entfernt?", "Sind keine Löcher zusehen?", "Ist alles intakt?");
 
     public WallState() {
         super();
@@ -185,10 +195,6 @@ public class WallState extends Model implements EntryStateInterface{
         return damagePicture;
     }
 
-    public List<String> getRowNames() {
-        return ROW_NAMES;
-    }
-
     public Room getRoom() {
         return room;
     }
@@ -205,20 +211,12 @@ public class WallState extends Model implements EntryStateInterface{
         return ap;
     }
 
-    private List<Boolean> createCheckList(WallState wall) {
-        return new ArrayList<>(Arrays.asList(wall.hasNoSpot(), wall.hasNoHole(), wall.hasNoDamage()));
+    public void setName(String name) {
+        this.name = name;
     }
 
-    private List<String> createCommentsList(WallState wall) {
-        return new ArrayList<>(Arrays.asList(wall.getSpotComment(), wall.getHoleComment(), wall.getDamageComment()));
-    }
-
-    private List<Boolean> createCheckOldList(WallState wall) {
-        return new ArrayList<>(Arrays.asList(wall.isSpotOld(), wall.isHoleOld(), wall.isDamageOld()));
-    }
-
-    private List<byte[]> createPictureList(WallState wall) {
-        return new ArrayList<>(Arrays.asList(wall.getSpotPicture(), wall.getHolePicture(), wall.getDamagePicture()));
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -242,6 +240,28 @@ public class WallState extends Model implements EntryStateInterface{
     }
 
     @Override
+    public int countPicturesOfLast5Years(int pos, EntryStateInterface entryStateInterface) {
+        WallState wall = (WallState) entryStateInterface;
+        AP ap = wall.getAp();
+
+        int counter = 0;
+        int year = 0;
+
+        while (year < 5) {
+
+            if (null != WallState.checkBelonging(wall, ap).getPictureAtPosition(pos)) {
+                counter++;
+            }
+            if (null != ap.getOldAP()) {
+                ap = ap.getOldAP();
+            } else
+                break;
+            year++;
+        }
+        return counter;
+    }
+
+    @Override
     public void getEntries(DataGridFragment frag) {
         WallState wall = WallState.findByRoomAndAP(frag.getCurrentAP().getRoom(), frag.getCurrentAP());
 
@@ -254,7 +274,7 @@ public class WallState extends Model implements EntryStateInterface{
                 frag.setTableEntries(WallState.findByBathroomAndAP(frag.getCurrentAP().getBathroom(), frag.getCurrentAP()));
             }
         }
-        frag.setHeaderVariante1();
+        frag.setTableHeader(frag.getResources().getStringArray(R.array.header_variante1));
         frag.getRowNames().addAll(wall.ROW_NAMES);
         frag.getCheck().addAll(createCheckList(wall));
         frag.getCheckOld().addAll(createCheckOldList(wall));
@@ -282,21 +302,6 @@ public class WallState extends Model implements EntryStateInterface{
         }
     }
 
-    private void copyOldEntries(WallState oldWall) {
-        this.setHasNoSpot(oldWall.hasNoSpot());
-        this.setIsSpotOld(oldWall.isSpotOld());
-        this.setSpotComment(oldWall.getSpotComment());
-        this.setSpotPicture(oldWall.getSpotPicture());
-        this.setHasNoHole(oldWall.hasNoHole());
-        this.setIsHoleOld(oldWall.isHoleOld());
-        this.setHoleComment(oldWall.getHoleComment());
-        this.setHolePicture(oldWall.getHolePicture());
-        this.setHasNoDamage(oldWall.hasNoDamage());
-        this.setIsDamageOld(oldWall.isDamageOld());
-        this.setDamageComment(oldWall.getDamageComment());
-        this.setDamagePicture(oldWall.getDamagePicture());
-    }
-
     @Override
     public void createNewEntry(AP ap) {
         this.save();
@@ -311,10 +316,14 @@ public class WallState extends Model implements EntryStateInterface{
     }
 
     @Override
-    public void saveCheckEntries(List<Boolean> check) {
-        this.setHasNoSpot(check.get(0));
-        this.setHasNoHole(check.get(1));
-        this.setHasNoDamage(check.get(2));
+    public void saveCheckEntries(List<String> check, String ex) {
+        this.setHasNoSpot(Boolean.parseBoolean(check.get(0)));
+        this.setHasNoHole(Boolean.parseBoolean(check.get(1)));
+        this.setHasNoDamage(Boolean.parseBoolean(check.get(2)));
+        if (check.contains("false")) {
+            this.setName("Wände, Decke " + ex);
+        } else
+            this.setName("Wände, Decke");
         this.save();
     }
 
@@ -350,22 +359,102 @@ public class WallState extends Model implements EntryStateInterface{
         this.save();
     }
 
+    /**
+     * add all columns which contain the verification of the correctness of the entries to a list
+     * false when something is incorrect
+     * true when something is correct
+     * @param wall
+     * @return
+     */
+    private static List<Boolean> createCheckList(WallState wall) {
+        return new ArrayList<>(Arrays.asList(wall.hasNoSpot(), wall.hasNoHole(), wall.hasNoDamage()));
+    }
+
+    /**
+     * add all columns which contain the comment to a list
+     * @param wall
+     * @return
+     */
+    private static List<String> createCommentsList(WallState wall) {
+        return new ArrayList<>(Arrays.asList(wall.getSpotComment(), wall.getHoleComment(), wall.getDamageComment()));
+    }
+
+    /**
+     * add all columns which contain the verification if the entry is old to a list
+     * false when the entry is new
+     * true when the entry is old
+     * @param wall
+     * @return
+     */
+    private static List<Boolean> createCheckOldList(WallState wall) {
+        return new ArrayList<>(Arrays.asList(wall.isSpotOld(), wall.isHoleOld(), wall.isDamageOld()));
+    }
+
+    /**
+     * add all columns which contain the picture to a list
+     * @param wall
+     * @return
+     */
+    private static List<byte[]> createPictureList(WallState wall) {
+        return new ArrayList<>(Arrays.asList(wall.getSpotPicture(), wall.getHolePicture(), wall.getDamagePicture()));
+    }
+
+    /**
+     * copies all columns
+     * @param oldWall
+     */
+    private void copyOldEntries(WallState oldWall) {
+        this.setHasNoSpot(oldWall.hasNoSpot());
+        this.setIsSpotOld(oldWall.isSpotOld());
+        this.setSpotComment(oldWall.getSpotComment());
+        this.setSpotPicture(oldWall.getSpotPicture());
+        this.setHasNoHole(oldWall.hasNoHole());
+        this.setIsHoleOld(oldWall.isHoleOld());
+        this.setHoleComment(oldWall.getHoleComment());
+        this.setHolePicture(oldWall.getHolePicture());
+        this.setHasNoDamage(oldWall.hasNoDamage());
+        this.setIsDamageOld(oldWall.isDamageOld());
+        this.setDamageComment(oldWall.getDamageComment());
+        this.setDamagePicture(oldWall.getDamagePicture());
+        this.setName(oldWall.getName());
+    }
+
+    /**
+     * search it in the db with the room id and protocol id
+     * @param room
+     * @param ap
+     * @return
+     */
     public static WallState findByRoomAndAP(Room room, AP ap) {
         return new Select().from(WallState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
     }
 
+    /**
+     * search it in the db with the bathroom id and protocol id
+     * @param bathroom
+     * @param ap
+     * @return
+     */
     public static WallState findByBathroomAndAP(Bathroom bathroom, AP ap) {
         return new Select().from(WallState.class).where("bathroom = ? and AP = ?", bathroom.getId(), ap.getId()).executeSingle();
     }
 
+    /**
+     * search it in the db with the kitchen id and protocol id
+     * @param kitchen
+     * @param ap
+     * @return
+     */
     public static WallState findByKitchenAndAP(Kitchen kitchen, AP ap) {
         return new Select().from(WallState.class).where("kitchen = ? and AP = ?", kitchen.getId(), ap.getId()).executeSingle();
     }
 
-    public static WallState findById(long id) {
-        return new Select().from(WallState.class).where("id = ?", id).executeSingle();
-    }
-
+    /**
+     * check if the entry belong to the kitchen, bathroom or room
+     * @param wall
+     * @param ap
+     * @return
+     */
     public static WallState checkBelonging(WallState wall, AP ap) {
         if (wall.getRoom() != null ) {
             return WallState.findByRoomAndAP(ap.getRoom(), ap);
@@ -375,37 +464,117 @@ public class WallState extends Model implements EntryStateInterface{
             return WallState.findByKitchenAndAP(ap.getKitchen(), ap);
     }
 
-    public static void initializeRoomWall(List<AP> aps) {
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     * @param ex
+     */
+    public static void initializeRoomWall(List<AP> aps, String ex) {
         for (AP ap : aps) {
             WallState wall = new WallState(ap.getRoom(), ap);
             wall.setHasNoSpot(false);
             wall.setSpotComment("Braune Flecken");
+            wall.setName(wall.getName() + " " + ex);
             wall.setHasNoHole(true);
             wall.setHasNoDamage(true);
             wall.save();
         }
     }
 
-    public static void initializeBathroomWall(List<AP> aps) {
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     * @param ex
+     */
+    public static void initializeBathroomWall(List<AP> aps, String ex) {
         for (AP ap : aps) {
             WallState wall = new WallState(ap.getBathroom(), ap);
             wall.setHasNoSpot(true);
             wall.setHasNoHole(false);
             wall.setHoleComment("Grosses Loch in der Wand bei der Dusche");
+            wall.setName(wall.getName() + " " + ex);
             wall.setHasNoDamage(true);
             wall.save();
         }
     }
 
-    public static void initializeKitchenWall(List<AP> aps, byte[] image) {
+    /**
+     * fill in the db with initial entries
+     * @param aps
+     * @param image
+     * @param ex
+     */
+    public static void initializeKitchenWall(List<AP> aps, byte[] image, String ex) {
         for (AP ap : aps) {
             WallState wall = new WallState(ap.getKitchen(), ap);
             wall.setHasNoSpot(false);
             wall.setSpotComment("Brauner Fleck");
+            wall.setName(wall.getName() + " " + ex);
             wall.setSpotPicture(image);
             wall.setHasNoHole(true);
             wall.setHasNoDamage(true);
             wall.save();
         }
+    }
+
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(WallState wall, float pageWidth, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+
+        table.getColumns().add(150);
+        table.getColumns().add(30);
+        table.getColumns().add(30);
+        table.getColumns().add(50);
+        table.getColumns().add(170);
+        table.getColumns().add(320);
+
+        Row header = table.getRows().add(30);
+        header.setFont(Font.getHelveticaBold());
+        header.setFontSize(11);
+        header.setAlign(CellAlign.CENTER);
+        header.setVAlign(CellVAlign.CENTER);
+        header.getCellList().add("");
+        header.getCellList().add("Ja");
+        header.getCellList().add("Nein");
+        header.getCellList().add("alter Eintrag");
+        header.getCellList().add("Kommentar");
+        header.getCellList().add("Foto");
+
+        int i = 0;
+        for (String s : ROW_NAMES) {
+            Row row = table.getRows().add(30);
+            row.setFontSize(11);
+            row.setAlign(CellAlign.CENTER);
+            row.setVAlign(CellVAlign.CENTER);
+
+            row.getCellList().add(s);
+
+            if (createCheckList(wall).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+                row.getCellList().add("");
+            } else {
+                row.getCellList().add("");
+                row.getCellList().add(new Image(cross, 0, 0));
+            }
+
+            if (createCheckOldList(wall).get(i)) {
+                row.getCellList().add(new Image(cross, 0, 0));
+            } else
+                row.getCellList().add("");
+
+            if (null != createCommentsList(wall).get(i)) {
+                row.getCellList().add(createCommentsList(wall).get(i));
+            } else
+                row.getCellList().add("");
+
+            if (null != createPictureList(wall).get(i)) {
+                Image image = new Image(createPictureList(wall).get(i), 0, 0);
+                row.getCellList().add(image);
+            } else
+                row.getCellList().add("");
+
+            i++;
+        }
+        table.setHeight(table.getRequiredHeight());
+        return table;
     }
 }
