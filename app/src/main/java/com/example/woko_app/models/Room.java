@@ -231,12 +231,13 @@ public class Room extends Model{
     }
 
     private void addTableToPage() {
-        do {
-            createPage();
-            page.getElements().add(table);
-            pages.add(page);
-            table.getOverflowRows();
-        } while(table != null);
+        
+       do {           
+           Page page = new Page(PageSize.A4, PageOrientation.LANDSCAPE);
+           page.getElements().add(table);
+           pages.add(page);
+           table = table.getOverflowRows();
+       } while ( table != null );
         
         /**while (table != null) {
             if ((table.getRequiredHeight() + posY) < pageHeight) {
