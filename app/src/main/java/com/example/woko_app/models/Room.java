@@ -231,7 +231,14 @@ public class Room extends Model{
     }
 
     private void addTableToPage() {
-        while (table != null) {
+        do {
+            createPage();
+            page.getElements().add(table);
+            pages.add(page);
+            table.getOverflowRows();
+        } while(table != null);
+        
+        /**while (table != null) {
             if ((table.getRequiredHeight() + posY) < pageHeight) {
                 page.getElements().add(table);
                 posY = posY + padding + table.getRequiredHeight();
@@ -241,7 +248,7 @@ public class Room extends Model{
                 pages.add(page);
                 createPage();
                 table = table.getOverflowRows();
-            }
+        **/    }
         }
     }
 
