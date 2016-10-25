@@ -454,8 +454,8 @@ public class RadiatorState extends Model implements EntryStateInterface {
         }
     }
 
-    public static com.cete.dynamicpdf.pageelements.Table createPDF(RadiatorState radiator, float pageWidth, float posY, byte[] cross) {
-        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(RadiatorState radiator, float pageWidth, float posX, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(posX, posY, pageWidth, 0);
 
         table.getColumns().add(150);
         table.getColumns().add(30);

@@ -174,7 +174,7 @@ public class Kitchen  extends Model{
         posY = posY + padding + table.getHeight();
 
         // wall
-        textArea = new TextArea("Wände, Decke:", 0, posY, pageWidth, 0);
+       /* textArea = new TextArea("Wände, Decke:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
         table = WallState.createPDF(WallState.findByKitchenAndAP(ap.getKitchen(), ap), pageWidth, posY, cross);
@@ -214,7 +214,7 @@ public class Kitchen  extends Model{
         textArea = new TextArea("Heizkörper, Ventil:", 0, posY, pageWidth, 0);
         page.getElements().add(textArea);
         table = RadiatorState.createPDF(RadiatorState.findByKitchenAndAP(ap.getKitchen(), ap), pageWidth, posY, cross);
-        page.getElements().add(table);
+        page.getElements().add(table);*/
 
         return page;
     }

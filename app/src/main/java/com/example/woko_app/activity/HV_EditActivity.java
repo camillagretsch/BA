@@ -98,7 +98,6 @@ public class HV_EditActivity extends Activity {
         setHeader();
 
         generateSideView();
-        currentRoom.setUnsavedAP(currentAP);
     }
 
     /**
@@ -299,7 +298,7 @@ public class HV_EditActivity extends Activity {
             toast.show();
             return true;
         } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 7) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 3)) {
-            setAPtoUnsavedAP();
+            closeAP();
             return true;
         }
         return false;
@@ -365,7 +364,7 @@ public class HV_EditActivity extends Activity {
     /**
      * TODO
      */
-    public void setAPtoUnsavedAP() {
+    public void closeAP() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
         final TextView textView = new TextView(this);
@@ -373,11 +372,9 @@ public class HV_EditActivity extends Activity {
         textView.setGravity(Gravity.CENTER);
         alertDialogBuilder.setView(textView);
 
-        AlertDialog.Builder builder = alertDialogBuilder.setCancelable(false).setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+        AlertDialog.Builder builder = alertDialogBuilder.setCancelable(true).setPositiveButton("Nein", null).setPositiveButton("Ja", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // TODO AP zurücksetzen
-                currentRoom.resetRoomEntries(currentAP);
                 callHomeActivity();
             }
         });

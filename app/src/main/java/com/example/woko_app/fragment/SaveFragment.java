@@ -197,7 +197,7 @@ public class SaveFragment extends Fragment {
 
         if (ApartmentType.SHARED_APARTMENT.equals(currentAP.getApartment().getType())) {
             // room
-            for (Page page : Room.createPDF(currentAP, cross)) {
+            for (Page page : currentAP.getRoom().createPDF(currentAP, cross)) {
                 document.getPages().add(page);
             }
         } else {
@@ -206,7 +206,7 @@ public class SaveFragment extends Fragment {
             // bathroom
             document.getPages().add(Bathroom.createPDF(currentAP, cross));
             // room
-            for (Page page : Room.createPDF(currentAP, cross)) {
+            for (Page page : currentAP.getRoom().createPDF(currentAP, cross)) {
                 document.getPages().add(page);
             }
             // balcony + basement

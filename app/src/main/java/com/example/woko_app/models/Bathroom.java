@@ -138,7 +138,7 @@ public class Bathroom extends Model{
         posY = posY + padding + table.getHeight();
 
         // wall
-        textArea = new TextArea("Wände, Decke:", 0, posY, pageWidth, 0);
+        /*textArea = new TextArea("Wände, Decke:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
         table = WallState.createPDF(WallState.findByBathroomAndAP(ap.getBathroom(), ap), pageWidth, posY, cross);
@@ -182,7 +182,7 @@ public class Bathroom extends Model{
         posY = posY + padding;
         page.getElements().add(textArea);
         table = RadiatorState.createPDF(RadiatorState.findByBathroomAndAP(ap.getBathroom(), ap), pageWidth, posY, cross);
-        page.getElements().add(table);
+        page.getElements().add(table);*/
 
 
         return page;

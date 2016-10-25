@@ -1,6 +1,7 @@
 package com.example.woko_app.models;
 
 import android.graphics.drawable.GradientDrawable;
+import android.inputmethodservice.Keyboard;
 import android.util.Log;
 
 import com.activeandroid.Model;
@@ -13,6 +14,9 @@ import com.cete.dynamicpdf.PageOrientation;
 import com.cete.dynamicpdf.PageSize;
 import com.cete.dynamicpdf.TextAlign;
 import com.cete.dynamicpdf.pageelements.Label;
+import com.cete.dynamicpdf.pageelements.Row;
+import com.cete.dynamicpdf.pageelements.RowList;
+import com.cete.dynamicpdf.pageelements.Table2;
 import com.cete.dynamicpdf.pageelements.TextArea;
 import com.example.woko_app.R;
 
@@ -37,7 +41,15 @@ public class Room extends Model{
     @Column(name = "name")
     private String name = "Zimmer";
 
-    private AP unsavedAP;
+    private List<Page> pages;
+    private Page page;
+    private float pageHeight;
+    private float pageWidth;
+    private float posY;
+    private float padding = 20;
+    private float posX = 0;
+    private float footer = 30;
+    private Table2 table;
 
     public Room() {
         super();
@@ -66,14 +78,6 @@ public class Room extends Model{
 
     public String getName() {
         return name;
-    }
-
-    public void setUnsavedAP(AP unsavedAP) {
-        this.unsavedAP = unsavedAP;
-    }
-
-    public AP getUnsavedAP() {
-        return unsavedAP;
     }
 
     /**
@@ -160,149 +164,91 @@ public class Room extends Model{
         return rooms;
     }
 
-    public static List<Page> createPDF(AP ap, byte[] cross) {
-        List<Page> pages = new ArrayList<>();
-        Page page = new Page(PageSize.A4, PageOrientation.LANDSCAPE);
-        pages.add(page);
-        float height;
-        com.cete.dynamicpdf.pageelements.Table table;
-        float pageWidth = page.getDimensions().getWidth();
-        float posY = 0;
-        float padding = 20;
+    public List<Page> createPDF(AP ap, byte[] cross) {
+        pages = new ArrayList<>();
+        createPage();
         Label title = new Label("Zimmer", 0, 0, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
         posY = posY + 40;
         page.getElements().add(title);
 
         // mattress
-        TextArea textArea = new TextArea("Bettwäsche, Maratze:", 0, posY, pageWidth, 0);
+       /* TextArea textArea = new TextArea("Bettwäsche, Maratze:", posX, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
-        table = MattressState.createPDF(MattressState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posY, cross);
-        page.getElements().add(table);
-        posY = posY + padding + table.getHeight();
+        table = MattressState.createPDF(MattressState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
+        addTableToPage();*/
 
         // furniture
-        textArea = new TextArea("Mobiliar:", 0, posY, pageWidth, 0);
+        TextArea textArea = new TextArea("Mobiliar:", posX, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
-        table = FurnitureState.createPDF(FurnitureState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posY, cross);
-        height = table.getHeight();
-        do {
-            if ((posY + table.getRequiredHeight()) > page.getDimensions().getHeight()) {
-                page.getElements().add(table);
-                page = new Page(PageSize.A4, PageOrientation.LANDSCAPE);
-                pages.add(page);
-                System.out.println(table.getHeight());
-                table = table.getOverflowRows();
-            } else {
-                page.getElements().add(table);
-                posY = posY + padding + height;
-            }
-        } while (table != null);
+        table = FurnitureState.createPDF(FurnitureState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
+        addTableToPage();
 
         // wall
-        textArea = new TextArea("Wände, Decke:", 0, posY, pageWidth, 0);
+        /*textArea = new TextArea("Wände, Decke:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
-        table = WallState.createPDF(WallState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posY, cross);
-        page.getElements().add(table);
-        height = table.getHeight();
-        do {
-            if ((posY + table.getRequiredHeight()) > page.getDimensions().getHeight()) {
-                page.getElements().add(table);
-                page = new Page(PageSize.A4, PageOrientation.LANDSCAPE);
-                pages.add(page);
-                System.out.println(table.getHeight());
-                table = table.getOverflowRows();
-            } else {
-                page.getElements().add(table);
-                posY = posY + padding + height;
-            }
-        } while (table != null);
+        table = WallState.createPDF(WallState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
+        //addTableToPage();
 
         // floor
         textArea = new TextArea("Boden:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
-        table = FloorState.createPDF(FloorState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posY, cross);
-        page.getElements().add(table);
-        height = table.getHeight();
-        do {
-            if ((posY + table.getRequiredHeight()) > page.getDimensions().getHeight()) {
-                page.getElements().add(table);
-                page = new Page(PageSize.A4, PageOrientation.LANDSCAPE);
-                pages.add(page);
-                System.out.println(table.getHeight());
-                table = table.getOverflowRows();
-            } else {
-                page.getElements().add(table);
-                posY = posY + padding + height;
-            }
-        } while (table != null);
+        table = FloorState.createPDF(FloorState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
+        //addTableToPage();
 
         // window
         textArea = new TextArea("Fenster:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
-        table = WindowState.createPDF(WindowState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posY, cross);
-        page.getElements().add(table);
-        height = table.getHeight();
-        do {
-            if ((posY + table.getRequiredHeight()) > page.getDimensions().getHeight()) {
-                page.getElements().add(table);
-                page = new Page(PageSize.A4, PageOrientation.LANDSCAPE);
-                pages.add(page);
-                System.out.println(table.getHeight());
-                table = table.getOverflowRows();
-            } else {
-                page.getElements().add(table);
-                posY = posY + padding + height;
-            }
-        } while (table != null);
+        table = WindowState.createPDF(WindowState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
+        //addTableToPage();
 
         // door
         textArea = new TextArea("Tür:", 0, posY, 1000, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
-        table = DoorState.createPDF(DoorState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posY, cross);
-        page.getElements().add(table);
-        height = table.getHeight();
-        do {
-            if ((posY + table.getRequiredHeight()) > page.getDimensions().getHeight()) {
-                page.getElements().add(table);
-                page = new Page(PageSize.A4, PageOrientation.LANDSCAPE);
-                pages.add(page);
-                System.out.println(table.getHeight());
-                table = table.getOverflowRows();
-            } else {
-                page.getElements().add(table);
-                posY = posY + padding + height;
-            }
-        } while (table != null);
+        table = DoorState.createPDF(DoorState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
+        //addTableToPage();
 
         // socket
         textArea = new TextArea("Lampen, Steckdosen:", 0, posY, 1000, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
-        table = SocketState.createPDF(SocketState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posY, cross);
-        page.getElements().add(table);
-        posY = posY + padding + table.getHeight();
+        table = SocketState.createPDF(SocketState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
+        //addTableToPage();
 
         // radiator
         textArea = new TextArea("Heizkörper, Ventil:", 0, posY, 1000, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
-        table = RadiatorState.createPDF(RadiatorState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posY, cross);
-        page.getElements().add(table);
+        table = RadiatorState.createPDF(RadiatorState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
+        //addTableToPage();*/
 
         return pages;
     }
 
-    public void resetRoomEntries(AP ap) {
-        MattressState mattress = MattressState.findByRoomAndAP(ap.getRoom(), ap);
-        MattressState m = MattressState.findByDate(mattress.getYear());
-        System.out.println(m.getYear() + " " + m.getDamageComment());
-        mattress.copyEntries(MattressState.findByDate(mattress.getYear()));
-        mattress.save();
+    private void addTableToPage() {
+        while (table != null) {
+            if ((table.getRequiredHeight() + posY) < pageHeight) {
+                page.getElements().add(table);
+                posY = posY + padding + table.getRequiredHeight();
+                break;
+            } else {
+                page.getElements().add(table);
+                
+                createPage();
+            }
+        }
+    }
+
+    private void createPage() {
+        page = new Page(PageSize.A4, PageOrientation.LANDSCAPE);
+        pages.add(page);
+        pageHeight = page.getDimensions().getBody().getHeight() - footer;
+        pageWidth = page.getDimensions().getBody().getWidth();
+        posY = 0;
     }
 }

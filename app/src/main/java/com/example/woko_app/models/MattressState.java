@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.pageelements.Cell;
 import com.cete.dynamicpdf.pageelements.CellAlign;
 import com.cete.dynamicpdf.pageelements.CellVAlign;
 import com.cete.dynamicpdf.pageelements.Image;
@@ -24,12 +25,6 @@ import java.util.List;
  */
 @Table(name = "MattressState")
 public class MattressState extends Model implements EntryStateInterface {
-
-    @Column(name = "year")
-    private long year = 0;
-
-    @Column(name = "month")
-    private long month = 0;
 
     @Column(name = "beddingIsClean")
     private boolean beddingIsClean = true;
@@ -86,19 +81,10 @@ public class MattressState extends Model implements EntryStateInterface {
         super();
         this.room = room;
         this.ap = ap;
-        this.year = ap.getYear();
     }
 
     public void setBeddingIsClean(boolean beddingIsClean) {
         this.beddingIsClean = beddingIsClean;
-    }
-
-    public void setYear(long year) {
-        this.year = year;
-    }
-
-    public long getYear() {
-        return year;
     }
 
     public boolean getBeddingIsClean() {
@@ -283,7 +269,6 @@ public class MattressState extends Model implements EntryStateInterface {
             this.setName("Bettwäsche, Matratze " + ex);
         } else
             this.setName("Bettwäsche, Matratze");
-        this.setYear(getCurrentDate());
         this.save();
     }
 
@@ -292,7 +277,6 @@ public class MattressState extends Model implements EntryStateInterface {
         this.setIsBeddingOld(checkOld.get(0));
         this.setIsLinenOld(checkOld.get(1));
         this.setIsDamageOld(checkOld.get(2));
-        this.setYear(getCurrentDate());
         this.save();
     }
 
@@ -301,7 +285,6 @@ public class MattressState extends Model implements EntryStateInterface {
         this.setBeddingComment(comments.get(0));
         this.setLinenComment(comments.get(1));
         this.setDamageComment(comments.get(2));
-        this.setYear(getCurrentDate());
         this.save();
     }
  
@@ -318,14 +301,7 @@ public class MattressState extends Model implements EntryStateInterface {
                 this.setDamagePicture(picture);
                 break;
         }
-        this.setYear(getCurrentDate());
         this.save();
-    }
-
-    private long getCurrentDate() {
-        java.util.Date date = new java.util.Date();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        return (long)date.getYear();
     }
 
     /**
@@ -398,10 +374,6 @@ public class MattressState extends Model implements EntryStateInterface {
         return new Select().from(MattressState.class).where("room = ? and AP = ?", room.getId(), ap.getId()).executeSingle();
     }
 
-    public static MattressState findByDate(long year) {
-        return new Select().from(MattressState.class).where("year > ?", year).executeSingle();
-    }
-
     /**
      * fill in the db with initial entries
      * @param aps
@@ -419,8 +391,8 @@ public class MattressState extends Model implements EntryStateInterface {
         }
     }
 
-    public static com.cete.dynamicpdf.pageelements.Table createPDF(MattressState mattress, float pageWidth, float posY, byte[] cross) {
-        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(MattressState mattress, float pageWidth, float posX, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(posX, posY, pageWidth, 0);
 
         table.getColumns().add(150);
         table.getColumns().add(30);
@@ -428,6 +400,7 @@ public class MattressState extends Model implements EntryStateInterface {
         table.getColumns().add(50);
         table.getColumns().add(170);
         table.getColumns().add(320);
+        table.setRepeatColumnHeaderCount(1);
 
         Row header = table.getRows().add(30);
         header.setFont(Font.getHelveticaBold());
