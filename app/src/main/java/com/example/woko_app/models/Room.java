@@ -49,7 +49,7 @@ public class Room extends Model{
     private float padding = 20;
     private float posX = 0;
     private float footer = 30;
-    private Table2 table;
+    private com.cete.dynamicpdf.pageelements.Table table;
 
     public Room() {
         super();
@@ -172,60 +172,60 @@ public class Room extends Model{
         page.getElements().add(title);
 
         // mattress
-       /* TextArea textArea = new TextArea("Bettwäsche, Maratze:", posX, posY, pageWidth, 0);
+        TextArea textArea = new TextArea("Bettwäsche, Maratze:", posX, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
         table = MattressState.createPDF(MattressState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
-        addTableToPage();*/
+        addTableToPage();
 
         // furniture
-        TextArea textArea = new TextArea("Mobiliar:", posX, posY, pageWidth, 0);
+        textArea = new TextArea("Mobiliar:", posX, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
         table = FurnitureState.createPDF(FurnitureState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
         addTableToPage();
 
         // wall
-        /*textArea = new TextArea("Wände, Decke:", 0, posY, pageWidth, 0);
+        textArea = new TextArea("Wände, Decke:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
         table = WallState.createPDF(WallState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
-        //addTableToPage();
+        addTableToPage();
 
         // floor
         textArea = new TextArea("Boden:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
         table = FloorState.createPDF(FloorState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
-        //addTableToPage();
+        addTableToPage();
 
         // window
         textArea = new TextArea("Fenster:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
         table = WindowState.createPDF(WindowState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
-        //addTableToPage();
+        addTableToPage();
 
         // door
-        textArea = new TextArea("Tür:", 0, posY, 1000, 0);
+        textArea = new TextArea("Tür:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
         table = DoorState.createPDF(DoorState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
-        //addTableToPage();
+        addTableToPage();
 
         // socket
-        textArea = new TextArea("Lampen, Steckdosen:", 0, posY, 1000, 0);
+        textArea = new TextArea("Lampen, Steckdosen:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
         table = SocketState.createPDF(SocketState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
-        //addTableToPage();
+        addTableToPage();
 
         // radiator
-        textArea = new TextArea("Heizkörper, Ventil:", 0, posY, 1000, 0);
+        textArea = new TextArea("Heizkörper, Ventil:", 0, posY, pageWidth, 0);
         posY = posY + padding;
         page.getElements().add(textArea);
         table = RadiatorState.createPDF(RadiatorState.findByRoomAndAP(ap.getRoom(), ap), pageWidth, posX, posY, cross);
-        //addTableToPage();*/
+        addTableToPage();
 
         return pages;
     }
@@ -238,17 +238,17 @@ public class Room extends Model{
                 break;
             } else {
                 page.getElements().add(table);
-                
+                pages.add(page);
                 createPage();
+                table = table.getOverflowRows();
             }
         }
     }
 
     private void createPage() {
         page = new Page(PageSize.A4, PageOrientation.LANDSCAPE);
-        pages.add(page);
         pageHeight = page.getDimensions().getBody().getHeight() - footer;
-        pageWidth = page.getDimensions().getBody().getWidth();
+        pageWidth = page.getDimensions().getWidth();
         posY = 0;
     }
 }

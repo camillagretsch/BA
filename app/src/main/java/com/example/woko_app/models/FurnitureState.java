@@ -1120,8 +1120,8 @@ public class FurnitureState extends Model implements EntryStateInterface {
         }
     }
 
-    public static Table2 createPDF(FurnitureState furniture, float pageWidth, float posX, float posY, byte[] cross) {
-        Table2 table = new Table2(posX, posY, pageWidth, 0);
+    public static com.cete.dynamicpdf.pageelements.Table createPDF(FurnitureState furniture, float pageWidth, float posX, float posY, byte[] cross) {
+        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(posX, posY, pageWidth, 0);
 
         table.getColumns().add(150);
         table.getColumns().add(42);
@@ -1130,62 +1130,46 @@ public class FurnitureState extends Model implements EntryStateInterface {
         table.getColumns().add(160);
         table.getColumns().add(298);
 
-        Row2 header = table.getRows().add(30);
-        header.getCellDefault().setFont(Font.getHelveticaBold());
-        header.getCellDefault().setFontSize(11);
-        header.getCellDefault().setAlign(TextAlign.CENTER);
-        header.getCellDefault().setVAlign(VAlign.CENTER);
-        Cell2 head = header.getCells().add("");
-        head.setSplittable(true);
-        head = header.getCells().add("Anzahl");
-        head.setSplittable(true);
-        head = header.getCells().add("fehlend/defekt");
-        head.setSplittable(true);
-        head = header.getCells().add("alter Eintrag");
-        head.setSplittable(true);
-        head = header.getCells().add("Kommentar");
-        head.setSplittable(true);
-        head = header.getCells().add("Foto");
-        head.setSplittable(true);
+        Row header = table.getRows().add(30);
+        header.setFont(Font.getHelveticaBold());
+        header.setFontSize(11);
+        header.setAlign(CellAlign.CENTER);
+        header.setVAlign(CellVAlign.CENTER);
+        header.getCellList().add("Anzahl");
+        header.getCellList().add("fehlend/defekt");
+        header.getCellList().add("alter Eintrag");
+        header.getCellList().add("Kommentar");
+        header.getCellList().add("Foto");
 
         int i = 0;
         for (String s : ROW_NAMES) {
-            Row2 row = table.getRows().add(30);
-            row.getCellDefault().setFontSize(11);
-            row.getCellDefault().setAlign(TextAlign.CENTER);
-            row.getCellDefault().setVAlign(VAlign.CENTER);
+            Row row = table.getRows().add(30);
+            row.setFontSize(11);
+            row.setAlign(CellAlign.CENTER);
+            row.setVAlign(CellVAlign.CENTER);
 
-            Cell2 cell2 = row.getCells().add(s);
-            cell2.setSplittable(true);
+            row.getCellList().add(s);
 
-            cell2 = row.getCells().add(COUNT.get(i).toString());
-            cell2.setSplittable(true);
+            row.getCellList().add(COUNT.get(i).toString());
 
-            cell2 = row.getCells().add(createBrokenList(furniture).get(i).toString());
-            cell2.setSplittable(true);
+            row.getCellList().add(createBrokenList(furniture).get(i).toString());
 
             if (createCheckOldList(furniture).get(i)) {
-                cell2 = row.getCells().add(new Image(cross, 0, 0));
-                cell2.setSplittable(true);
+                row.getCellList().add(new Image(cross, 0, 0));
             } else {
-                cell2 = row.getCells().add("");
-                cell2.setSplittable(true);
+                row.getCellList().add("");
             }
 
             if (null != createCommentsList(furniture).get(i)) {
-                cell2 = row.getCells().add(createCommentsList(furniture).get(i));
-                cell2.setSplittable(true);
+                row.getCellList().add(createCommentsList(furniture).get(i));
             } else {
-                cell2 = row.getCells().add("");
-                cell2.setSplittable(true);
+                row.getCellList().add("");
             }
 
             if (null != createPictureList(furniture).get(i)) {
-                cell2 = row.getCells().add(new Image(createPictureList(furniture).get(i), 0, 0));
-                cell2.setSplittable(true);
+                row.getCellList().add(new Image(createPictureList(furniture).get(i), 0, 0));
             } else {
-                cell2 = row.getCells().add("");
-                cell2.setSplittable(true);
+                row.getCellList().add("");
             }
 
             i++;
