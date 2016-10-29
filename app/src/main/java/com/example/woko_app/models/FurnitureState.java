@@ -1120,62 +1120,69 @@ public class FurnitureState extends Model implements EntryStateInterface {
         }
     }
 
-    public static com.cete.dynamicpdf.pageelements.Table createPDF(FurnitureState furniture, float pageWidth, float posX, float posY, byte[] cross) {
-        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(posX, posY, pageWidth, 0);
+    public static Table2 createPDF(FurnitureState furniture, float posX, float posY, float pageWidth, byte[] cross) {
+        Table2 table = new Table2(posX, posY, pageWidth, 700);
 
-        table.getColumns().add(150);
+        table.getColumns().add(100);
         table.getColumns().add(42);
         table.getColumns().add(50);
         table.getColumns().add(50);
-        table.getColumns().add(160);
-        table.getColumns().add(298);
+        table.getColumns().add(100);
+        table.getColumns().add(100);
 
-        Row header = table.getRows().add(30);
-        header.setFont(Font.getHelveticaBold());
-        header.setFontSize(11);
-        header.setAlign(CellAlign.CENTER);
-        header.setVAlign(CellVAlign.CENTER);
-        header.getCellList().add("Anzahl");
-        header.getCellList().add("fehlend/defekt");
-        header.getCellList().add("alter Eintrag");
-        header.getCellList().add("Kommentar");
-        header.getCellList().add("Foto");
+        Row2 header = table.getRows().add(30);
+        header.getCellDefault().setVAlign(VAlign.CENTER);
+        header.getCellDefault().setAlign(TextAlign.CENTER);
+        header.getCellDefault().setFontSize(11);
+        header.getCellDefault().setFont(Font.getHelveticaBold());
+        header.getCells().add("");
+        header.getCells().add("Anzahl");
+        header.getCells().add("fehlend/defekt");
+        header.getCells().add("alter Eintrag");
+        header.getCells().add("Kommentar");
+        header.getCells().add("Foto");
 
         int i = 0;
         for (String s : ROW_NAMES) {
-            Row row = table.getRows().add(30);
-            row.setFontSize(11);
-            row.setAlign(CellAlign.CENTER);
-            row.setVAlign(CellVAlign.CENTER);
+            Row2 row = table.getRows().add(30);
+            row.getCellDefault().setFontSize(11);
+            row.getCellDefault().setAlign(TextAlign.CENTER);
+            row.getCellDefault().setVAlign(VAlign.CENTER);
 
-            row.getCellList().add(s);
+            row.getCells().add(s);
 
-            row.getCellList().add(COUNT.get(i).toString());
+            row.getCells().add(COUNT.get(i).toString());
 
-            row.getCellList().add(createBrokenList(furniture).get(i).toString());
+            row.getCells().add(createBrokenList(furniture).get(i).toString());
 
             if (createCheckOldList(furniture).get(i)) {
-                row.getCellList().add(new Image(cross, 0, 0));
+                row.getCells().add(new Image(cross, 0, 0));
             } else {
-                row.getCellList().add("");
+                row.getCells().add("");
             }
 
             if (null != createCommentsList(furniture).get(i)) {
-                row.getCellList().add(createCommentsList(furniture).get(i));
+                row.getCells().add(createCommentsList(furniture).get(i));
             } else {
-                row.getCellList().add("");
+                row.getCells().add("");
             }
 
             if (null != createPictureList(furniture).get(i)) {
-                row.getCellList().add(new Image(createPictureList(furniture).get(i), 0, 0));
+                row.getCells().add(new Image(createPictureList(furniture).get(i), 0, 0));
             } else {
-                row.getCellList().add("");
+                row.getCells().add("");
             }
 
             i++;
         }
-        table.setHeight(table.getRequiredHeight());
-
+        Row2 row2 = table.getRows().add(100);
+        row2.getCells().add("aa");
+        row2 = table.getRows().add(100);
+        row2.getCells().add("bb");
+        row2 = table.getRows().add(100);
+        row2.getCells().add("cc");
+        row2 = table.getRows().add(100);
+        row2.getCells().add("dd");
         return table;
     }
 }

@@ -5,10 +5,14 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.TextAlign;
+import com.cete.dynamicpdf.VAlign;
 import com.cete.dynamicpdf.pageelements.CellAlign;
 import com.cete.dynamicpdf.pageelements.CellVAlign;
 import com.cete.dynamicpdf.pageelements.Image;
 import com.cete.dynamicpdf.pageelements.Row;
+import com.cete.dynamicpdf.pageelements.Row2;
+import com.cete.dynamicpdf.pageelements.Table2;
 import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
@@ -1004,60 +1008,61 @@ public class CutleryState extends Model implements EntryStateInterface {
         }
     }
 
-    public static com.cete.dynamicpdf.pageelements.Table createPDF(CutleryState cutlery, float pageWidth, float posY, byte[] cross) {
-        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+    public static Table2 createPDF(CutleryState cutlery, float posX, float posY, float pageWidth, byte[] cross) {
+        Table2 table = new Table2(posX, posY, pageWidth, 700);
 
-        table.getColumns().add(150);
+        table.getColumns().add(100);
         table.getColumns().add(42);
         table.getColumns().add(50);
         table.getColumns().add(50);
-        table.getColumns().add(150);
-        table.getColumns().add(350);
+        table.getColumns().add(100);
+        table.getColumns().add(100);
 
-        Row header = table.getRows().add(30);
-        header.setFont(Font.getHelveticaBold());
-        header.setFontSize(11);
-        header.setAlign(CellAlign.CENTER);
-        header.setVAlign(CellVAlign.CENTER);
-        header.getCellList().add("");
-        header.getCellList().add("Anzahl");
-        header.getCellList().add("fehlend/defekt");
-        header.getCellList().add("alter Eintrag");
-        header.getCellList().add("Kommentar");
-        header.getCellList().add("Foto");
+        Row2 header = table.getRows().add(30);
+        header.getCellDefault().setVAlign(VAlign.CENTER);
+        header.getCellDefault().setAlign(TextAlign.CENTER);
+        header.getCellDefault().setFontSize(11);
+        header.getCellDefault().setFont(Font.getHelveticaBold());
+        header.getCells().add("");
+        header.getCells().add("Anzahl");
+        header.getCells().add("fehlend/defekt");
+        header.getCells().add("alter Eintrag");
+        header.getCells().add("Kommentar");
+        header.getCells().add("Foto");
 
         int i = 0;
         for (String s : ROW_NAMES) {
-            Row row = table.getRows().add(30);
-            row.setFontSize(11);
-            row.setAlign(CellAlign.CENTER);
-            row.setVAlign(CellVAlign.CENTER);
+            Row2 row = table.getRows().add(30);
+            row.getCellDefault().setFontSize(11);
+            row.getCellDefault().setAlign(TextAlign.CENTER);
+            row.getCellDefault().setVAlign(VAlign.CENTER);
 
-            row.getCellList().add(s);
+            row.getCells().add(s);
 
-            row.getCellList().add(COUNT.get(i).toString());
+            row.getCells().add(COUNT.get(i).toString());
 
-            row.getCellList().add(createBrokenList(cutlery).get(i).toString());
+            row.getCells().add(createBrokenList(cutlery).get(i).toString());
 
             if (createCheckOldList(cutlery).get(i)) {
-                row.getCellList().add(new Image(cross, 0, 0));
-            } else
-                row.getCellList().add("");
+                row.getCells().add(new Image(cross, 0, 0));
+            } else {
+                row.getCells().add("");
+            }
 
             if (null != createCommentsList(cutlery).get(i)) {
-                row.getCellList().add(createCommentsList(cutlery).get(i));
-            } else
-                row.getCellList().add("");
+                row.getCells().add(createCommentsList(cutlery).get(i));
+            } else {
+                row.getCells().add("");
+            }
 
             if (null != createPictureList(cutlery).get(i)) {
-                Image image = new Image(createPictureList(cutlery).get(i), 0, 0);
-                row.getCellList().add(image);
-            } else
-                row.getCellList().add("");
+                row.getCells().add(new Image(createPictureList(cutlery).get(i), 0, 0));
+            } else {
+                row.getCells().add("");
+            }
 
             i++;
         }
-        table.setHeight(table.getRequiredHeight());
         return table;
     }
 }

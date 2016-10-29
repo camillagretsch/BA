@@ -362,23 +362,31 @@ public class HV_EditActivity extends Activity {
     }
 
     /**
-     * TODO
+     * ask if ap should be closed
+     * if yes back to home activity
+     * if no stay in edit activity
      */
     public void closeAP() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
         final TextView textView = new TextView(this);
         textView.setText(getResources().getText(R.string.stop_message));
+        textView.setTextSize(25);
+        textView.setPadding(5, 5, 5, 5);
         textView.setGravity(Gravity.CENTER);
         alertDialogBuilder.setView(textView);
 
-        AlertDialog.Builder builder = alertDialogBuilder.setCancelable(true).setPositiveButton("Nein", null).setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+        AlertDialog.Builder builder = alertDialogBuilder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 callHomeActivity();
             }
+        }).setNegativeButton("Nein", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
         });
-
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }

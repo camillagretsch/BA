@@ -5,10 +5,14 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.TextAlign;
+import com.cete.dynamicpdf.VAlign;
 import com.cete.dynamicpdf.pageelements.CellAlign;
 import com.cete.dynamicpdf.pageelements.CellVAlign;
 import com.cete.dynamicpdf.pageelements.Image;
 import com.cete.dynamicpdf.pageelements.Row;
+import com.cete.dynamicpdf.pageelements.Row2;
+import com.cete.dynamicpdf.pageelements.Table2;
 import com.example.woko_app.R;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.fragment.DataGridFragment;
@@ -445,64 +449,62 @@ public class VentilationState extends Model implements EntryStateInterface {
         }
     }
 
-    public static com.cete.dynamicpdf.pageelements.Table createPDF(VentilationState ventilation, float pageWidth, float posY, byte[] cross) {
-        com.cete.dynamicpdf.pageelements.Table table = new com.cete.dynamicpdf.pageelements.Table(0, posY, pageWidth, 0);
+    public static Table2 createPDF(VentilationState ventilation, float posX, float posY, float pageWidth, byte[] cross) {
+        Table2 table = new Table2(posX, posY, pageWidth, 700);
 
-        table.getColumns().add(150);
+        table.getColumns().add(100);
         table.getColumns().add(30);
         table.getColumns().add(30);
         table.getColumns().add(50);
-        table.getColumns().add(170);
-        table.getColumns().add(320);
+        table.getColumns().add(100);
+        table.getColumns().add(100);
 
-        Row header = table.getRows().add(30);
-        header.setFont(Font.getHelveticaBold());
-        header.setFontSize(11);
-        header.setAlign(CellAlign.CENTER);
-        header.setVAlign(CellVAlign.CENTER);
-        header.getCellList().add("");
-        header.getCellList().add("Ja");
-        header.getCellList().add("Nein");
-        header.getCellList().add("alter Eintrag");
-        header.getCellList().add("Kommentar");
-        header.getCellList().add("Foto");
+        Row2 header = table.getRows().add(30);
+        header.getCellDefault().setFont(Font.getHelveticaBold());
+        header.getCellDefault().setFontSize(11);
+        header.getCellDefault().setAlign(TextAlign.CENTER);
+        header.getCellDefault().setVAlign(VAlign.CENTER);
+        header.getCells().add("");
+        header.getCells().add("Ja");
+        header.getCells().add("Nein");
+        header.getCells().add("alter Eintrag");
+        header.getCells().add("Kommentar");
+        header.getCells().add("Foto");
 
         int i = 0;
         for (String s : ROW_NAMES) {
-            Row row = table.getRows().add(30);
-            row.setFontSize(11);
-            row.setAlign(CellAlign.CENTER);
-            row.setVAlign(CellVAlign.CENTER);
+            Row2 row = table.getRows().add(30);
+            row.getCellDefault().setFontSize(11);
+            row.getCellDefault().setAlign(TextAlign.CENTER);
+            row.getCellDefault().setVAlign(VAlign.CENTER);
 
-            row.getCellList().add(s);
+            row.getCells().add(s);
 
             if (createCheckList(ventilation).get(i)) {
-                row.getCellList().add(new Image(cross, 0, 0));
-                row.getCellList().add("");
+                row.getCells().add(new Image(cross, 0, 0));
+                row.getCells().add("");
             } else {
-                row.getCellList().add("");
-                row.getCellList().add(new Image(cross, 0, 0));
+                row.getCells().add("");
+                row.getCells().add(new Image(cross, 0, 0));
             }
 
             if (createCheckOldList(ventilation).get(i)) {
-                row.getCellList().add(new Image(cross, 0, 0));
+                row.getCells().add(new Image(cross, 0, 0));
             } else
-                row.getCellList().add("");
+                row.getCells().add("");
 
             if (null != createCommentsList(ventilation).get(i)) {
-                row.getCellList().add(createCommentsList(ventilation).get(i));
+                row.getCells().add(createCommentsList(ventilation).get(i));
             } else
-                row.getCellList().add("");
+                row.getCells().add("");
 
             if (null != createPictureList(ventilation).get(i)) {
-                Image image = new Image(createPictureList(ventilation).get(i), 0, 0);
-                row.getCellList().add(image);
+                row.getCells().add(new Image(createPictureList(ventilation).get(i), 0, 0));
             } else
-                row.getCellList().add("");
+                row.getCells().add("");
 
             i++;
         }
-        table.setHeight(table.getRequiredHeight());
         return table;
     }
 }

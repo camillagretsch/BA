@@ -15,14 +15,23 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+
+import com.cete.dynamicpdf.Align;
 import com.cete.dynamicpdf.Document;
 import com.cete.dynamicpdf.Font;
+import com.cete.dynamicpdf.Grayscale;
+import com.cete.dynamicpdf.LineStyle;
 import com.cete.dynamicpdf.Page;
 import com.cete.dynamicpdf.PageOrientation;
 import com.cete.dynamicpdf.PageSize;
+import com.cete.dynamicpdf.RgbColor;
 import com.cete.dynamicpdf.TextAlign;
+import com.cete.dynamicpdf.VAlign;
+import com.cete.dynamicpdf.pageelements.Cell2;
+import com.cete.dynamicpdf.pageelements.Column2;
 import com.cete.dynamicpdf.pageelements.Label;
-import com.cete.dynamicpdf.pageelements.Table;
+import com.cete.dynamicpdf.pageelements.Row2;
+import com.cete.dynamicpdf.pageelements.Table2;
 import com.cete.dynamicpdf.pageelements.TextArea;
 import com.example.woko_app.R;
 import com.example.woko_app.activity.HV_HomeActivity;
@@ -33,13 +42,22 @@ import com.example.woko_app.models.AP;
 import com.example.woko_app.models.BalconyState;
 import com.example.woko_app.models.BasementState;
 import com.example.woko_app.models.Bathroom;
+import com.example.woko_app.models.CupboardState;
+import com.example.woko_app.models.CutleryState;
+import com.example.woko_app.models.DoorState;
 import com.example.woko_app.models.FloorState;
+import com.example.woko_app.models.FridgeState;
 import com.example.woko_app.models.FurnitureState;
 import com.example.woko_app.models.Kitchen;
 import com.example.woko_app.models.MattressState;
+import com.example.woko_app.models.OvenState;
 import com.example.woko_app.models.PersonalSerializer;
+import com.example.woko_app.models.RadiatorState;
 import com.example.woko_app.models.Room;
+import com.example.woko_app.models.ShowerState;
+import com.example.woko_app.models.SocketState;
 import com.example.woko_app.models.User;
+import com.example.woko_app.models.VentilationState;
 import com.example.woko_app.models.WallState;
 import com.example.woko_app.models.WindowState;
 
@@ -50,6 +68,14 @@ public class SaveFragment extends Fragment {
 
     private Document document;
     private Label label;
+    private Page page;
+    private Table2 table;
+    private float pageHeight;
+    private float pageWidth;
+    private float posY;
+    private float padding = 20;
+    private float posX = 0;
+    private byte[] cross;
     private static String path = Environment.getExternalStorageDirectory() + "/simple.pdf";
     private Button btnClose;
     private Button btnSend;
@@ -188,47 +214,23 @@ public class SaveFragment extends Fragment {
     }
 
     private void createPdf() {
-        document = new Document();
 
-        label = new Label(getActivity().getResources().getString(R.string.edit_title), 0, 0, 504, 100, Font.getHelveticaBold(), 20, TextAlign.CENTER);
+        // Create a PDF Document
+        document = new Document();
+        createPage();
+        label = new Label(getActivity().getResources().getString(R.string.edit_title), posX, posY, pageWidth, 0, Font.getHelveticaBold(), 20, TextAlign.CENTER);
+        page.getElements().add(label);
+        posY = posY + 30;
 
         Bitmap bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.cross)).getBitmap();
-        byte[] cross = PersonalSerializer.getBytes(bitmap);
+        cross = PersonalSerializer.getBytes(bitmap);
 
         if (ApartmentType.SHARED_APARTMENT.equals(currentAP.getApartment().getType())) {
-            // room
-            for (Page page : currentAP.getRoom().createPDF(currentAP, cross)) {
-                document.getPages().add(page);
-            }
+            createTablesForRoom();
         } else {
-            // kitchen
-            document.getPages().add(Kitchen.createPDF(currentAP, cross));
-            // bathroom
-            document.getPages().add(Bathroom.createPDF(currentAP, cross));
-            // room
-            for (Page page : currentAP.getRoom().createPDF(currentAP, cross)) {
-                document.getPages().add(page);
-            }
-            // balcony + basement
-            Page page = new Page(PageSize.A4, PageOrientation.LANDSCAPE);
-            com.cete.dynamicpdf.pageelements.Table table;
-            float pageWidth = page.getDimensions().getWidth();
-            float posY = 0;
-            float padding = 20;
-            Label title = new Label("Balkon", 0, 0, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
-            posY = posY + padding;
-            page.getElements().add(title);
-            table = BalconyState.createPDF(BalconyState.findByApartmentAndAP(currentAP.getApartment(), currentAP), pageWidth, posY, cross);
-            page.getElements().add(table);
-            posY = posY + padding + table.getHeight();
-            title = new Label("Keller", 0, posY, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
-            posY = posY + padding;
-            page.getElements().add(title);
-            table = BasementState.createPDF(BasementState.findByApartmentAndAP(currentAP.getApartment(), currentAP), pageWidth, posY, cross);
-            page.getElements().add(table);
-            document.getPages().add(page);
-
-
+            createTablesForKitchen();
+            creatTablesForBathroom();
+            createTablesForRoom();
         }
 
         try {
@@ -236,6 +238,161 @@ public class SaveFragment extends Fragment {
         } catch (Exception e) {
             Toast.makeText(getActivity().getBaseContext(), "Error", Toast.LENGTH_SHORT);
         }
+    }
 
+    private void createTablesForKitchen() {
+        label = new Label("Küche", posX, posY, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
+        page.getElements().add(label);
+
+        table = FridgeState.createPDF(FridgeState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Kühlschrank, Tiefkühlfach");
+
+        table = VentilationState.createPDF(VentilationState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Dampfabzug:");
+
+        table = OvenState.createPDF(OvenState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Herdplatte, Backofen:");
+
+        table = CutleryState.createPDF(CutleryState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Pfannen, Geschirr, Besteck:");
+
+        table = CupboardState.createPDF(CupboardState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Schränke:");
+
+        table = WallState.createPDF(WallState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Wände, Decke:");
+
+        table = FloorState.createPDF(FloorState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Boden:");
+
+        table = WindowState.createPDF(WindowState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Fenster:");
+
+        table = DoorState.createPDF(DoorState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Tür:");
+
+        table = SocketState.createPDF(SocketState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Lampen, Steckdosen:");
+
+        table = RadiatorState.createPDF(RadiatorState.findByKitchenAndAP(currentAP.getKitchen(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Heizkörper, Ventil");
+    }
+
+    private void creatTablesForBathroom() {
+        label = new Label("Badezimmer", posX, posY, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
+        page.getElements().add(label);
+
+        table = ShowerState.createPDF(ShowerState.findByBathroomAndAP(currentAP.getBathroom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("WC, Dusche, Lavabo:");
+
+        table = WallState.createPDF(WallState.findByBathroomAndAP(currentAP.getBathroom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Wände, Decke:");
+
+        table = FloorState.createPDF(FloorState.findByBathroomAndAP(currentAP.getBathroom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Boden:");
+
+        table = WindowState.createPDF(WindowState.findByBathroomAndAP(currentAP.getBathroom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Fenster:");
+
+        table = DoorState.createPDF(DoorState.findByBathroomAndAP(currentAP.getBathroom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Tür:");
+
+        table = SocketState.createPDF(SocketState.findByBathroomAndAP(currentAP.getBathroom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Lampen, Steckdosen:");
+
+        table = RadiatorState.createPDF(RadiatorState.findByBathroomAndAP(currentAP.getBathroom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Heizkörper, Ventil");
+    }
+
+    private void createTablesForRoom() {
+        label = new Label("Zimmer", posX, posY, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
+        page.getElements().add(label);
+
+        table = MattressState.createPDF(MattressState.findByRoomAndAP(currentAP.getRoom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Bettwäsche, Matratze:");
+
+        table = FurnitureState.createPDF(FurnitureState.findByRoomAndAP(currentAP.getRoom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Mobiliar:");
+
+        table = WallState.createPDF(WallState.findByRoomAndAP(currentAP.getRoom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Wände, Decke:");
+
+        table = FloorState.createPDF(FloorState.findByRoomAndAP(currentAP.getRoom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Boden:");
+
+        table = WindowState.createPDF(WindowState.findByRoomAndAP(currentAP.getRoom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Fenster:");
+
+        table = DoorState.createPDF(DoorState.findByRoomAndAP(currentAP.getRoom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Tür:");
+
+        table = SocketState.createPDF(SocketState.findByRoomAndAP(currentAP.getRoom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Lampen, Steckdosen:");
+
+        table = RadiatorState.createPDF(RadiatorState.findByRoomAndAP(currentAP.getRoom(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("Heizkörper, Ventil");
+       /* // Create a table
+        table = new Table2(0, 0, pageWidth, 700);
+
+        //Add columns to the table
+        table.getColumns().add(100);
+        table.getColumns().add(100);
+
+        // This loop populates the table
+        for ( int i = 1; i <= 400; i++ )  {
+            Row2 row = table.getRows().add( 20 );
+            row.getCells().add( "Row #" + i );
+            row.getCells().add( "Item" );
+        }
+        addTableToPage();*/
+    }
+
+    private void createTableForBalconyAndBasement() {
+        label = new Label("Balkon", posX, posY, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
+        page.getElements().add(label);
+
+        table = BalconyState.createPDF(BalconyState.findByApartmentAndAP(currentAP.getApartment(), currentAP), posX, posY, pageWidth, cross);
+        addTableToPage("");
+
+        label = new Label("Keller", posX, posY, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
+        page.getElements().add(label);
+
+        table = BasementState.createPDF(BasementState.findByApartmentAndAP(currentAP.getApartment(), currentAP), posX, posY, pageWidth, cross);
+    }
+
+    private void addTableToPage(String text) {
+        float tableHeight = 0;
+        if ((table.getRequiredHeight() + posY > pageHeight)) {
+            do {
+                createPage();
+                addTextAreaToPage(text);
+                table.setY(posY);
+                tableHeight = table.getRequiredHeight();
+                page.getElements().add( table );
+                table = table.getOverflowRows();
+            } while ( table != null );
+        } else {
+            addTextAreaToPage(text);
+            table.setY(posY);
+            tableHeight = table.getRequiredHeight();
+            page.getElements().add(table);
+        }
+
+        posY = posY + tableHeight + padding;
+    }
+
+    private void addTextAreaToPage(String text) {
+        TextArea textArea = new TextArea(text, posX, posY, pageWidth, 0);
+        page.getElements().add(textArea);
+        posY = posY + padding;
+    }
+
+    private void createPage() {
+        page = new Page(PageSize.A4);
+        document.getPages().add(page);
+        pageWidth = page.getDimensions().getWidth();
+        pageHeight = page.getDimensions().getHeight();
+        posY = 0;
     }
 }
+
