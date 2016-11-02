@@ -72,7 +72,7 @@ public class OvenState extends Model implements EntryStateInterface {
     @Column(name = "name")
     private String name = NAME;
 
-    private final static String NAME =  "Herplatte, Backofen ";
+    private final static String NAME =  "Herdplatte, Backofen ";
 
     private static final List<String> ROW_NAMES = Arrays.asList("Backofen ist gereinigt?", "Herd ist gereinigt?", "Ist alles intakt?");
 
