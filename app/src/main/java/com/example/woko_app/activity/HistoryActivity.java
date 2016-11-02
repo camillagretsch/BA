@@ -1,6 +1,8 @@
 package com.example.woko_app.activity;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
@@ -13,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.woko_app.R;
+import com.example.woko_app.fragment.DataGridFragment;
 import com.example.woko_app.models.AP;
 import com.example.woko_app.models.BalconyState;
 import com.example.woko_app.models.BasementState;
@@ -38,6 +41,7 @@ public class HistoryActivity extends Activity{
     private Typeface font;
 
     private Button btnCamera;
+    private Button btnBack;
     private ImageView ivPicture;
     private TextView txtDate;
     private TextView txtComment;
@@ -49,6 +53,8 @@ public class HistoryActivity extends Activity{
 
     private AP currentAP;
     private int pos;
+    private int parent;
+    private String child;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +67,14 @@ public class HistoryActivity extends Activity{
         font = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
 
         //set button on click listener
+        btnBack = (Button)findViewById(R.id.btnBack);
+        btnBack.setTypeface(font);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         btnCamera = (Button)findViewById(R.id.btnCamera);
         btnCamera.setTypeface(font);
         if (tableEntries.getClass().getName().equals(FurnitureState.class.getName())) {
@@ -95,10 +109,8 @@ public class HistoryActivity extends Activity{
     private void fillInDateAndComment() {
         int i = 1;
         AP ap = currentAP;
-
         while (i < 6) {
-            date = String.valueOf(ap.getDay()) + "." + String.valueOf(ap.getMonth()) + "." + ap.getYear();
-            setComment(ap);
+            setCommentAndPicture(ap);
             if (i == 1) {
                 txtDate = (TextView)findViewById(R.id.txtDate1);
                 txtComment = (TextView)findViewById(R.id.txtComment1);
@@ -120,6 +132,12 @@ public class HistoryActivity extends Activity{
                 txtComment = (TextView)findViewById(R.id.txtComment5);
                 ivPicture = (ImageView)findViewById(R.id.picture5);
             }
+            i++;
+            if (null == picture) {
+                comment = "";
+                date = "";
+            } else
+                setDate(ap);
             txtDate.setText(date);
             txtComment.setText(comment);
             ivPicture.setImageBitmap(picture);
@@ -128,70 +146,75 @@ public class HistoryActivity extends Activity{
                 ap = ap.getOldAP();
             } else
                 break;
-            i++;
         }
     }
 
-    private void setComment(AP ap) {
+    private void setCommentAndPicture(AP ap) {
         if (tableEntries.getClass().getName().equals(MattressState.class.getName())) {
-            getComment(MattressState.findByRoomAndAP(ap.getRoom(), ap));
-            getPicture(MattressState.findByRoomAndAP(ap.getRoom(), ap));
+            setComment(MattressState.findByRoomAndAP(ap.getRoom(), ap));
+            setPicture(MattressState.findByRoomAndAP(ap.getRoom(), ap));
         } else if (tableEntries.getClass().getName().equals(FurnitureState.class.getName())) {
-            getComment(FurnitureState.findByRoomAndAP(ap.getRoom(), ap));
-            getPicture(FurnitureState.findByRoomAndAP(ap.getRoom(), ap));
+            setComment(FurnitureState.findByRoomAndAP(ap.getRoom(), ap));
+            setPicture(FurnitureState.findByRoomAndAP(ap.getRoom(), ap));
         } else if (tableEntries.getClass().getName().equals(WallState.class.getName())) {
-            getComment(WallState.checkBelonging((WallState) tableEntries, ap));
-            getPicture(WallState.checkBelonging((WallState) tableEntries, ap));
+            setComment(WallState.checkBelonging((WallState) tableEntries, ap));
+            setPicture(WallState.checkBelonging((WallState) tableEntries, ap));
         } else if (tableEntries.getClass().getName().equals(FloorState.class.getName())) {
-            getComment(FloorState.checkBelonging((FloorState) tableEntries, ap));
-            getPicture(FloorState.checkBelonging((FloorState) tableEntries, ap));
+            setComment(FloorState.checkBelonging((FloorState) tableEntries, ap));
+            setPicture(FloorState.checkBelonging((FloorState) tableEntries, ap));
         } else if (tableEntries.getClass().getName().equals(WindowState.class.getName())) {
-            getComment(WindowState.checkBelonging((WindowState) tableEntries, ap));
-            getPicture(WindowState.checkBelonging((WindowState) tableEntries, ap));
+            setComment(WindowState.checkBelonging((WindowState) tableEntries, ap));
+            setPicture(WindowState.checkBelonging((WindowState) tableEntries, ap));
         } else if (tableEntries.getClass().getName().equals(DoorState.class.getName())) {
-            getComment(DoorState.checkBelonging((DoorState) tableEntries, ap));
-            getPicture(DoorState.checkBelonging((DoorState) tableEntries, ap));
+            setComment(DoorState.checkBelonging((DoorState) tableEntries, ap));
+            setPicture(DoorState.checkBelonging((DoorState) tableEntries, ap));
         } else if (tableEntries.getClass().getName().equals(SocketState.class.getName())) {
-            getComment(SocketState.checkBelonging((SocketState) tableEntries, ap));
-            getPicture(SocketState.checkBelonging((SocketState) tableEntries, ap));
+            setComment(SocketState.checkBelonging((SocketState) tableEntries, ap));
+            setPicture(SocketState.checkBelonging((SocketState) tableEntries, ap));
         } else if (tableEntries.getClass().getName().equals(RadiatorState.class.getName())) {
-            getComment(RadiatorState.checkBelonging((RadiatorState) tableEntries, ap));
-            getPicture(RadiatorState.checkBelonging((RadiatorState) tableEntries, ap));
+            setComment(RadiatorState.checkBelonging((RadiatorState) tableEntries, ap));
+            setPicture(RadiatorState.checkBelonging((RadiatorState) tableEntries, ap));
         } else if (tableEntries.getClass().getName().equals(FridgeState.class.getName())) {
-            getComment(FridgeState.findByKitchenAndAP(ap.getKitchen(), ap));
-            getPicture(FridgeState.findByKitchenAndAP(ap.getKitchen(), ap));
+            setComment(FridgeState.findByKitchenAndAP(ap.getKitchen(), ap));
+            setPicture(FridgeState.findByKitchenAndAP(ap.getKitchen(), ap));
         } else if (tableEntries.getClass().getName().equals(OvenState.class.getName())) {
-            getComment(OvenState.findByKitchenAndAP(ap.getKitchen(), ap));
-            getPicture(OvenState.findByKitchenAndAP(ap.getKitchen(), ap));
+            setComment(OvenState.findByKitchenAndAP(ap.getKitchen(), ap));
+            setPicture(OvenState.findByKitchenAndAP(ap.getKitchen(), ap));
         } else if (tableEntries.getClass().getName().equals(VentilationState.class.getName())) {
-            getComment(VentilationState.findByKitchenAndAP(ap.getKitchen(), ap));
-            getPicture(VentilationState.findByKitchenAndAP(ap.getKitchen(), ap));
+            setComment(VentilationState.findByKitchenAndAP(ap.getKitchen(), ap));
+            setPicture(VentilationState.findByKitchenAndAP(ap.getKitchen(), ap));
         } else if (tableEntries.getClass().getName().equals(CutleryState.class.getName())) {
-            getComment(CutleryState.findByKitchenAndAP(ap.getKitchen(), ap));
-            getPicture(CutleryState.findByKitchenAndAP(ap.getKitchen(), ap));
+            setComment(CutleryState.findByKitchenAndAP(ap.getKitchen(), ap));
+            setPicture(CutleryState.findByKitchenAndAP(ap.getKitchen(), ap));
         } else if (tableEntries.getClass().getName().equals(CupboardState.class.getName())) {
-            getComment(CupboardState.findByKitchenAndAP(ap.getKitchen(), ap));
-            getPicture(CupboardState.findByKitchenAndAP(ap.getKitchen(), ap));
+            setComment(CupboardState.findByKitchenAndAP(ap.getKitchen(), ap));
+            setPicture(CupboardState.findByKitchenAndAP(ap.getKitchen(), ap));
         } else if (tableEntries.getClass().getName().equals(ShowerState.class.getName())) {
-            getComment(ShowerState.findByBathroomAndAP(ap.getBathroom(), ap));
-            getPicture(ShowerState.findByBathroomAndAP(ap.getBathroom(), ap));
+            setComment(ShowerState.findByBathroomAndAP(ap.getBathroom(), ap));
+            setPicture(ShowerState.findByBathroomAndAP(ap.getBathroom(), ap));
         } else if (tableEntries.getClass().getName().equals(BalconyState.class.getName())) {
-            getComment(BalconyState.findByApartmentAndAP(ap.getApartment(), ap));
-            getPicture(BalconyState.findByApartmentAndAP(ap.getApartment(), ap));
+            setComment(BalconyState.findByApartmentAndAP(ap.getApartment(), ap));
+            setPicture(BalconyState.findByApartmentAndAP(ap.getApartment(), ap));
         } else if (tableEntries.getClass().getName().equals(BasementState.class.getName())) {
-            getComment(BasementState.findByApartmentAndAP(ap.getApartment(), ap));
-            getPicture(BasementState.findByApartmentAndAP(ap.getApartment(), ap));
+            setComment(BasementState.findByApartmentAndAP(ap.getApartment(), ap));
+            setPicture(BasementState.findByApartmentAndAP(ap.getApartment(), ap));
         }
     }
 
-    private void getComment(EntryStateInterface tableEntries) {
+    private void setComment(EntryStateInterface tableEntries) {
+        comment = null;
         comment = tableEntries.getCommentAtPosition(pos);
     }
 
-    private void getPicture(EntryStateInterface tableEntries) {
+    private void setPicture(EntryStateInterface tableEntries) {
+        picture = null;
         if (null != tableEntries.getPictureAtPosition(pos)) {
             picture = PersonalSerializer.getImage(tableEntries.getPictureAtPosition(pos));
         }
+    }
+
+    private void setDate(AP ap) {
+        date = ap.getDay() + "." + ap.getMonth() + "." + ap.getYear();
     }
 
     @Override
@@ -207,10 +230,17 @@ public class HistoryActivity extends Activity{
         ivPicture.setImageBitmap(bmPicture);
     }
 
+    @Override
+    public void onBackPressed() {
+
+    }
+
     private void intentReceiver() {
         Intent intent = getIntent();
-        currentAP = AP.findById(intent.getLongExtra("AP", 0));
-        pos = intent.getIntExtra("position", 100);
+        currentAP = AP.findById(intent.getLongExtra("AP", 000000));
+        pos = intent.getIntExtra("position", 00000);
+        parent = intent.getIntExtra("parent", 000);
+        child = intent.getStringExtra("child");
         tableEntries = currentAP.getLastOpend();
         Log.d("last opend", tableEntries.getClass().getName());
     }

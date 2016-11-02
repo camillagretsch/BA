@@ -82,7 +82,8 @@ public class DuplicateFragment extends Fragment {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().onBackPressed();
+                HV_HomeActivity hv_homeActivity = (HV_HomeActivity) getActivity();
+                hv_homeActivity.openPreviousFragment(1);
             }
         });
         return view;

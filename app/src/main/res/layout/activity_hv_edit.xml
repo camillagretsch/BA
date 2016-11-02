@@ -83,45 +83,10 @@
 
         <View style="@style/VerticalDividerStyle"/>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ScrollView
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@+id/btnNext"
-                android:scrollbars="vertical">
-
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/datagrid_container"
-                    android:fillViewport="true"
-                    android:scrollbars="horizontal"/>
-
-            </ScrollView>
-
-            <Button
-                style="@style/ButtonStyle"
-                android:text="@string/back_btn"
-                android:background="@drawable/table_grey"
-                android:id="@+id/btnBack"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:visibility="invisible"/>
-
-            <Button
-                style="@style/ButtonStyle"
-                android:text="@string/next_btn"
-                android:background="@drawable/table_grey"
-                android:id="@+id/btnNext"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:visibility="invisible"/>
-
-        </RelativeLayout>
-
+                android:id="@+id/datagrid_container"></FrameLayout>
 
     </LinearLayout>
 

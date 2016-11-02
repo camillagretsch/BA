@@ -185,7 +185,7 @@ public class AP extends Model{
      * @return
      */
     public static List<AP> findByRoom(Room room) {
-        return new Select().from(AP.class).where("room = ?", room.getId()).orderBy("day DESC").orderBy("month DESC").orderBy("year DESC").execute();
+        return new Select().from(AP.class).where("room = ?", room.getId()).execute();
     }
 
     /**
@@ -194,7 +194,7 @@ public class AP extends Model{
      * @return
      */
     public static List<AP> findByApartment(Apartment apartment) {
-        return new Select().from(AP.class).where("apartment = ?", apartment.getId()).orderBy("day DESC").orderBy("month DESC").orderBy("year DESC").execute();
+        return new Select().from(AP.class).where("apartment = ?", apartment.getId()).execute();
     }
 
     /**

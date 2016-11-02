@@ -71,8 +71,6 @@ public class DataGridFragment extends Fragment {
     private TextView pictureColumn;
     private TextView countColumn;
     private Spinner brokenColumn;
-    private Button btnNext;
-    private Button btnBack;
 
     private HV_EditActivity hv_editActivity;
 
@@ -86,21 +84,16 @@ public class DataGridFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_data_grid, container, false);
 
         //fontawesome
         font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/fontawesome-webfont.ttf");
-
-        btnNext = (Button) getActivity().findViewById(R.id.btnNext);
-        btnNext.setText(getActivity().getResources().getString(R.string.next_btn));
-        btnNext.setTypeface(font);
-        btnNext.setVisibility(View.VISIBLE);
-
-        btnBack = (Button) getActivity().findViewById(R.id.btnBack);
-        btnBack.setText(getActivity().getResources().getString(R.string.back_btn));
-        btnBack.setTypeface(font);
-        btnBack.setVisibility(View.VISIBLE);
 
         table = (TableLayout) view.findViewById(R.id.table);
         table.setStretchAllColumns(true);
@@ -139,8 +132,7 @@ public class DataGridFragment extends Fragment {
         if (child.contains("Kühlschrank, Tiefkühlfach")) {
             tableEntries = FridgeState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
             tableEntries.getEntries(this);
-            btnBack.setVisibility(View.INVISIBLE);
-        } else if (child.contains("Backofen, Herdplatte")) {
+        } else if (child.contains("Herdplatte, Backofen")) {
             tableEntries = OvenState.findByKitchenAndAP(currentAP.getKitchen(), currentAP);
             tableEntries.getEntries(this);
         } else if (child.contains("Dampfabzug")) {
@@ -158,9 +150,6 @@ public class DataGridFragment extends Fragment {
         } else if (child.contains("Bettwäsche, Matratze")) {
             tableEntries = MattressState.findByRoomAndAP(currentAP.getRoom(), currentAP);
             tableEntries.getEntries(this);
-            if (ApartmentType.SHARED_APARTMENT.equals(currentAP.getApartment().getType())) {
-                btnBack.setVisibility(View.INVISIBLE);
-            }
         } else if (child.contains("Mobiliar")) {
             tableEntries = FurnitureState.findByRoomAndAP(currentAP.getRoom(), currentAP);
             tableEntries.getEntries(this);
@@ -353,9 +342,9 @@ public class DataGridFragment extends Fragment {
                     checkBox.setEnabled(true);
                     // save to DB
                     check.set(row.getId(), true);
-                    tableEntries.saveCheckEntries(PersonalSerializer.convertBoolean(check), getActivity().getResources().getString(R.string.exclamation_mark));
-
+                    tableEntries.saveCheckEntries(PersonalSerializer.convertBoolean(check));
                     // exclamation
+                    tableEntries.updateName(getActivity().getResources().getString(R.string.exclamation_mark_new), getActivity().getResources().getString(R.string.exclamation_mark_old));
                     hv_editActivity.updateSideView();
                 }
             }
@@ -389,9 +378,9 @@ public class DataGridFragment extends Fragment {
                     checkBox.setEnabled(true);
                     // save to DB
                     check.set(row.getId(), false);
-                    tableEntries.saveCheckEntries(PersonalSerializer.convertBoolean(check), getActivity().getResources().getString(R.string.exclamation_mark));
-
+                    tableEntries.saveCheckEntries(PersonalSerializer.convertBoolean(check));
                     //exclamation
+                    tableEntries.updateName(getActivity().getResources().getString(R.string.exclamation_mark_new), getActivity().getResources().getString(R.string.exclamation_mark_old));
                     hv_editActivity.updateSideView();
                 }
             }
@@ -417,9 +406,9 @@ public class DataGridFragment extends Fragment {
                     checkBox.setEnabled(true);
                 // save to DB
                 countBroken.set(row.getId(), position);
-                tableEntries.saveCheckEntries(PersonalSerializer.convertInteger(countBroken), getActivity().getResources().getString(R.string.exclamation_mark));
-
+                tableEntries.saveCheckEntries(PersonalSerializer.convertInteger(countBroken));
                 // exclamation
+                tableEntries.updateName(getActivity().getResources().getString(R.string.exclamation_mark_new), getActivity().getResources().getString(R.string.exclamation_mark_old));
                 hv_editActivity.updateSideView();
             }
 
@@ -446,6 +435,9 @@ public class DataGridFragment extends Fragment {
                 }
                 // save to DB
                 tableEntries.saveCheckOldEntries(checkOld);
+                // exclamation
+                tableEntries.updateName(getActivity().getResources().getString(R.string.exclamation_mark_new), getActivity().getResources().getString(R.string.exclamation_mark_old));
+                hv_editActivity.updateSideView();
             }
         });
     }
@@ -491,31 +483,7 @@ public class DataGridFragment extends Fragment {
             public void onClick(View v) {
                 TableRow row = (TableRow) v.getParent();
                 table.removeAllViews();
-                hv_editActivity.callHistoryActivity(row.getId());
-            }
-        });
-    }
-
-    /**
-     * go one fragment back
-     */
-    private void setOnClickBack() {
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hv_editActivity.onBackPressed();
-            }
-        });
-    }
-
-    /**
-     * go one fragment forward
-     */
-    private void setOnClickNext() {
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO
+                hv_editActivity.callHistoryActivity(row.getId(), parent, child);
             }
         });
     }

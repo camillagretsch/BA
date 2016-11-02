@@ -55,7 +55,7 @@ public class BalconyState extends Model implements EntryStateInterface {
     private AP ap;
 
     @Column(name = "name")
-    private String name = "Balkon";
+    private String name = "Balkon ";
 
     private static final List<String> ROW_NAMES = Arrays.asList("Ist besenrein?", "Ist alles intakt?");
 
@@ -219,7 +219,7 @@ public class BalconyState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<String> check, String ex) {
+    public void saveCheckEntries(List<String> check) {
         this.setIsClean(Boolean.parseBoolean(check.get(0)));
         this.setHasNoDamage(Boolean.parseBoolean(check.get(1)));
         this.save();
@@ -250,6 +250,10 @@ public class BalconyState extends Model implements EntryStateInterface {
                 break;
         }
         this.save();
+    }
+
+    @Override
+    public void updateName(String newEx, String oldEx) {
     }
 
     /**
@@ -312,17 +316,22 @@ public class BalconyState extends Model implements EntryStateInterface {
      * first add the icon
      * if some check entries are false add an exclamation mark to the balcony name
      * @param ap
-     * @param ex
-     * @param icon
+     * @param newEx
+     * @param oldEx
      * @return
      */
-    public static String updateBalconyName(AP ap, String ex, String icon) {
+    public static String updateBalconyName(AP ap, String newEx, String oldEx, String icon) {
         BalconyState balcony = BalconyState.findByApartmentAndAP(ap.getApartment(), ap);
+        balcony.setName(icon + " Balkon ");
+        balcony.save();
 
         if (balcony.createCheckList(balcony).contains(false)) {
-            balcony.setName(icon + " Balkon " + ex);
-        } else
-            balcony.setName(icon + " Balkon");
+            balcony.setName(balcony.getName().concat(newEx));
+        }
+
+        if (balcony.createCheckOldList(balcony).contains(true)) {
+            balcony.setName(balcony.getName().concat(oldEx));
+        }
 
         balcony.save();
         return balcony.getName();
@@ -350,27 +359,34 @@ public class BalconyState extends Model implements EntryStateInterface {
         }
     }
 
-    public static Table2 createPDF(BalconyState balcony, float posX, float posY, float pageWidth, byte[] cross) {
+    /**
+     * fill in the entries in a table to display it in a pdf
+     * @param balcony
+     * @param posX
+     * @param posY
+     * @param pageWidth
+     * @param headers
+     * @param cross
+     * @return
+     */
+    public static Table2 createTable(BalconyState balcony, float posX, float posY, float pageWidth, String[] headers, byte[] cross) {
         Table2 table = new Table2(posX, posY, pageWidth, 700);
 
-        table.getColumns().add(100);
+        table.getColumns().add(105);
         table.getColumns().add(30);
         table.getColumns().add(30);
         table.getColumns().add(50);
-        table.getColumns().add(100);
-        table.getColumns().add(100);
+        table.getColumns().add(125);
+        table.getColumns().add(175);
 
         Row2 header = table.getRows().add(30);
         header.getCellDefault().setFont(Font.getHelveticaBold());
         header.getCellDefault().setFontSize(11);
         header.getCellDefault().setAlign(TextAlign.CENTER);
         header.getCellDefault().setVAlign(VAlign.CENTER);
-        header.getCells().add("");
-        header.getCells().add("Ja");
-        header.getCells().add("Nein");
-        header.getCells().add("alter Eintrag");
-        header.getCells().add("Kommentar");
-        header.getCells().add("Foto");
+        for (int i = 0; i < headers.length; i++) {
+            header.getCells().add(headers[i]);
+        }
 
         int i = 0;
         for (String s : ROW_NAMES) {

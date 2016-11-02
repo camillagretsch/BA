@@ -55,6 +55,7 @@ public class LoginActivity extends Activity {
 
     private User currentUser;
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -76,6 +77,11 @@ public class LoginActivity extends Activity {
                 onClickLogin(v);
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 
     /**
@@ -122,7 +128,7 @@ public class LoginActivity extends Activity {
      * fills the DB with start data
      */
     private void initializeDB() {
-        String ex = getResources().getString(R.string.exclamation_mark);
+        String newEx = getResources().getString(R.string.exclamation_mark_new);
         Bitmap bitmap = null;
         ActiveAndroid.dispose();
         ActiveAndroid.initialize(this);
@@ -133,35 +139,35 @@ public class LoginActivity extends Activity {
         Bathroom.initializeBathroom(apartments);
         Kitchen.initializeKitchen(apartments);
         List<AP> aps = AP.initializeAPs(houses);
-        FloorState.initializeRoomFloor(aps, ex);
-        FloorState.initializeBathroomFloor(aps, ex);
+        FloorState.initializeRoomFloor(aps, newEx);
+        FloorState.initializeBathroomFloor(aps, newEx);
         FloorState.initializeKitchenFloor(aps);
-        WallState.initializeRoomWall(aps, ex);
-        WallState.initializeBathroomWall(aps, ex);
+        WallState.initializeRoomWall(aps, newEx);
+        WallState.initializeBathroomWall(aps, newEx);
         bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.kitchen_wall_spot)).getBitmap();
-        WallState.initializeKitchenWall(aps, PersonalSerializer.getBytes(bitmap), ex);
-        DoorState.initializeRoomDoor(aps, ex);
+        WallState.initializeKitchenWall(aps, PersonalSerializer.getBytes(bitmap), newEx);
+        DoorState.initializeRoomDoor(aps, newEx);
         DoorState.initializeBathroomDoor(aps);
-        DoorState.initializeKitchenDoor(aps, ex);
+        DoorState.initializeKitchenDoor(aps, newEx);
         WindowState.initializeRoomWindow(aps);
         WindowState.initializeBathroomWindow(aps);
-        WindowState.initializeKitchenWindow(aps, ex);
-        SocketState.initializeRoomSocket(aps, ex);
+        WindowState.initializeKitchenWindow(aps, newEx);
+        SocketState.initializeRoomSocket(aps, newEx);
         SocketState.initializeBathroomSocket(aps);
-        SocketState.initializeKitchenSocket(aps, ex);
-        RadiatorState.initializeRoomRadiator(aps, ex);
+        SocketState.initializeKitchenSocket(aps, newEx);
+        RadiatorState.initializeRoomRadiator(aps, newEx);
         RadiatorState.initializeBathroomRadiator(aps);
-        RadiatorState.initializeKitchenRadiator(aps, ex);
-        MattressState.initializeRoomMattress(aps, ex);
+        RadiatorState.initializeKitchenRadiator(aps, newEx);
+        MattressState.initializeRoomMattress(aps, newEx);
         bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.broken_chair)).getBitmap();
-        FurnitureState.initializeRoomFurniture(aps, PersonalSerializer.getBytes(bitmap), ex);
-        ShowerState.initializeBathroomShower(aps, ex);
-        FridgeState.initializeKitchenFridge(aps, ex);
-        OvenState.initializeKitchenOven(aps, ex);
+        FurnitureState.initializeRoomFurniture(aps, PersonalSerializer.getBytes(bitmap), newEx, getResources().getString(R.string.exclamation_mark_old));
+        ShowerState.initializeBathroomShower(aps, newEx);
+        FridgeState.initializeKitchenFridge(aps, newEx);
+        OvenState.initializeKitchenOven(aps, newEx);
         bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.broken_pan)).getBitmap();
-        CutleryState.initializeKitchenCutlery(aps, PersonalSerializer.getBytes(bitmap), ex);
+        CutleryState.initializeKitchenCutlery(aps, PersonalSerializer.getBytes(bitmap), newEx);
         bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.ventilation_damage)).getBitmap();
-        VentilationState.initializeKitchenVentilation(aps, PersonalSerializer.getBytes(bitmap), ex);
+        VentilationState.initializeKitchenVentilation(aps, PersonalSerializer.getBytes(bitmap), newEx);
         CupboardState.initializeKitchenCupboard(aps);
         BalconyState.initializeBalcony(aps);
         BasementState.initializeBasement(aps);

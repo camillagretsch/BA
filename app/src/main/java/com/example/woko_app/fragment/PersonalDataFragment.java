@@ -1,6 +1,8 @@
 package com.example.woko_app.fragment;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,13 +44,11 @@ public class PersonalDataFragment extends Fragment {
     private EditText etSwift;
     private EditText etIban;
     private EditText etClearingNr;
-    private TextView date;
+    private TextView etDate;
     private static ImageView ivOldTenant;
     private static ImageView ivTenant;
     private static ImageView ivWoko;
 
-    private Button btnNext;
-    private Button btnBack;
     private Typeface font;
 
     private static AP currentAP;
@@ -82,21 +83,10 @@ public class PersonalDataFragment extends Fragment {
         etSwift = (EditText) view.findViewById(R.id.etSwift);
         etIban = (EditText) view.findViewById(R.id.etIban);
         etClearingNr = (EditText) view.findViewById(R.id.etClearingNr);
-        date = (TextView) view.findViewById(R.id.date);
-        date.setText(new SimpleDateFormat("dd.MM.yyyy").format(new Date()));
+        etDate = (TextView) view.findViewById(R.id.date);
         ivOldTenant = (ImageView) view.findViewById(R.id.ivOldTenant);
         ivTenant = (ImageView) view.findViewById(R.id.ivTenant);
         ivWoko = (ImageView) view.findViewById(R.id.ivWoko);
-
-        btnNext = (Button) getActivity().findViewById(R.id.btnNext);
-        btnNext.setText(getActivity().getResources().getString(R.string.next_btn));
-        btnNext.setTypeface(font);
-        btnNext.setVisibility(View.VISIBLE);
-
-        btnBack = (Button) getActivity().findViewById(R.id.btnBack);
-        btnBack.setText(getActivity().getResources().getString(R.string.back_btn));
-        btnBack.setTypeface(font);
-        btnBack.setVisibility(View.VISIBLE);
 
         return view;
     }
@@ -153,6 +143,8 @@ public class PersonalDataFragment extends Fragment {
             etAccNr.setEnabled(false);
         }
 
+        etDate.setText(tenantOld.getDate());
+
         if (null != tenantOld.getSignature()) {
             ivOldTenant.setImageBitmap(PersonalSerializer.getImage(tenantOld.getSignature()));
         }
@@ -177,6 +169,7 @@ public class PersonalDataFragment extends Fragment {
         setOnClickSwift();
         setOnClickIban();
         setOnClickClearingNr();
+        setOnClickDate();
         setOnClickOldTenantSignature();
         setOnClickTenantSignature();
         setOnClickWokoSignature();
@@ -480,8 +473,38 @@ public class PersonalDataFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tenantOld.setAccountNumber(s.toString());
+                tenantOld.setAccountClearingNumber(s.toString());
                 tenantOld.save();
+            }
+        });
+    }
+
+    /**
+     * save the change in the edit view for date to the db
+     */
+    private void setOnClickDate() {
+        etDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                final DatePicker datePicker = new DatePicker(getActivity());
+                datePicker.setCalendarViewShown(false);
+                alertDialogBuilder.setView(datePicker);
+                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        tenantOld.setDate(datePicker.getDayOfMonth() + "." + (datePicker.getMonth() + 1) + "." + datePicker.getYear());
+                        tenantOld.save();
+                        etDate.setText(tenantOld.getDate());
+                        getActivity().closeContextMenu();
+                    }
+                }).setNegativeButton("Schliessen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getActivity().closeContextMenu();
+                    }
+                });
+                alertDialogBuilder.create().show();
             }
         });
     }
@@ -533,6 +556,10 @@ public class PersonalDataFragment extends Fragment {
         });
     }
 
+    /**
+     * update the signature image
+     * when signature activity is closed
+     */
     public static void updateSignatureImage() {
         if (null != tenantOld.getSignature()) {
             ivOldTenant.setImageBitmap(PersonalSerializer.getImage(tenantOld.getSignature()));
@@ -545,29 +572,5 @@ public class PersonalDataFragment extends Fragment {
         if (null != currentAP.getSignatureWoko()) {
             ivWoko.setImageBitmap(PersonalSerializer.getImage(currentAP.getSignatureWoko()));
         }
-    }
-
-    /**
-     *
-     */
-    private void setOnClickBack() {
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO
-            }
-        });
-    }
-
-    /**
-     *
-     */
-    private void setOnClickNext() {
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO
-            }
-        });
     }
 }

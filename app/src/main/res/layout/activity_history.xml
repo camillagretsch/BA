@@ -21,7 +21,13 @@
                 android:text="@string/camera_btn"
                 android:id="@+id/btnCamera"
                 android:layout_alignParentRight="true"
-                android:layout_marginBottom="5sp" />
+                android:layout_marginBottom="15sp" />
+
+            <Button
+                style="@style/ButtonStyle"
+                android:text="@string/back_btn"
+                android:id="@+id/btnBack"
+                android:layout_alignParentLeft="true" />
 
             <TextView
                 android:layout_width="wrap_content"

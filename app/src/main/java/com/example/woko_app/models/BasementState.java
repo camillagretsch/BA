@@ -69,7 +69,7 @@ public class BasementState extends Model implements EntryStateInterface {
     private AP ap;
 
     @Column(name = "name")
-    private String name = "Keller";
+    private String name = "\uF106 Keller";
 
     private static final List<String> ROW_NAMES = Arrays.asList("Ist besenrein?", "Der Keller ist geräumt", "Ist alles intakt?");
 
@@ -265,7 +265,7 @@ public class BasementState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<String> check, String ex) {
+    public void saveCheckEntries(List<String> check) {
         this.setIsClean(Boolean.parseBoolean(check.get(0)));
         this.setIsEmpty(Boolean.parseBoolean(check.get(1)));
         this.setHasNoDamage(Boolean.parseBoolean(check.get(2)));
@@ -302,6 +302,10 @@ public class BasementState extends Model implements EntryStateInterface {
                 break;
         }
         this.save();
+    }
+
+    @Override
+    public void updateName(String newEx, String oldEx) {
     }
 
     /**
@@ -368,17 +372,24 @@ public class BasementState extends Model implements EntryStateInterface {
      * first add the icon
      * if some check entries are false add an exclamation mark to the basement name
      * @param ap
-     * @param ex
-     * @param icon
+     * @param newEx
+     * @param oldEx
      * @return
      */
-    public static String updateBasamentName(AP ap, String ex, String icon) {
+    public static String updateBasamentName(AP ap, String newEx, String oldEx, String icon) {
         BasementState basement = BasementState.findByApartmentAndAP(ap.getApartment(), ap);
+        basement.setName(icon + " Keller ");
+        basement.save();
 
         if (basement.createCheckList(basement).contains(false)) {
-            basement.setName(icon + " Keller " + ex);
+            basement.setName(basement.getName().concat(newEx));
         } else
-            basement.setName(icon + " Keller");
+            basement.setName(basement.getName().replace(newEx, ""));
+
+        if (basement.createCheckOldList(basement).contains(true)) {
+            basement.setName(basement.getName().concat(oldEx));
+        } else
+            basement.setName(basement.getName().replace(oldEx, ""));
 
         basement.save();
         return basement.getName();
@@ -406,27 +417,34 @@ public class BasementState extends Model implements EntryStateInterface {
         }
     }
 
-    public static Table2 createPDF(BasementState basement, float posX, float posY, float pageWidth, byte[] cross) {
+    /**
+     * fill in the entries in a table to display it in a pdf
+     * @param basement
+     * @param posX
+     * @param posY
+     * @param pageWidth
+     * @param headers
+     * @param cross
+     * @return
+     */
+    public static Table2 createTable(BasementState basement, float posX, float posY, float pageWidth, String[] headers, byte[] cross) {
         Table2 table = new Table2(posX, posY, pageWidth, 700);
 
-        table.getColumns().add(150);
+        table.getColumns().add(105);
         table.getColumns().add(30);
         table.getColumns().add(30);
         table.getColumns().add(50);
-        table.getColumns().add(170);
-        table.getColumns().add(320);
+        table.getColumns().add(125);
+        table.getColumns().add(175);
 
         Row2 header = table.getRows().add(30);
         header.getCellDefault().setFont(Font.getHelveticaBold());
         header.getCellDefault().setFontSize(11);
         header.getCellDefault().setAlign(TextAlign.CENTER);
         header.getCellDefault().setVAlign(VAlign.CENTER);
-        header.getCells().add("");
-        header.getCells().add("Ja");
-        header.getCells().add("Nein");
-        header.getCells().add("alter Eintrag");
-        header.getCells().add("Kommentar");
-        header.getCells().add("Foto");
+        for (int i = 0; i < headers.length; i++) {
+            header.getCells().add(headers[i]);
+        }
 
         int i = 0;
         for (String s : ROW_NAMES) {

@@ -15,9 +15,11 @@ public interface EntryStateInterface {
 
     public void createNewEntry(AP ap);
 
-    public void saveCheckEntries(List<String> check, String ex);
+    public void saveCheckEntries(List<String> check);
 
     public void saveCheckOldEntries(List<Boolean> checkOld);
+
+    public void updateName(String newEx, String oldEx);
 
     public void saveCommentsEntries(List<String> comments);
 

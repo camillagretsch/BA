@@ -60,21 +60,32 @@ public class Kitchen  extends Model{
      * first add the icon
      * if any of the children contains an exclamation mark in his name, then add one to the kitchen name
      * @param ap
-     * @param ex
+     * @param newEx
+     * @param oldEx
      * @param icon
      * @return
      */
-    public static String updateKitchenName(AP ap, String ex, String icon) {
+    public static String updateKitchenName(AP ap, String newEx, String oldEx, String icon) {
         Kitchen kitchen = Kitchen.findByApartment(ap.getApartment());
+        kitchen.setName(icon + " Küche ");
+        kitchen.save();
 
         int i = 0;
         while (i < updateKitchenItems(ap).size()) {
-            if (updateKitchenItems(ap).get(i).contains(ex)) {
-                kitchen.setName(icon + " Küche " + ex);
+            if (updateKitchenItems(ap).get(i).contains(newEx)) {
+                kitchen.setName(kitchen.getName().concat(newEx));
                 break;
-            } else
-                kitchen.setName(icon + " Küche");
+            }
             i++;
+        }
+
+        int j = 0;
+        while (j < updateKitchenItems(ap).size()) {
+            if (updateKitchenItems(ap).get(j).contains(oldEx)) {
+                kitchen.setName(kitchen.getName().concat(oldEx));
+                break;
+            }
+            j++;
         }
         kitchen.save();
         return kitchen.getName();

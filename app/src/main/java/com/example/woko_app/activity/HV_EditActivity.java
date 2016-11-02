@@ -47,12 +47,11 @@ public class HV_EditActivity extends Activity {
     private ArrayList<String> parentItems = new ArrayList<>();
     private ArrayList<Object> childItems = new ArrayList<>();
     private int prev = -1;
+    private int parent;
+    private String child;
 
     private Typeface fontawesome;
     private Typeface fonticon;
-
-    private Button btnNext;
-    private Button btnBack;
 
     private TextView usericon;
     private TextView txtName;
@@ -91,13 +90,15 @@ public class HV_EditActivity extends Activity {
         sidebarContainer = (RelativeLayout)findViewById(R.id.list_holder);
         fragmentManager = getFragmentManager();
 
-        // TODO set buttons on click listener
-        btnBack = (Button)findViewById(R.id.btnBack);
-        btnNext = (Button)findViewById(R.id.btnNext);
-
         setHeader();
 
         generateSideView();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        openPreviousFragment();
     }
 
     /**
@@ -139,13 +140,14 @@ public class HV_EditActivity extends Activity {
      * add parent items for the apartment type studio
      */
     private void setParentItemsStudio() {
-        String ex = getResources().getString(R.string.exclamation_mark);
+        String newEx = getResources().getString(R.string.exclamation_mark_new);
+        String oldEx = getResources().getString(R.string.exclamation_mark_old);
         parentItems.clear();
-        parentItems.add(Kitchen.updateKitchenName(currentAP, ex, getResources().getString(R.string.cutlery_icon)));
-        parentItems.add(Bathroom.updateBathroomName(currentAP, ex, getResources().getString(R.string.shower_icon)));
-        parentItems.add(Room.updateRoomName(currentAP, ex, getResources().getString(R.string.bed_icon)));
-        parentItems.add(BalconyState.updateBalconyName(currentAP, ex, getResources().getString(R.string.balcony_icon)));
-        parentItems.add(BasementState.updateBasamentName(currentAP, ex, getResources().getString(R.string.house_icon)));
+        parentItems.add(Kitchen.updateKitchenName(currentAP, newEx, oldEx, getResources().getString(R.string.cutlery_icon)));
+        parentItems.add(Bathroom.updateBathroomName(currentAP, newEx, oldEx, getResources().getString(R.string.shower_icon)));
+        parentItems.add(Room.updateRoomName(currentAP, newEx, oldEx, getResources().getString(R.string.bed_icon)));
+        parentItems.add(BalconyState.updateBalconyName(currentAP, newEx, oldEx, getResources().getString(R.string.balcony_icon)));
+        parentItems.add(BasementState.updateBasamentName(currentAP, newEx, oldEx, getResources().getString(R.string.house_icon)));
         parentItems.add(getResources().getString(R.string.personal_data));
         parentItems.add(getResources().getString(R.string.save));
         parentItems.add(getResources().getString(R.string.close));
@@ -156,9 +158,10 @@ public class HV_EditActivity extends Activity {
      * add parent items for the apartment type shared
      */
     private void setParentItemsShared() {
-        String ex = getResources().getString(R.string.exclamation_mark);
+        String newEx = getResources().getString(R.string.exclamation_mark_new);
+        String oldEx = getResources().getString(R.string.exclamation_mark_old);
         parentItems.clear();
-        parentItems.add(Room.updateRoomName(currentAP, ex, getResources().getString(R.string.bed_icon)));
+        parentItems.add(Room.updateRoomName(currentAP, newEx, oldEx, getResources().getString(R.string.bed_icon)));
         parentItems.add(getResources().getString(R.string.personal_data));
         parentItems.add(getResources().getString(R.string.save));
         parentItems.add(getResources().getString(R.string.close));
@@ -260,12 +263,16 @@ public class HV_EditActivity extends Activity {
      */
     private boolean setOnClickChild(int groupPosition, int childPosition) {
         Log.d("parent at position: ", String.valueOf(groupPosition) + " is clicked and child at position: " + String.valueOf(childPosition));
+        parent = groupPosition;
         if ((ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 0) || (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 2)) {
-            callDatagridFargment(groupPosition, Room.updateRoomItems(currentAP).get(childPosition));
+            child = Room.updateRoomItems(currentAP).get(childPosition);
+            callDatagridFargment();
         } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 0) {
-            callDatagridFargment(groupPosition, Kitchen.updateKitchenItems(currentAP).get(childPosition));
+            child = Kitchen.updateKitchenItems(currentAP).get(childPosition);
+            callDatagridFargment();
         } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 1) {
-            callDatagridFargment(groupPosition, Bathroom.updateBathroomItems(currentAP).get(childPosition));
+            child = Bathroom.updateBathroomItems(currentAP).get(childPosition);
+            callDatagridFargment();
         }
         return false;
     }
@@ -277,12 +284,15 @@ public class HV_EditActivity extends Activity {
      * @return
      */
     private boolean setOnClickGroup(int groupPosition) {
+        parent = groupPosition;
         //1. Balcony, 2. Basement, 3. Personal Data, 4. Save, 5. Stop
         if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 3) {
-            callDatagridFargment(groupPosition, "Balkon");
+            child = "Balkon";
+            callDatagridFargment();
             return true;
         } else if (ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 4) {
-            callDatagridFargment(groupPosition, "Kellerabteil");
+            child = "Keller";
+            callDatagridFargment();
             return true;
         } else if ((ApartmentType.STUDIO.equals(currentApartment.getType()) && groupPosition == 5) || (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType()) && groupPosition == 1)) {
             Log.d("Personal data of", currentAP.getName() + "is opened");
@@ -319,10 +329,8 @@ public class HV_EditActivity extends Activity {
 
     /**
      * open the datagrid fragment
-     * @param parent
-     * @param child
      */
-    public void callDatagridFargment(int parent, String child) {
+    public void callDatagridFargment() {
         dataGridFragment = new DataGridFragment();
         openFragment = dataGridFragment;
         bundle = new Bundle();
@@ -331,7 +339,7 @@ public class HV_EditActivity extends Activity {
         bundle.putString("Child", child);
         dataGridFragment.setArguments(bundle);
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.datagrid_container, dataGridFragment, null).addToBackStack(null).commit();
+        fragmentTransaction.replace(R.id.datagrid_container, dataGridFragment).addToBackStack("datagrid").commit();
     }
 
     /**
@@ -344,7 +352,7 @@ public class HV_EditActivity extends Activity {
         bundle.putLong("AP", currentAP.getId());
         personalDataFragment.setArguments(bundle);
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.datagrid_container, personalDataFragment, null).addToBackStack(null).commit();
+        fragmentTransaction.replace(R.id.datagrid_container, personalDataFragment).addToBackStack("personal").commit();
     }
 
     /**
@@ -358,7 +366,7 @@ public class HV_EditActivity extends Activity {
         bundle.putLong("AP", currentAP.getId());
         saveFragment.setArguments(bundle);
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.datagrid_container, saveFragment, null).addToBackStack(null).commit();
+        fragmentTransaction.replace(R.id.datagrid_container, saveFragment).addToBackStack("save").commit();
     }
 
     /**
@@ -376,19 +384,18 @@ public class HV_EditActivity extends Activity {
         textView.setGravity(Gravity.CENTER);
         alertDialogBuilder.setView(textView);
 
-        AlertDialog.Builder builder = alertDialogBuilder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+         alertDialogBuilder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 callHomeActivity();
             }
         }).setNegativeButton("Nein", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+             @Override
+             public void onClick(DialogInterface dialog, int which) {
+                 dialog.dismiss();
+             }
+         });
+        alertDialogBuilder.create().show();
     }
 
     /**
@@ -396,10 +403,12 @@ public class HV_EditActivity extends Activity {
      * when the picture button is pressed
      * @param pos
      */
-    public void callHistoryActivity(int pos) {
+    public void callHistoryActivity(int pos, int parent, String child) {
         Intent intent = new Intent(this, HistoryActivity.class);
         intent.putExtra("AP", currentAP.getId());
         intent.putExtra("position", pos);
+        intent.putExtra("parent", parent);
+        intent.putExtra("child", child);
         startActivity(intent);
     }
 
@@ -408,20 +417,38 @@ public class HV_EditActivity extends Activity {
      * when the last group item in the expandable listview is pressed
      */
     public void callHomeActivity() {
-        Intent intent = new Intent(this, HV_HomeActivity.class);
-        intent.putExtra("Username", currentUser.getUsername());
-        startActivity(intent);
+        finish();
     }
 
     /**
      * close the current open fragment
      */
     public void closeOpenFragment() {
-        btnBack.setVisibility(View.INVISIBLE);
-        btnNext.setVisibility(View.INVISIBLE);
         if (openFragment != null) {
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.remove(openFragment).commit();
+        }
+    }
+
+    public void openPreviousFragment() {
+        if (getFragmentManager().getBackStackEntryCount() == 0) {
+
+        } else {
+            int index = getFragmentManager().getBackStackEntryCount() - 1;
+            FragmentManager.BackStackEntry backEntry = getFragmentManager().getBackStackEntryAt(index);
+            String tag = backEntry.getName();
+
+            switch (tag) {
+                case "save":
+                    callSaveFragment();
+                    break;
+                case "personal":
+                    callPersonalDataFragment();
+                    break;
+                case "datagrid":
+                    callDatagridFargment();
+                    break;
+            }
         }
     }
 
@@ -435,4 +462,8 @@ public class HV_EditActivity extends Activity {
         currentHouse = House.findById(intent.getLongExtra("House", 0));
     }
 
+    @Override
+    public void onBackPressed() {
+
+    }
 }

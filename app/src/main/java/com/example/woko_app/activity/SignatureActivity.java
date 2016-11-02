@@ -94,11 +94,16 @@ public class SignatureActivity extends Activity {
             @Override
             public void onClick(View v) {
                 PersonalDataFragment.updateSignatureImage();
-                onBackPressed();
+                finish();
             }
         });
 
         sView.addView(signatureView);
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 
     /**

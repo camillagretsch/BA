@@ -20,9 +20,9 @@
 
     <!-- Edit Screens -->
     <string name="edit_title">Abnahmeprotokoll</string>
-    <string name="personal_data"> Personalien</string>
-    <string name="save"> Speichern</string>
-    <string name="close"> Schliessen</string>
+    <string name="personal_data"> Personalien</string>
+    <string name="save"> Speichern</string>
+    <string name="close"> Schliessen</string>
     <string name="stop_message">Möchten sie das Protokoll wirklich schliessen?</string>
 
     <!-- Datagrid Fragment -->
@@ -71,16 +71,17 @@
 
     <!-- icons -->
     <string name="user_icon">&#xf007;</string>
-    <string name="cutlery_icon"></string>
-    <string name="bed_icon"></string>
+    <string name="cutlery_icon"></string>
+    <string name="bed_icon"></string>
     <string name="save_icon">&#xf0c7;</string>
     <string name="close_icon">&#xf00d;</string>
     <string name="file_icon">&#xf15c;</string>
-    <string name="exclamation_mark"></string>
+    <string name="exclamation_mark_new"></string>
+    <string name="exclamation_mark_old"></string>
     <string name="camera_icon">&#xf030;</string>
-    <string name="house_icon"></string>
-    <string name="balcony_icon"></string>
-    <string name="shower_icon"></string>
+    <string name="house_icon"></string>
+    <string name="balcony_icon"></string>
+    <string name="shower_icon"></string>
 
     <!-- buttons -->
     <string name="logout_btn">Logout &#xf08b;</string>

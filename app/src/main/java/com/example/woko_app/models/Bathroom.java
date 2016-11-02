@@ -60,21 +60,32 @@ public class Bathroom extends Model{
      * first add the icon
      * if any of the children contains an exclamation mark in his name, then add one to the bathroom name
      * @param ap
-     * @param ex
+     * @param newEx
+     * @param oldEx
      * @param icon
      * @return
      */
-    public static String updateBathroomName(AP ap, String ex, String icon) {
+    public static String updateBathroomName(AP ap, String newEx, String oldEx, String icon) {
         Bathroom bathroom = Bathroom.findByApartment(ap.getApartment());
+        bathroom.setName(icon + " Badezimmer ");
+        bathroom.save();
 
         int i = 0;
         while (i < updateBathroomItems(ap).size()) {
-            if (updateBathroomItems(ap).get(i).contains(ex)) {
-                bathroom.setName(icon + " Badezimmer " + ex);
+            if (updateBathroomItems(ap).get(i).contains(newEx)) {
+                bathroom.setName(bathroom.getName().concat(newEx));
                 break;
-            } else
-                bathroom.setName(icon + " Badezimmer");
+            }
             i++;
+        }
+
+        int j = 0;
+        while (j < updateBathroomItems(ap).size()) {
+            if (updateBathroomItems(ap).get(j).contains(oldEx)) {
+                bathroom.setName(bathroom.getName().concat(oldEx));
+                break;
+            }
+            j++;
         }
         bathroom.save();
         return bathroom.getName();

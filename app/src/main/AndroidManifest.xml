@@ -13,15 +13,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".activity.HistoryActivity"
-            android:screenOrientation="landscape" />
 
         <!-- Home Activity -->
         <activity
             android:name=".activity.HV_HomeActivity"
-            android:excludeFromRecents="true"
-            android:noHistory="true"
             android:screenOrientation="landscape" />
 
         <!-- Edit Activity -->
@@ -42,18 +37,30 @@
             </intent-filter>
         </activity>
 
+        <!-- Open Activity -->
+        <activity android:name=".activity.OpenActivity"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:screenOrientation="landscape"/>
+
+        <!-- History Activity -->
+        <activity
+            android:name=".activity.HistoryActivity"
+            android:screenOrientation="landscape" />
+
+        <!-- Signature Activty -->
+        <activity
+            android:name=".activity.SignatureActivity"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:screenOrientation="landscape"></activity>
+
         <meta-data
             android:name="AA_DB_NAME"
             android:value="APManager.db" />
         <meta-data
             android:name="AA_DB_VERSION"
             android:value="2" />
-
-        <activity android:name=".activity.OpenActivity"
-            android:screenOrientation="landscape"/>
-        <activity
-            android:name=".activity.SignatureActivity"
-            android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>

@@ -94,7 +94,9 @@ public class ShowerState extends Model implements EntryStateInterface {
     private AP ap;
 
     @Column(name = "name")
-    private String name = "WC, Dusche, Lavabo";
+    private String name = NAME;
+
+    private final static String NAME = "WC, Dusche, Lavabo ";
 
     private static final List<String> ROW_NAMES = Arrays.asList("Duschvorhang wurde gewaschen & aufgehängt", "Dusche ist in Ordnung", "WC ist in Ordnung", "Lavabo ist in Ordnung", "Ist alles intakt?");
 
@@ -354,16 +356,12 @@ public class ShowerState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<String> check, String ex) {
+    public void saveCheckEntries(List<String> check) {
         this.setShowerCurtainIsClean(Boolean.parseBoolean(check.get(0)));
         this.setShowerIsOK(Boolean.parseBoolean(check.get(1)));
         this.setToiletIsOK(Boolean.parseBoolean(check.get(2)));
         this.setSinkIsOK(Boolean.parseBoolean(check.get(3)));
         this.setHasNoDamage(Boolean.parseBoolean(check.get(4)));
-        if (check.contains("false")) {
-            this.setName("WC, Dusche, Lavabo " + ex);
-        } else
-            this.setName("WC, Dusche, Lavabo");
         this.save();
     }
 
@@ -405,6 +403,21 @@ public class ShowerState extends Model implements EntryStateInterface {
             case 4:
                 this.setDamagePicture(picture);
                 break;
+        }
+        this.save();
+    }
+
+    @Override
+    public void updateName(String newEx, String oldEx) {
+        this.setName(NAME);
+        this.save();
+
+        if (createCheckList(this).contains(false)) {
+            this.setName(this.getName().concat(newEx));
+        }
+
+        if (createCheckOldList(this).contains(true)) {
+            this.setName(this.getName().concat(oldEx));
         }
         this.save();
     }
@@ -499,32 +512,39 @@ public class ShowerState extends Model implements EntryStateInterface {
             shower.setSinkComment("Risse im Lavabo");
             shower.setToiletIsOK(false);
             shower.setToiletComment("WC Deckel hat einen Sprung");
-            shower.setName(shower.getName() + " " + ex);
+            shower.setName(NAME + ex);
             shower.save();
         }
     }
 
-    public static Table2 createPDF(ShowerState shower, float posX, float posY, float pageWidth, byte[] cross) {
+    /**
+     * fill in the entries in a table to display it in a pdf
+     * @param shower
+     * @param posX
+     * @param posY
+     * @param pageWidth
+     * @param headers
+     * @param cross
+     * @return
+     */
+    public static Table2 createTable(ShowerState shower, float posX, float posY, float pageWidth, String[] headers, byte[] cross) {
         Table2 table = new Table2(posX, posY, pageWidth, 700);
 
-        table.getColumns().add(100);
+        table.getColumns().add(105);
         table.getColumns().add(30);
         table.getColumns().add(30);
         table.getColumns().add(50);
-        table.getColumns().add(100);
-        table.getColumns().add(100);
+        table.getColumns().add(125);
+        table.getColumns().add(175);
 
         Row2 header = table.getRows().add(30);
         header.getCellDefault().setFont(Font.getHelveticaBold());
         header.getCellDefault().setFontSize(11);
         header.getCellDefault().setAlign(TextAlign.CENTER);
         header.getCellDefault().setVAlign(VAlign.CENTER);
-        header.getCells().add("");
-        header.getCells().add("Ja");
-        header.getCells().add("Nein");
-        header.getCells().add("alter Eintrag");
-        header.getCells().add("Kommentar");
-        header.getCells().add("Foto");
+        for (int i = 0; i < headers.length; i++) {
+            header.getCells().add(headers[i]);
+        }
 
         int i = 0;
         for (String s : ROW_NAMES) {

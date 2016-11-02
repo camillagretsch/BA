@@ -23,7 +23,7 @@
                 android:textSize="25sp"
                 android:textStyle="bold"/>
 
-            <LinearLayout
+            <!--<LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -42,13 +42,13 @@
                     android:inputType="textMultiLine"
                     android:id="@+id/etMessage"
                     android:hint="@string/hintMessage"/>
-            </LinearLayout>
+            </LinearLayout>-->
         </LinearLayout>
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="30sp">
 
             <TextView
@@ -65,37 +65,39 @@
                 android:textSize="25sp"
                 android:id="@+id/check1" />
 
-            <LinearLayout
-                android:orientation="horizontal"
+            <CheckBox
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                android:id="@+id/check2" />
 
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="25sp"
-                    android:id="@+id/check2"
-                    android:layout_marginRight="50sp"/>
-
-                <Button
-                    style="@style/ButtonStyle"
-                    android:text="@string/send_btn"
-                    android:id="@+id/btnSend"
-                    android:layout_alignParentBottom="true"/>
-            </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <Button
-                    style="@style/ButtonStyle"
-                    android:text="@string/close_btn"
-                    android:id="@+id/btnClose"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentBottom="true"/>
-            </RelativeLayout>
         </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                style="@style/ButtonStyle"
+                android:text="@string/send_btn"
+                android:id="@+id/btnSend"
+                android:layout_centerHorizontal="true"/>
+
+            <Button
+                style="@style/ButtonStyle"
+                android:text="@string/close_btn"
+                android:id="@+id/btnClose"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"/>
+
+            <Button
+                style="@style/ButtonStyle"
+                android:text="@string/logout_btn"
+                android:id="@+id/btnLogout"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"/>
+
+        </RelativeLayout>
 
     </LinearLayout>
 </FrameLayout>

@@ -202,7 +202,9 @@ public class CutleryState extends Model implements EntryStateInterface {
     private AP ap;
 
     @Column(name = "name")
-    private String name = "Pfannen, Geschirr, Besteck";
+    private String name = NAME;
+
+    private final static String NAME = "Pfannen, Geschirr, Besteck ";
 
     private static final List<String> ROW_NAMES = Arrays.asList("Essgabel", "Messer", "Esslöffel", "Dessertlöffel", "Küchenmeser", "Brotmesser", "Essteller", "Suppenteller", "Dessertteller", "Becher", "Teekanne", "Schälchen", "Bratpfanne", "Glas");
     private static final List<Integer> COUNT = Arrays.asList(3, 3, 3, 3, 3, 1, 3, 2, 3, 3, 1, 3, 1, 3);
@@ -752,7 +754,7 @@ public class CutleryState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<String> check, String ex) {
+    public void saveCheckEntries(List<String> check) {
         this.setBrokenFork(Integer.parseInt(check.get(0)));
         this.setBrokenKnife(Integer.parseInt(check.get(1)));
         this.setBrokenBigSpoon(Integer.parseInt(check.get(2)));
@@ -768,8 +770,6 @@ public class CutleryState extends Model implements EntryStateInterface {
         this.setBrokenFryingPan(Integer.parseInt(check.get(12)));
         this.setBrokenGlass(Integer.parseInt(check.get(13)));
         this.save();
-
-        updateCutleryName(ex);
     }
 
     @Override
@@ -855,6 +855,26 @@ public class CutleryState extends Model implements EntryStateInterface {
             case 13:
                 this.setGlassPicture(picture);
                 break;
+        }
+        this.save();
+    }
+
+    @Override
+    public void updateName(String newEx, String oldEx) {
+        this.setName(NAME);
+        this.save();
+
+        int i = 0;
+        while (i < createBrokenList(this).size()) {
+            if (createBrokenList(this).get(i) > 0) {
+                this.setName(this.getName().concat(newEx));
+                break;
+            }
+            i++;
+        }
+
+        if (createCheckOldList(this).contains(true)) {
+            this.setName(this.getName().concat(oldEx));
         }
         this.save();
     }
@@ -975,7 +995,7 @@ public class CutleryState extends Model implements EntryStateInterface {
                 this.setName("Pfannen, Geschirr, Besteck " + ex);
                 break;
             } else
-                this.setName("Pfannen, Geschirr, Besteck");
+                this.setName(this.getName().replace(ex, ""));
             i++;
         }
         this.save();
@@ -1003,32 +1023,39 @@ public class CutleryState extends Model implements EntryStateInterface {
             cutlery.setBrokenFryingPan(1);
             cutlery.setFryingPanComment("Kratzer in der Pfanne");
             cutlery.setFryingPanPicture(image);
-            cutlery.setName(cutlery.getName() + " " + ex);
+            cutlery.setName(NAME + ex);
             cutlery.save();
         }
     }
 
-    public static Table2 createPDF(CutleryState cutlery, float posX, float posY, float pageWidth, byte[] cross) {
+    /**
+     * fill in the entries in a table to display it in a pdf
+     * @param cutlery
+     * @param posX
+     * @param posY
+     * @param pageWidth
+     * @param headers
+     * @param cross
+     * @return
+     */
+    public static Table2 createTable(CutleryState cutlery, float posX, float posY, float pageWidth, String[] headers, byte[] cross) {
         Table2 table = new Table2(posX, posY, pageWidth, 700);
 
         table.getColumns().add(100);
         table.getColumns().add(42);
         table.getColumns().add(50);
         table.getColumns().add(50);
-        table.getColumns().add(100);
-        table.getColumns().add(100);
+        table.getColumns().add(120);
+        table.getColumns().add(153);
 
         Row2 header = table.getRows().add(30);
         header.getCellDefault().setVAlign(VAlign.CENTER);
         header.getCellDefault().setAlign(TextAlign.CENTER);
         header.getCellDefault().setFontSize(11);
         header.getCellDefault().setFont(Font.getHelveticaBold());
-        header.getCells().add("");
-        header.getCells().add("Anzahl");
-        header.getCells().add("fehlend/defekt");
-        header.getCells().add("alter Eintrag");
-        header.getCells().add("Kommentar");
-        header.getCells().add("Foto");
+        for (int i = 0; i < headers.length; i++) {
+            header.getCells().add(headers[i]);
+        }
 
         int i = 0;
         for (String s : ROW_NAMES) {

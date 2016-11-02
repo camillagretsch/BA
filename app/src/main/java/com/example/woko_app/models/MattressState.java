@@ -69,7 +69,9 @@ public class MattressState extends Model implements EntryStateInterface {
     private AP ap;
 
     @Column(name = "name")
-    private String name = "Bettwäsche, Matratze";
+    private String name = NAME;
+
+    private final static String NAME = "Bettwäsche, Matratze ";
 
     private static final List<String> ROW_NAMES = Arrays.asList("Wurde gewaschen, getrocknet & gefaltet?", "Matratzenschoner wurde bei 60 gewaschen?", "Ist alles intakt?");
 
@@ -261,14 +263,10 @@ public class MattressState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<String> check, String ex) {
+    public void saveCheckEntries(List<String> check) {
         this.setBeddingIsClean(Boolean.parseBoolean(check.get(0)));
         this.setLinenIsClean(Boolean.parseBoolean(check.get(1)));
         this.setHasNoDamage(Boolean.parseBoolean(check.get(2)));
-        if (check.contains("false")) {
-            this.setName("Bettwäsche, Matratze " + ex);
-        } else
-            this.setName("Bettwäsche, Matratze");
         this.save();
     }
 
@@ -300,6 +298,21 @@ public class MattressState extends Model implements EntryStateInterface {
             case 2:
                 this.setDamagePicture(picture);
                 break;
+        }
+        this.save();
+    }
+
+    @Override
+    public void updateName(String newEx, String oldEx) {
+        this.setName(NAME);
+        this.save();
+
+        if (createCheckList(this).contains(false)) {
+            this.setName(this.getName().concat(newEx));
+        }
+
+        if (createCheckOldList(this).contains(true)) {
+            this.setName(this.getName().concat(oldEx));
         }
         this.save();
     }
@@ -386,32 +399,39 @@ public class MattressState extends Model implements EntryStateInterface {
             mattress.setLinenIsClean(true);
             mattress.setHasNoDamage(false);
             mattress.setDamageComment("Loch in der Bettdecke");
-            mattress.setName(mattress.getName() + " " + ex);
+            mattress.setName(NAME + ex);
             mattress.save();
         }
     }
 
-    public static Table2 createPDF(MattressState mattress, float posX, float posY, float pageWidth, byte[] cross) {
+    /**
+     * fill in the entries in a table to display it in a pdf
+     * @param mattress
+     * @param posX
+     * @param posY
+     * @param pageWidth
+     * @param headers
+     * @param cross
+     * @return
+     */
+    public static Table2 createTable(MattressState mattress, float posX, float posY, float pageWidth, String[] headers, byte[] cross) {
         Table2 table = new Table2(posX, posY, pageWidth, 700);
 
-        table.getColumns().add(100);
+        table.getColumns().add(105);
         table.getColumns().add(30);
         table.getColumns().add(30);
         table.getColumns().add(50);
-        table.getColumns().add(100);
-        table.getColumns().add(100);
+        table.getColumns().add(125);
+        table.getColumns().add(175);
 
         Row2 header = table.getRows().add(30);
         header.getCellDefault().setFont(Font.getHelveticaBold());
         header.getCellDefault().setFontSize(11);
         header.getCellDefault().setAlign(TextAlign.CENTER);
         header.getCellDefault().setVAlign(VAlign.CENTER);
-        header.getCells().add("");
-        header.getCells().add("Ja");
-        header.getCells().add("Nein");
-        header.getCells().add("alter Eintrag");
-        header.getCells().add("Kommentar");
-        header.getCells().add("Foto");
+        for (int i = 0; i < headers.length; i++) {
+            header.getCells().add(headers[i]);
+        }
 
         int i = 0;
         for (String s : ROW_NAMES) {

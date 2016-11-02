@@ -4,11 +4,16 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,10 +25,13 @@ import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 
 
+import com.cete.dynamicpdf.Document;
 import com.example.woko_app.constants.ApartmentType;
 import com.example.woko_app.R;
 import com.example.woko_app.adapter.ExpandableListAdapter;
@@ -34,6 +42,8 @@ import com.example.woko_app.fragment.ShowOldFragment;
 import com.example.woko_app.models.AP;
 import com.example.woko_app.models.Apartment;
 import com.example.woko_app.models.House;
+import com.example.woko_app.models.PDFCreator;
+import com.example.woko_app.models.PersonalSerializer;
 import com.example.woko_app.models.Room;
 import com.example.woko_app.models.User;
 
@@ -81,6 +91,7 @@ public class HV_HomeActivity extends Activity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_hv);
+
         sidebarContainer = (RelativeLayout)findViewById(R.id.list_holder);
 
         intentReceiver();
@@ -93,6 +104,25 @@ public class HV_HomeActivity extends Activity {
         setHeader();
 
         generateSideView();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (getFragmentManager().getBackStackEntryCount() != 0) {
+            int index = getFragmentManager().getBackStackEntryCount() - 1;
+            FragmentManager.BackStackEntry backEntry = getFragmentManager().getBackStackEntryAt(index);
+            String tag = backEntry.getName();
+
+            switch (tag) {
+                case "main":
+                    callMainFragment();
+                    break;
+                case "create":
+                    callMainFragment();
+                    break;
+            }
+        }
     }
 
     /**
@@ -212,8 +242,8 @@ public class HV_HomeActivity extends Activity {
 
                 if (!(currentRoom.getAPs().isEmpty())) {
                     Log.d("number of APs: ", String.valueOf(AP.findByRoom(currentRoom).size()));
-                    currentAP = AP.findByRoom(currentRoom).get(0);
-
+                    //currentAP = AP.findByRoom(currentRoom).get(0);
+                    currentAP = AP.findByRoom(currentRoom).get(AP.findByRoom(currentRoom).size() - 1);
                     callMainFragment();
                 } else {
                     currentAP = null;
@@ -226,7 +256,7 @@ public class HV_HomeActivity extends Activity {
         expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int groupPosition) {
-               closeOpenFragment();
+                closeOpenFragment();
             }
         });
         sidebarContainer.addView(expandableListView);
@@ -252,7 +282,7 @@ public class HV_HomeActivity extends Activity {
 
                 if (!(currentApartment.getAPs().isEmpty())) {
                     Log.d("number of APs: ", String.valueOf(AP.findByApartment(currentApartment).size()));
-                    currentAP = AP.findByApartment(currentApartment).get(0);
+                    currentAP = AP.findByApartment(currentApartment).get(AP.findByApartment(currentApartment).size() - 1);
 
                     callMainFragment();
                 } else {
@@ -276,7 +306,7 @@ public class HV_HomeActivity extends Activity {
         bundle.putLong("AP_ID", currentAP.getId());
         mainFragment.setArguments(bundle);
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, mainFragment, null).addToBackStack(null).commit();
+        fragmentTransaction.replace(R.id.fragment_container, mainFragment).addToBackStack("main").commit();
     }
 
     /**
@@ -287,7 +317,7 @@ public class HV_HomeActivity extends Activity {
         createProtocolFragment = new CreateProtocolFragment();
         openFragment = createProtocolFragment;
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, createProtocolFragment, null).addToBackStack(null).commit();
+        fragmentTransaction.replace(R.id.fragment_container, createProtocolFragment).addToBackStack("create").commit();
     }
 
     /**
@@ -308,7 +338,7 @@ public class HV_HomeActivity extends Activity {
         }
         duplicateFragment.setArguments(bundle);
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, duplicateFragment, null).addToBackStack(null).commit();
+        fragmentTransaction.replace(R.id.fragment_container, duplicateFragment).commit();
     }
 
     /**
@@ -326,7 +356,7 @@ public class HV_HomeActivity extends Activity {
         bundle.putInt("Year", year);
         showOldFragment.setArguments(bundle);
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, showOldFragment, null).addToBackStack(null).commit();
+        fragmentTransaction.replace(R.id.fragment_container, showOldFragment).addToBackStack("old").commit();
     }
 
     /**
@@ -340,8 +370,31 @@ public class HV_HomeActivity extends Activity {
     }
 
     /**
+     *
+     * @param i
+     */
+    public void openPreviousFragment(int i) {
+        if (getFragmentManager().getBackStackEntryCount() == 0) {
+
+        } else {
+            int index = getFragmentManager().getBackStackEntryCount() - i;
+            FragmentManager.BackStackEntry backEntry = getFragmentManager().getBackStackEntryAt(index);
+            String tag = backEntry.getName();
+
+            switch (tag) {
+                case "main":
+                    callMainFragment();
+                    break;
+                case "create":
+                    callCreateProtocolFragment();
+                    break;
+            }
+        }
+    }
+
+    /**
      * open the edit activity
-     * when the edit button is pressed or a new protocl is created
+     * when the edit button is pressed or a new protocol is created
      * @param currentAP_Id
      */
     public void callEditActivity(long currentAP_Id) {
@@ -349,25 +402,18 @@ public class HV_HomeActivity extends Activity {
         intent.putExtra("Username", currentUser.getUsername());
         intent.putExtra("AP Id", currentAP_Id);
         intent.putExtra("House", currentHouse.getId());
+        currentAP = AP.findById(currentAP_Id);
         startActivity(intent);
     }
 
+    /**
+     * open the open activity
+     * when open button is pressed
+     */
     public void callOpenActivity() {
         Intent intent = new Intent(this, OpenActivity.class);
         intent.putExtra("ID", currentAP.getId());
         startActivity(intent);
-    }
-    /**
-     * close the create new protocol fragmnet when stop is pressed
-     * close show old Fragment when back is pressed
-     */
-    @Override
-    public void onBackPressed() {
-        int fragments = getFragmentManager().getBackStackEntryCount();
-        if (fragments == 1) {
-            finish();
-        }
-        super.onBackPressed();
     }
 
     /**
@@ -378,6 +424,11 @@ public class HV_HomeActivity extends Activity {
         currentUser = User.findByUsername(intent.getStringExtra("Username"));
     }
 
+    @Override
+    public void onBackPressed() {
+
+    }
+
     /**
      * logout button is pressed
      * set user to offline
@@ -386,10 +437,11 @@ public class HV_HomeActivity extends Activity {
      */
     private void onClickLogout(View v) {
 
+        finish();
         currentUser.setUserOffline(currentUser);
         Log.d("Status: ", currentUser.getName() + " is " + currentUser.getStatus().toString());
         Intent intent = new Intent(this, LoginActivity.class);
-
         startActivity(intent);
     }
+
 }

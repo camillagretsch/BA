@@ -228,7 +228,9 @@ public class FurnitureState extends Model implements EntryStateInterface {
     private AP ap;
 
     @Column(name = "name")
-    private String name = "Mobiliar";
+    private String name = NAME;
+
+    private final static String NAME = "Mobiliar ";
 
     private static final List<String> ROW_NAMES = Arrays.asList("Bettgestell", "Matratze", "Schreibtisch", "Bücherregal", "Schrank", "Stuhl", "Nachtvorhang", "Tagesvorhang", "Kleiderbügel", "Decke", "Kissen", "Spannbettlaken", "Bettbezüge", "TV-Empfänger Box inkl. Kabel", "TV-Fernbedingung", "TV Sat Access Card");
     private static final List<Integer> COUNT = Arrays.asList(1, 1, 1, 1, 1, 2, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1);
@@ -841,7 +843,7 @@ public class FurnitureState extends Model implements EntryStateInterface {
     }
 
     @Override
-    public void saveCheckEntries(List<String> check, String ex) {
+    public void saveCheckEntries(List<String> check) {
         this.setBrokenBedFrame(Integer.parseInt(check.get(0)));
         this.setBrokenMattress(Integer.parseInt(check.get(1)));
         this.setBrokenDesk(Integer.parseInt(check.get(2)));
@@ -859,8 +861,6 @@ public class FurnitureState extends Model implements EntryStateInterface {
         this.setBrokenTVControl(Integer.parseInt(check.get(14)));
         this.setBrokenAccessCard(Integer.parseInt(check.get(15)));
         this.save();
-
-        updateFurnitureName(ex);
     }
 
     @Override
@@ -956,6 +956,26 @@ public class FurnitureState extends Model implements EntryStateInterface {
             case 15:
                 this.setAccessCardPicture(picture);
                 break;
+        }
+        this.save();
+    }
+
+    @Override
+    public void updateName(String newEx, String oldEx) {
+        this.setName(NAME);
+        this.save();
+
+        int i = 0;
+        while (i < createBrokenList(this).size()) {
+            if (createBrokenList(this).get(i) > 0) {
+                this.setName(this.getName().concat(newEx));
+                break;
+            }
+            i++;
+        }
+
+        if (createCheckOldList(this).contains(true)) {
+            this.setName(this.getName().concat(oldEx));
         }
         this.save();
     }
@@ -1073,23 +1093,6 @@ public class FurnitureState extends Model implements EntryStateInterface {
     }
 
     /**
-     * set the name of the furniture
-     * if some broken entries are greater then 0 add an exclamation mark to the furniture name
-     * @param ex
-     */
-    private void updateFurnitureName(String ex) {
-        int i = 0;
-        while (i < createBrokenList(this).size()) {
-            if (createBrokenList(this).get(i) > 0) {
-                this.setName("Mobiliar " + ex);
-                break;
-            } else
-                this.setName("Mobiliar");
-            i++;
-        }
-        this.save();
-    }
-    /**
      * search it in the db with the apartment id and protocol id
      * @param room
      * @param ap
@@ -1103,9 +1106,10 @@ public class FurnitureState extends Model implements EntryStateInterface {
      * fill in the db with initial entries
      * @param aps
      * @param image
-     * @param ex
+     * @param newEx
+     * @param oldEx
      */
-    public static void initializeRoomFurniture(List<AP> aps, byte[] image, String ex) {
+    public static void initializeRoomFurniture(List<AP> aps, byte[] image, String newEx, String oldEx) {
         for (AP ap : aps) {
             FurnitureState furniture = new FurnitureState(ap.getRoom(), ap);
             furniture.setBrokenMattress(1);
@@ -1115,32 +1119,39 @@ public class FurnitureState extends Model implements EntryStateInterface {
             furniture.setBrokenChair(1);
             furniture.setChairComment("Stuhlbein abgebrochen");
             furniture.setChairPicture(image);
-            furniture.setName(furniture.getName() + " " + ex);
+            furniture.setName(NAME + newEx + oldEx);
             furniture.save();
         }
     }
 
-    public static Table2 createPDF(FurnitureState furniture, float posX, float posY, float pageWidth, byte[] cross) {
+    /**
+     * fill in the entries in a table to display it in a pdf
+     * @param furniture
+     * @param posX
+     * @param posY
+     * @param pageWidth
+     * @param headers
+     * @param cross
+     * @return
+     */
+    public static Table2 createTable(FurnitureState furniture, float posX, float posY, float pageWidth, String[] headers, byte[] cross) {
         Table2 table = new Table2(posX, posY, pageWidth, 700);
 
         table.getColumns().add(100);
         table.getColumns().add(42);
         table.getColumns().add(50);
         table.getColumns().add(50);
-        table.getColumns().add(100);
-        table.getColumns().add(100);
+        table.getColumns().add(120);
+        table.getColumns().add(153);
 
         Row2 header = table.getRows().add(30);
         header.getCellDefault().setVAlign(VAlign.CENTER);
         header.getCellDefault().setAlign(TextAlign.CENTER);
         header.getCellDefault().setFontSize(11);
         header.getCellDefault().setFont(Font.getHelveticaBold());
-        header.getCells().add("");
-        header.getCells().add("Anzahl");
-        header.getCells().add("fehlend/defekt");
-        header.getCells().add("alter Eintrag");
-        header.getCells().add("Kommentar");
-        header.getCells().add("Foto");
+        for (int i = 0; i < headers.length; i++) {
+            header.getCells().add(headers[i]);
+        }
 
         int i = 0;
         for (String s : ROW_NAMES) {
@@ -1175,14 +1186,6 @@ public class FurnitureState extends Model implements EntryStateInterface {
 
             i++;
         }
-        Row2 row2 = table.getRows().add(100);
-        row2.getCells().add("aa");
-        row2 = table.getRows().add(100);
-        row2.getCells().add("bb");
-        row2 = table.getRows().add(100);
-        row2.getCells().add("cc");
-        row2 = table.getRows().add(100);
-        row2.getCells().add("dd");
         return table;
     }
 }

@@ -76,21 +76,32 @@ public class Room extends Model{
      * first add the icon
      * if any of the children contains an exclamation mark in his name, then add one to the room name
      * @param ap
-     * @param ex
+     * @param newEx
+     * @param oldEx
      * @param icon
      * @return
      */
-    public static String updateRoomName(AP ap, String ex, String icon) {
+    public static String updateRoomName(AP ap, String newEx, String oldEx, String icon) {
         Room room = Room.findByApartment(ap.getApartment());
+        room.setName(icon + " Zimmer ");
+        room.save();
 
         int i = 0;
         while (i < updateRoomItems(ap).size()) {
-            if (updateRoomItems(ap).get(i).contains(ex)) {
-                room.setName(icon + " Zimmer " + ex);
+            if (updateRoomItems(ap).get(i).contains(newEx)) {
+                room.setName(room.getName().concat(newEx));
                 break;
-            } else
-                room.setName(icon + " Zimmer");
+            }
             i++;
+        }
+
+        int j = 0;
+        while (j < updateRoomItems(ap).size()) {
+            if (updateRoomItems(ap).get(j).contains(oldEx)) {
+                room.setName(room.getName().concat(oldEx));
+                break;
+            }
+            j++;
         }
         room.save();
         return room.getName();

@@ -61,17 +61,17 @@ public class ShowOldFragment extends Fragment {
 
         fileContainer = (LinearLayout) view.findViewById(R.id.fileContainer);
 
+        hv_homeActivity = (HV_HomeActivity) getActivity();
+
         // set buttons on click listener
         btnBack = (Button) view.findViewById(R.id.btnBack);
         btnBack.setTypeface(font);
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().onBackPressed();
+                hv_homeActivity.openPreviousFragment(2);
             }
         });
-
-        hv_homeActivity = (HV_HomeActivity) getActivity();
 
         return view;
     }
@@ -123,7 +123,7 @@ public class ShowOldFragment extends Fragment {
         alertDialogBuilder.setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                getActivity().onBackPressed();
+                hv_homeActivity.openPreviousFragment(2);
             }
         });
         AlertDialog alertDialog = alertDialogBuilder.create();
@@ -188,13 +188,14 @@ public class ShowOldFragment extends Fragment {
     }
 
     /**
-     * TODO
+     * call the root activity to open the open activity
      * @param btnOpen
      */
     private void setOnClickOpen(Button btnOpen) {
         Log.d("Button ID", String.valueOf(btnOpen.getId()));
         currentAP = aps.get(btnOpen.getId());
         Log.d("Open: ", currentAP.getApartment().getHouse().getHV().getName() + " opens AP with the id " + currentAP.getId());
+        hv_homeActivity.callOpenActivity();
     }
 
     /**
@@ -204,7 +205,6 @@ public class ShowOldFragment extends Fragment {
     private void setOnClickEdit(Button btnEdit) {
         Log.d("Button ID", String.valueOf(btnEdit.getId()));
         currentAP = aps.get(btnEdit.getId());
-        currentAP.save();
         Log.d("Edit: ", currentAP.getApartment().getHouse().getHV().getName() + " edits AP with the id " + currentAP.getId());
         hv_homeActivity.callEditActivity(currentAP.getId());
     }
