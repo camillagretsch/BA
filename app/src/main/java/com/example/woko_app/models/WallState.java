@@ -24,30 +24,6 @@ import java.util.List;
 @Table(name = "WallState")
 public class WallState extends Model implements EntryStateInterface{
 
-    @Column(name = "hasNoSpot")
-    private boolean hasNoSpot = true;
-
-    @Column(name = "isSpotOld")
-    private boolean isSpotOld = false;
-
-    @Column(name = "spot_comment")
-    private String spotComment = null;
-
-    @Column(name = "spot_picture")
-    private byte[] spotPicture = null;
-
-    @Column(name = "hasNoHole")
-    private boolean hasNoHole = true;
-
-    @Column(name = "isHoleOld")
-    private boolean isHoleOld = false;
-
-    @Column(name = "hole_comment")
-    private String holeComment = null;
-
-    @Column(name = "hole_picture")
-    private byte[] holePicture = null;
-
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
 
@@ -77,7 +53,7 @@ public class WallState extends Model implements EntryStateInterface{
 
     private final static String NAME = "Wände, Decke ";
 
-    private static final List<String> ROW_NAMES = Arrays.asList("Sind alle Flecken entfernt?", "Sind keine Löcher zusehen?", "Ist alles intakt?");
+    private static final List<String> ROW_NAMES = Arrays.asList("Ist alles intakt?");
 
     public WallState() {
         super();
@@ -99,70 +75,6 @@ public class WallState extends Model implements EntryStateInterface{
         super();
         this.kitchen = kitchen;
         this.ap = ap;
-    }
-
-    public void setHasNoSpot(boolean hasNoSpot) {
-        this.hasNoSpot = hasNoSpot;
-    }
-
-    public boolean hasNoSpot() {
-        return hasNoSpot;
-    }
-
-    public void setIsSpotOld(boolean isSpotOld) {
-        this.isSpotOld = isSpotOld;
-    }
-
-    public boolean isSpotOld() {
-        return isSpotOld;
-    }
-
-    public void setSpotComment(String spotComment) {
-        this.spotComment = spotComment;
-    }
-
-    public String getSpotComment() {
-        return spotComment;
-    }
-
-    public void setSpotPicture(byte[] spotPicture) {
-        this.spotPicture = spotPicture;
-    }
-
-    public byte[] getSpotPicture() {
-        return spotPicture;
-    }
-
-    public void setHasNoHole(boolean hasNoHole) {
-        this.hasNoHole = hasNoHole;
-    }
-
-    public boolean hasNoHole() {
-        return hasNoHole;
-    }
-
-    public void setIsHoleOld(boolean isHoleOld) {
-        this.isHoleOld = isHoleOld;
-    }
-
-    public boolean isHoleOld() {
-        return isHoleOld;
-    }
-
-    public void setHoleComment(String holeComment) {
-        this.holeComment = holeComment;
-    }
-
-    public String getHoleComment() {
-        return holeComment;
-    }
-
-    public void setHolePicture(byte[] holePicture) {
-        this.holePicture = holePicture;
-    }
-
-    public byte[] getHolePicture() {
-        return holePicture;
     }
 
     public void setHasNoDamage(boolean hasNoDamage) {
@@ -319,25 +231,19 @@ public class WallState extends Model implements EntryStateInterface{
 
     @Override
     public void saveCheckEntries(List<String> check) {
-        this.setHasNoSpot(Boolean.parseBoolean(check.get(0)));
-        this.setHasNoHole(Boolean.parseBoolean(check.get(1)));
-        this.setHasNoDamage(Boolean.parseBoolean(check.get(2)));
+        this.setHasNoDamage(Boolean.parseBoolean(check.get(0)));
         this.save();
     }
 
     @Override
     public void saveCheckOldEntries(List<Boolean> checkOld) {
-        this.setIsSpotOld(checkOld.get(0));
-        this.setIsHoleOld(checkOld.get(1));
-        this.setIsDamageOld(checkOld.get(2));
+        this.setIsDamageOld(checkOld.get(0));
         this.save();
     }
 
     @Override
     public void saveCommentsEntries(List<String> comments) {
-        this.setSpotComment(comments.get(0));
-        this.setHoleComment(comments.get(1));
-        this.setDamageComment(comments.get(2));
+        this.setDamageComment(comments.get(0));
         this.save();
     }
 
@@ -345,12 +251,6 @@ public class WallState extends Model implements EntryStateInterface{
     public void savePicture(int pos, byte[] picture) {
         switch (pos) {
             case 0:
-                this.setSpotPicture(picture);
-                break;
-            case 1:
-                this.setHolePicture(picture);
-                break;
-            case 2:
                 this.setDamagePicture(picture);
                 break;
         }
@@ -380,7 +280,7 @@ public class WallState extends Model implements EntryStateInterface{
      * @return
      */
     private static List<Boolean> createCheckList(WallState wall) {
-        return new ArrayList<>(Arrays.asList(wall.hasNoSpot(), wall.hasNoHole(), wall.hasNoDamage()));
+        return new ArrayList<>(Arrays.asList(wall.hasNoDamage()));
     }
 
     /**
@@ -389,7 +289,7 @@ public class WallState extends Model implements EntryStateInterface{
      * @return
      */
     private static List<String> createCommentsList(WallState wall) {
-        return new ArrayList<>(Arrays.asList(wall.getSpotComment(), wall.getHoleComment(), wall.getDamageComment()));
+        return new ArrayList<>(Arrays.asList(wall.getDamageComment()));
     }
 
     /**
@@ -400,7 +300,7 @@ public class WallState extends Model implements EntryStateInterface{
      * @return
      */
     private static List<Boolean> createCheckOldList(WallState wall) {
-        return new ArrayList<>(Arrays.asList(wall.isSpotOld(), wall.isHoleOld(), wall.isDamageOld()));
+        return new ArrayList<>(Arrays.asList(wall.isDamageOld()));
     }
 
     /**
@@ -409,7 +309,7 @@ public class WallState extends Model implements EntryStateInterface{
      * @return
      */
     private static List<byte[]> createPictureList(WallState wall) {
-        return new ArrayList<>(Arrays.asList(wall.getSpotPicture(), wall.getHolePicture(), wall.getDamagePicture()));
+        return new ArrayList<>(Arrays.asList(wall.getDamagePicture()));
     }
 
     /**
@@ -417,14 +317,6 @@ public class WallState extends Model implements EntryStateInterface{
      * @param oldWall
      */
     private void copyOldEntries(WallState oldWall) {
-        this.setHasNoSpot(oldWall.hasNoSpot());
-        this.setIsSpotOld(oldWall.isSpotOld());
-        this.setSpotComment(oldWall.getSpotComment());
-        this.setSpotPicture(oldWall.getSpotPicture());
-        this.setHasNoHole(oldWall.hasNoHole());
-        this.setIsHoleOld(oldWall.isHoleOld());
-        this.setHoleComment(oldWall.getHoleComment());
-        this.setHolePicture(oldWall.getHolePicture());
         this.setHasNoDamage(oldWall.hasNoDamage());
         this.setIsDamageOld(oldWall.isDamageOld());
         this.setDamageComment(oldWall.getDamageComment());
@@ -485,11 +377,9 @@ public class WallState extends Model implements EntryStateInterface{
     public static void initializeRoomWall(List<AP> aps, String ex) {
         for (AP ap : aps) {
             WallState wall = new WallState(ap.getRoom(), ap);
-            wall.setHasNoSpot(false);
-            wall.setSpotComment("Braune Flecken");
             wall.setName(wall.getName() + " " + ex);
-            wall.setHasNoHole(true);
-            wall.setHasNoDamage(true);
+            wall.setDamageComment("Loch in der Wand hinter der Tür");
+            wall.setHasNoDamage(false);
             wall.save();
         }
     }
@@ -499,14 +389,13 @@ public class WallState extends Model implements EntryStateInterface{
      * @param aps
      * @param ex
      */
-    public static void initializeBathroomWall(List<AP> aps, String ex) {
+    public static void initializeBathroomWall(List<AP> aps, byte[] image, String ex) {
         for (AP ap : aps) {
             WallState wall = new WallState(ap.getBathroom(), ap);
-            wall.setHasNoSpot(true);
-            wall.setHasNoHole(false);
-            wall.setHoleComment("Grosses Loch in der Wand bei der Dusche");
-            wall.setName(wall.getName() + " " + ex);
-            wall.setHasNoDamage(true);
+            wall.setName(NAME + ex);
+            wall.setHasNoDamage(false);
+            wall.setDamageComment("grosser brauner fleck");
+            wall.setDamagePicture(image);
             wall.save();
         }
     }
@@ -520,12 +409,6 @@ public class WallState extends Model implements EntryStateInterface{
     public static void initializeKitchenWall(List<AP> aps, byte[] image, String ex) {
         for (AP ap : aps) {
             WallState wall = new WallState(ap.getKitchen(), ap);
-            wall.setHasNoSpot(false);
-            wall.setSpotComment("Brauner Fleck");
-            wall.setName(NAME + ex);
-            wall.setSpotPicture(image);
-            wall.setHasNoHole(true);
-            wall.setHasNoDamage(true);
             wall.save();
         }
     }

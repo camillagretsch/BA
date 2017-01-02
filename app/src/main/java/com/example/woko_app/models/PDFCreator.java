@@ -38,7 +38,7 @@ public class PDFCreator extends Activity {
     private float posY;
     private float padding = 20;
     private float posX = 0;
-    private TenantOld tenantOld;
+    private Tenant tenant;
 
     private byte[] cross;
     private byte[] logo;
@@ -54,11 +54,11 @@ public class PDFCreator extends Activity {
         this.title = title;
         this.cross = cross;
         this.logo = logo;
-        this.tenantOld = ap.getTenantOld();
+        this.tenant = ap.getTenant();
     }
 
     /**
-     *
+     * creates the pdf depending on the apartment type
      */
     public void create() {
         createPage();
@@ -84,6 +84,9 @@ public class PDFCreator extends Activity {
         }
     }
 
+    /**
+     * creates the table for the personal data in the pdf
+     */
     private void createTableForPersonalData() {
         table = new Table2(posX, posY, pageWidth, 700);
 
@@ -93,21 +96,24 @@ public class PDFCreator extends Activity {
         Row2 row = table.getRows().add(20);
         row.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
         row.getCells().add("Strasse, Nr.:");
-        row.getCells().add(tenantOld.getStreetAndNumber());
+        row.getCells().add(tenant.getStreetAndNumber());
 
         row = table.getRows().add(20);
         row.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
         row.getCells().add("PLZ, Stadt, Land");
-        row.getCells().add(tenantOld.getPlz_town_country());
+        row.getCells().add(tenant.getPlz_town_country());
 
         row = table.getRows().add(20);
         row.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
         row.getCells().add("Email:");
-        row.getCells().add(tenantOld.getEmail());
+        row.getCells().add(tenant.getEmail());
 
         addTableToPage("Neue Adresse des Mieters ");
     }
 
+    /**
+     * creates the table for the refunder in the pdf
+     */
     private void createTableForRefund() {
         table = new Table2(posX, posY, pageWidth, 700);
 
@@ -120,7 +126,7 @@ public class PDFCreator extends Activity {
         Row2 row2 = table.getRows().add(20);
         row2.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
 
-        if (tenantOld.isRefunder()) {
+        if (tenant.isRefunder()) {
             row.getCells().add(new Image(cross, 0, 0));
             row2.getCells().add("");
         } else {
@@ -129,11 +135,14 @@ public class PDFCreator extends Activity {
         }
         row.getCells().add("Mieter");
         row2.getCells().add("Andere Person, Name und Adersse:");
-        row2.getCells().add(tenantOld.getOtherRefunder());
+        row2.getCells().add(tenant.getOtherRefunder());
 
         addTableToPage("Rückerstattung der Kaution an ");
     }
 
+    /**
+     * creates the table for the account information in the pdf
+     */
     private void createTableForAccountInfromations() {
         table = new Table2(posX, posY, pageWidth, 700);
 
@@ -148,7 +157,7 @@ public class PDFCreator extends Activity {
         Row2 row3 = table.getRows().add(20);
         row3.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
 
-        if (Account.POST.equals(tenantOld.getAccount())) {
+        if (Account.POST.equals(tenant.getAccount())) {
             row.getCells().add(new Image(cross, 0, 0));
             row3.getCells().add("");
         } else {
@@ -160,35 +169,38 @@ public class PDFCreator extends Activity {
 
         row2.getCells().add("");
         row2.getCells().add("    Account Nummer:");
-        row2.getCells().add(tenantOld.getAccountNumber());
+        row2.getCells().add(tenant.getAccountNumber());
 
         row3 = table.getRows().add(20);
         row3.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
         row3.getCells().add("");
         row3.getCells().add("   Name und Adresse der Bank:");
-        row3.getCells().add(tenantOld.getBankName());
+        row3.getCells().add(tenant.getBankName());
 
         row3 = table.getRows().add(20);
         row3.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
         row3.getCells().add("");
         row3.getCells().add("   SWIFT:");
-        row3.getCells().add(tenantOld.getSwift());
+        row3.getCells().add(tenant.getSwift());
 
         row3 = table.getRows().add(20);
         row3.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
         row3.getCells().add("");
         row3.getCells().add("   IBAN");
-        row3.getCells().add(tenantOld.getIban());
+        row3.getCells().add(tenant.getIban());
 
         row3 = table.getRows().add(20);
         row3.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
         row3.getCells().add("");
         row3.getCells().add("   Account und Clearing Nummer:");
-        row3.getCells().add(tenantOld.getAccountClearingNumber());
+        row3.getCells().add(tenant.getAccountClearingNumber());
 
         addTableToPage("Kontoangaben");
     }
 
+    /**
+     * creates the table for the signatures in the pdf
+     */
     private void createTableForSignature() {
         table = new Table2(posX, posY, pageWidth, 700);
 
@@ -198,20 +210,20 @@ public class PDFCreator extends Activity {
         Row2 row = table.getRows().add(20);
         row.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
         row.getCells().add("");
-        row.getCells().add("Datum: " + tenantOld.getDate());
+        row.getCells().add("Datum: " + tenant.getDate());
 
         row = table.getRows().add(20);
         row.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
         row.getCells().add("Mieter:");
-        if (null != tenantOld.getSignature()) {
-            row.getCells().add(new Image(tenantOld.getSignature(), 0, 0));
+        if (null != tenant.getSignature()) {
+            row.getCells().add(new Image(tenant.getSignature(), 0, 0));
         }
 
         row = table.getRows().add(20);
         row.getCellDefault().getBorder().setLineStyle(LineStyle.getNone());
         row.getCells().add("Nachmieter:");
-        if (null != ap.getSignatureTenant()) {
-            row.getCells().add(new Image(ap.getSignatureTenant(), 0, 0));
+        if (null != ap.getSignatureNewTenant()) {
+            row.getCells().add(new Image(ap.getSignatureNewTenant(), 0, 0));
         }
 
         row = table.getRows().add(20);
@@ -225,7 +237,7 @@ public class PDFCreator extends Activity {
     }
 
     /**
-     *
+     * creates the table for the kicthen entries in the pdf
      */
     private void createTablesForKitchen() {
         label = new Label("Küche", posX, posY, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
@@ -267,7 +279,7 @@ public class PDFCreator extends Activity {
     }
 
     /**
-     *
+     * creates the table for the bathroom entries in the pdf
      */
     private void creatTablesForBathroom() {
         label = new Label("Badezimmer", posX, posY, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
@@ -297,7 +309,7 @@ public class PDFCreator extends Activity {
     }
 
     /**
-     *
+     * creates the table for the room entries in the pdf
      */
     private void createTablesForRoom() {
         label = new Label("Zimmer", posX, posY, pageWidth, 0, Font.getHelvetica(), 18, TextAlign.LEFT);
@@ -330,7 +342,7 @@ public class PDFCreator extends Activity {
     }
 
     /**
-     *
+     * creates the table for the balcony and basement entries in the pdf
      */
     private void createTablesForBalconyAndBasement() {
         table = BalconyState.createTable(BalconyState.findByApartmentAndAP(ap.getApartment(), ap), posX, posY, pageWidth, header1, cross);
@@ -341,7 +353,7 @@ public class PDFCreator extends Activity {
     }
 
     /**
-     *
+     * add a table to the page of the pdf
      * @param text
      */
     private void addTableToPage(String text) {
@@ -367,7 +379,7 @@ public class PDFCreator extends Activity {
     }
 
     /**
-     *
+     * add a text to the page of the pdf
      * @param text
      */
     private void addTextAreaToPage(String text) {
@@ -377,7 +389,7 @@ public class PDFCreator extends Activity {
     }
 
     /**
-     *
+     * creates a new page in the pdf
      */
     private void createPage() {
         page = new Page(PageSize.A4);

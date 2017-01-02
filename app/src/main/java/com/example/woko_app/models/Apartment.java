@@ -96,7 +96,7 @@ public class Apartment extends Model {
     }
 
     /**
-     * creates shared apartments and studios and save it to the table
+     * fill in the db with initial data
      * @param houses
      * @return
      */

@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Toast;
 
 
@@ -70,13 +71,15 @@ public class SaveFragment extends Fragment {
 
     private Document document;
     private static String path;
+
     private Button btnClose;
     private Button btnSend;
     private Button btnLogout;
-
-
+    private Button btnEmail;
     private CheckBox check1;
     private CheckBox check2;
+    private CheckBox check3;
+    private EditText etEmail;
 
     private User currentUser;
     private AP currentAP;
@@ -103,12 +106,15 @@ public class SaveFragment extends Fragment {
         btnClose.setTypeface(font);
         btnSend = (Button) view.findViewById(R.id.btnSend);
         btnSend.setTypeface(font);
+        btnSend.setEnabled(false);
         btnLogout = (Button) view.findViewById(R.id.btnLogout);
         btnLogout.setTypeface(font);
-
+        btnEmail = (Button) view.findViewById(R.id.btnEmail);
 
         check1 = (CheckBox) view.findViewById(R.id.check1);
         check2 = (CheckBox) view.findViewById(R.id.check2);
+        check3 = (CheckBox) view.findViewById(R.id.check3);
+        etEmail = (EditText) view.findViewById(R.id.etEmail);
 
         return view;
     }
@@ -125,15 +131,18 @@ public class SaveFragment extends Fragment {
         }
 
         path = Environment.getExternalStorageDirectory() + "/Abnahmeprotokoll_" + currentAP.getName() + ".pdf";
+
         createPDF();
         setCheckBoxText();
         setOnClickLogout();
         setOnClickClose();
-        setOnClickSend();
+        setOnClickSendEmail();
     }
 
     /**
-     *
+     * logout button is pressed
+     * set user to offline
+     * opens the login screen
      */
     private void setOnClickLogout() {
         btnLogout.setOnClickListener(new View.OnClickListener() {
@@ -148,7 +157,8 @@ public class SaveFragment extends Fragment {
     }
 
     /**
-     *
+     * close button is pressed
+     * opens the home activity
      */
     private void setOnClickClose() {
         btnClose.setOnClickListener(new View.OnClickListener() {
@@ -161,16 +171,17 @@ public class SaveFragment extends Fragment {
     }
 
     /**
-     *
+     * email button is pressed
+     * opens an email account where the AP as a PDF in attach
      */
-    private void setOnClickSend() {
-        btnSend.setOnClickListener(new View.OnClickListener() {
+    private void setOnClickSendEmail() {
+        btnEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Uri uri = Uri.fromFile(new File(path));
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
                 emailIntent.putExtra(Intent.EXTRA_EMAIL, "");
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Abnahmeprotokoll");
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, currentAP.getName());
                 emailIntent.setType("application/pdf");
                 emailIntent.putExtra(Intent.EXTRA_STREAM, uri);
                 startActivity(Intent.createChooser(emailIntent, "Send email"));
@@ -179,7 +190,8 @@ public class SaveFragment extends Fragment {
     }
 
     /**
-     *
+     * set the text to the checkboxes
+     * text depends on the users role
      */
     private void setCheckBoxText() {
         if (Role.HAUSVERANTWORTLICHER.equals(currentUser.getRole())) {
@@ -189,7 +201,7 @@ public class SaveFragment extends Fragment {
     }
 
     /**
-     *
+     * create the pdf with all the entries from the edit activity
      */
     private void createPDF() {
         document = new Document();

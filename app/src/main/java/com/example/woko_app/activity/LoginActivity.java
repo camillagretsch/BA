@@ -143,8 +143,8 @@ public class LoginActivity extends Activity {
         FloorState.initializeBathroomFloor(aps, newEx);
         FloorState.initializeKitchenFloor(aps);
         WallState.initializeRoomWall(aps, newEx);
-        WallState.initializeBathroomWall(aps, newEx);
         bitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.kitchen_wall_spot)).getBitmap();
+        WallState.initializeBathroomWall(aps, PersonalSerializer.getBytes(bitmap), newEx);
         WallState.initializeKitchenWall(aps, PersonalSerializer.getBytes(bitmap), newEx);
         DoorState.initializeRoomDoor(aps, newEx);
         DoorState.initializeBathroomDoor(aps);

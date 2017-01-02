@@ -232,7 +232,7 @@ public class FurnitureState extends Model implements EntryStateInterface {
 
     private final static String NAME = "Mobiliar ";
 
-    private static final List<String> ROW_NAMES = Arrays.asList("Bettgestell", "Matratze", "Schreibtisch", "Bücherregal", "Schrank", "Stuhl", "Nachtvorhang", "Tagesvorhang", "Kleiderbügel", "Decke", "Kissen", "Spannbettlaken", "Bettbezüge", "TV-Empfänger Box inkl. Kabel", "TV-Fernbedingung", "TV Sat Access Card");
+    private static final List<String> ROW_NAMES = Arrays.asList("Bettgestell", "Matratze", "Schreibtisch", "Bücherregal", "Schrank", "Stuhl", "Nachtvorhang", "Tagesvorhang", "Kleiderbügel", "Bettdecke", "Kissen", "Spannbettlaken", "Bettbezüge", "TV-Empfänger Box inkl. Kabel", "TV-Fernbedingung", "TV Sat Access Card");
     private static final List<Integer> COUNT = Arrays.asList(1, 1, 1, 1, 1, 2, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1);
 
     public FurnitureState() {

@@ -57,6 +57,9 @@ public class OpenActivity extends Activity {
         currentAP = AP.findById(intent.getLongExtra("ID", 0000000));
     }
 
+    /**
+     * open the created pdf
+     */
     private void openPDF() {
         Uri uri = Uri.fromFile(new File(path));
         try
@@ -73,7 +76,7 @@ public class OpenActivity extends Activity {
     }
 
     /**
-     *
+     * create the pdf with all the entries from the edit activity
      */
     private void createPDF() {
         document = new Document();

@@ -454,10 +454,6 @@ public class VentilationState extends Model implements EntryStateInterface {
     public static void initializeKitchenVentilation(List<AP> aps, byte[] image, String ex) {
         for (AP ap : aps) {
             VentilationState ventilation = new VentilationState(ap.getKitchen(), ap);
-            ventilation.setHasNoDamage(false);
-            ventilation.setDamageComment("Verdeckung ist abgebrochen");
-            ventilation.setName(NAME + ex);
-            ventilation.setDamagePicture(image);
             ventilation.save();
         }
     }

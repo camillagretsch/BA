@@ -9,6 +9,10 @@ import java.util.List;
  */
 public interface EntryStateInterface {
 
+    /**
+     *
+     * @param dataGridFragment
+     */
     public void getEntries(DataGridFragment dataGridFragment);
 
     public void duplicateEntries(AP ap, AP oldAP);

@@ -36,9 +36,6 @@ public class Room extends Model{
     @Column(name = "room_number", notNull = true)
     private int roomNumber;
 
-    @Column(name = "APs", onUpdate = Column.ForeignKeyAction.CASCADE)
-    private List<AP> APs = new ArrayList<>();
-
     @Column(name = "name")
     private String name = "Zimmer";
 

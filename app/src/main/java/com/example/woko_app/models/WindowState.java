@@ -65,7 +65,7 @@ public class WindowState extends Model implements EntryStateInterface {
 
     private final static String NAME = "Fenster ";
 
-    private static final List<String> ROW_NAMES = Arrays.asList("Sind gereinigt?", "Ist alles intakt?");
+    private static final List<String> ROW_NAMES = Arrays.asList("Sind sauber?", "Ist alles intakt?");
 
     public WindowState() {
         super();

@@ -24,6 +24,7 @@
     <string name="save"> Speichern</string>
     <string name="close"> Schliessen</string>
     <string name="stop_message">Möchten sie das Protokoll wirklich schliessen?</string>
+    <string name="no_picture">Es kann kein Foto aufgenommen werden, da kein Schaden oder Mangel eingetragen ist!</string>
 
     <!-- Datagrid Fragment -->
     <string-array name="header_variante1">
@@ -48,9 +49,9 @@
     <string name="street_nr">Strasse, Nr.:</string>
     <string name="PLZ_town_contry">PLZ, Stadt, Land: </string>
     <string name="email">Email: </string>
-    <string name="refund">Rückerstattung der Kaution an</string>
+    <string name="refund">Kautionsrückzahlung an</string>
     <string name="tenant">Mieter</string>
-    <string name="other_person">Andere Person, Name und Adresse: </string>
+    <string name="other_person">Andere Person; Name und Adresse: </string>
     <string name="account_info">Kontoangaben</string>
     <string name="post_account">Post Account</string>
     <string name="account_number">Account Nummer</string>
@@ -112,12 +113,13 @@
     <string name="create_new">neues Protokoll erstellen</string>
 
     <!-- Save Fragment -->
-    <string name="sendEmail">Mail mit Protokoll im Anhang</string>
+    <string name="sendEmail">Mail mit Protokoll im Anhang öffnen</string>
     <string name="message">Benachrichtigung an: </string>
-    <string name="hintEmail">Email Adresse</string>
+    <string name="hintEmail">max.muster@mail.com</string>
     <string name="hintMessage">Nachricht</string>
     <string name="HW">Hauswart</string>
     <string name="VW">Verwaltung</string>
     <string name="saved">Protokoll wurde gespeichert</string>
+    <string name="toOther">An: </string>
 
 </resources>

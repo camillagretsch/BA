@@ -58,45 +58,11 @@
         <item name="android:padding">5sp</item>
     </style>
 
-    <style name="CheckBoxStyle" parent="android:Widget.Button">
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_gravity">center</item>
-    </style>
-
     <style name="RowStyleGreyDark" parent="android:Widget">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:background">@color/grey_dark</item>
         <item name="android:gravity">center</item>
-    </style>
-
-    <style name="RowStyleGreyHell" parent="android:Widget">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:background">@color/grey_hell</item>
-        <item name="android:gravity">center</item>
-    </style>
-
-    <style name="RowStyleWhite" parent="android:Widget">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">match_parent</item>
-    </style>
-
-    <style name="CommentStyle" parent="android:Widget.TextView">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:layout_gravity">center</item>
-
-    </style>
-
-    <style name="PictureStyle" parent="android:Widget.TextView">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:textSize">40sp</item>
-        <item name="android:padding">5sp</item>
-        <item name="android:text">@string/picture_btn</item>
     </style>
 
     <style name="SpinnerStyle" parent="android:Widget.Spinner.DropDown"></style>

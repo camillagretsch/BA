@@ -4,19 +4,13 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
-import com.cete.dynamicpdf.WebColor;
-import com.cete.dynamicpdf.pageelements.Column2;
-import com.cete.dynamicpdf.pageelements.Row2;
-import com.cete.dynamicpdf.pageelements.Table2;
 import com.example.woko_app.constants.Account;
 
-import java.util.List;
-
 /**
- * Created by camillagretsch on 23.09.16.
+ *  Created by camillagretsch on 23.09.16.
  */
-@Table(name = "TenantOld")
-public class TenantOld extends Model{
+@Table(name = "Tenant")
+public class Tenant extends Model {
 
     @Column(name = "name")
     private String name = null;
@@ -61,13 +55,13 @@ public class TenantOld extends Model{
     private byte[] signature = null;
 
     @Column(name = "date")
-    private String date = null;
+    private String date;
 
-    public TenantOld() {
+    public Tenant() {
         super();
     }
 
-    public TenantOld(AP ap) {
+    public Tenant(AP ap) {
         super();
         this.ap = ap;
     }
@@ -184,30 +178,30 @@ public class TenantOld extends Model{
         return date;
     }
 
-    public static TenantOld findById(long id) {
-        return new Select().from(TenantOld.class).where("id = ?", id).executeSingle();
+    public static Tenant findById(long id) {
+        return new Select().from(Tenant.class).where("id = ?", id).executeSingle();
     }
 
     /**
      * fill in the db with initial entries
      * @return
      */
-    public static TenantOld initializeTenantOld() {
-            TenantOld tenantOld = new TenantOld();
-            tenantOld.setRefunder(true);
-            tenantOld.setName("Tim Müller");
-            tenantOld.setAccount(Account.BANK);
-            tenantOld.save();
-        return tenantOld;
+    public static Tenant initializeTenant() {
+        Tenant tenant = new Tenant();
+        tenant.setRefunder(true);
+        tenant.setName("Tim Müller");
+        tenant.setAccount(Account.BANK);
+        tenant.save();
+        return tenant;
     }
 
     /**
      * create a new tenant
      * @return
      */
-    public static TenantOld saveNewTenantOld() {
-        TenantOld tenantOld = new TenantOld();
-        tenantOld.save();
-        return tenantOld;
+    public static Tenant saveNewTenant() {
+        Tenant tenant = new Tenant();
+        tenant.save();
+        return tenant;
     }
 }

@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -43,6 +45,8 @@ import com.example.woko_app.models.SocketState;
 import com.example.woko_app.models.VentilationState;
 import com.example.woko_app.models.WallState;
 import com.example.woko_app.models.WindowState;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +129,7 @@ public class DataGridFragment extends Fragment {
     }
 
     /**
-     * checks which model class has to be called
+     * check which model class has to be called
      * depends on the child content
      */
     private void switchCaseTableEntries() {
@@ -178,13 +182,19 @@ public class DataGridFragment extends Fragment {
      * set the header of the table
      */
     public void setTableHeader(String[] headerNames) {
-        TableRow header = new TableRow(new ContextThemeWrapper(getActivity(), R.style.RowStyleGreyDark), null);
-        table.addView(header);
+        TableRow row = new TableRow(getActivity());
+        row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+        row.setGravity(Gravity.CENTER);
+        row.setBackgroundColor(getActivity().getResources().getColor(R.color.grey_dark));
+        table.addView(row);
 
         for (int i = 0; i < headerNames.length; i++) {
-            TextView column = new TextView(new ContextThemeWrapper(getActivity(), R.style.TableHeaderStyle), null);
+            TextView column = new TextView(getActivity());
+            column.setBackground(getActivity().getResources().getDrawable(R.drawable.table_header));
+            column.setTextSize(20);
+            column.setGravity(Gravity.CENTER);
             column.setText(headerNames[i]);
-            header.addView(column);
+            row.addView(column);
         }
     }
 
@@ -194,29 +204,56 @@ public class DataGridFragment extends Fragment {
      */
     public void setTableContentVariante1() {
         for (int i = 0; i < rowNames.size(); i++) {
-            TableRow row;
-            if (i % 2 == 0) {
-                row = new TableRow(new ContextThemeWrapper(getActivity(), R.style.RowStyleGreyHell), null);
-            } else {
-                row = new TableRow(new ContextThemeWrapper(getActivity(), R.style.RowStyleWhite), null);
-            }
+            TableRow row = new TableRow(getActivity());
+            row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
             row.setId(i);
+            row.setPadding(5, 0, 0, 0);
             table.addView(row);
             // set first entry of this row
-            titleColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.TextViewStyle), null);
+            titleColumn = new TextView(getActivity());
+            titleColumn.setMaxWidth(280);
+            titleColumn.setTextSize(getActivity().getResources().getDimension(R.dimen.textsize_table));
             titleColumn.setText(rowNames.get(i));
+            titleColumn.measure(0, 0);
+            titleColumn.setMinimumHeight(titleColumn.getMeasuredHeight() + 15);
             row.addView(titleColumn);
             // set checkbox for the answer true
-            yesColumn = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
-            yesColumn.setText("Ja");
+            yesColumn = new CheckBox(getActivity());
             row.addView(yesColumn);
             // set checkbox for the answer false
-            noColumn = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
-            noColumn.setText("Nein");
+            noColumn = new CheckBox(getActivity());
             row.addView(noColumn);
             // set checkbox for the answer old
-            oldColumn = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
+            oldColumn = new CheckBox(getActivity());
             row.addView(oldColumn);
+            // set editview for the comment
+            commentColumn = new TextView(getActivity());
+            commentColumn.setMaxWidth(200);
+            commentColumn.setMaxHeight(titleColumn.getMeasuredHeight());
+            commentColumn.setTextSize(getActivity().getResources().getDimension(R.dimen.textsize_table));
+            commentColumn.setGravity(Gravity.CENTER);
+            commentColumn.setText(comments.get(i));
+            row.addView(commentColumn);
+            // set textview for the camera or picture icon
+            pictureColumn = new TextView(getActivity());
+            pictureColumn.setTextSize(getActivity().getResources().getDimension(R.dimen.picture_size));
+            pictureColumn.setGravity(Gravity.CENTER);
+            pictureColumn.setTypeface(font);
+            row.addView(pictureColumn);
+
+            if (i % 2 == 0) {
+                row.setBackgroundColor(getActivity().getResources().getColor(R.color.grey_hell));
+                yesColumn.setBackgroundColor(getActivity().getResources().getColor(R.color.grey_hell));
+                noColumn.setBackgroundColor(getActivity().getResources().getColor(R.color.grey_hell));
+                oldColumn.setBackgroundColor(getActivity().getResources().getColor(R.color.grey_hell));
+            } else {
+                row.setBackgroundColor(getActivity().getResources().getColor(R.color.white));
+                yesColumn.setBackgroundColor(getActivity().getResources().getColor(R.color.white));
+                noColumn.setBackgroundColor(getActivity().getResources().getColor(R.color.white));
+                oldColumn.setBackgroundColor(getActivity().getResources().getColor(R.color.white));
+            }
+
+
             if (check.get(i) == true) {
                 yesColumn.setChecked(true);
                 yesColumn.setEnabled(false);
@@ -228,20 +265,11 @@ public class DataGridFragment extends Fragment {
             if (checkOld.get(i) == true) {
                 oldColumn.setChecked(true);
             }
-            // set editview for the comment
-            commentColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.CommentStyle), null);
-            commentColumn.setText(comments.get(i));
-            row.addView(commentColumn);
-            // set textview for the camera or picture icon
-            pictureColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.PictureStyle), null);
-
             if (tableEntries.countPicturesOfLast5Years(i, tableEntries) > 0) {
                 pictureColumn.setText(getActivity().getResources().getText(R.string.picture_btn));
             } else {
                 pictureColumn.setText(getActivity().getResources().getText(R.string.camera_icon));
             }
-            pictureColumn.setTypeface(font);
-            row.addView(pictureColumn);
 
             setOnClickPicture();
             setOnClickYes();
@@ -257,20 +285,21 @@ public class DataGridFragment extends Fragment {
      */
     public void setTableContentVarainte2() {
         for (int i = 0; i < rowNames.size(); i++) {
-            TableRow row;
-            if (i % 2 == 0) {
-                row = new TableRow(new ContextThemeWrapper(getActivity(), R.style.RowStyleGreyHell), null);
-            } else {
-                row = new TableRow(new ContextThemeWrapper(getActivity(), R.style.RowStyleWhite), null);
-            }
+            TableRow row = new TableRow(getActivity());
+            row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
             row.setId(i);
+            row.setPadding(5, 0, 0, 0);
             table.addView(row);
             // set first entry of this row
-            titleColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.TextViewStyle), null);
+            titleColumn = new TextView(getActivity());
+            titleColumn.setMaxWidth(150);
+            titleColumn.setTextSize(getActivity().getResources().getDimension(R.dimen.textsize_table));
             titleColumn.setText(rowNames.get(i));
+            titleColumn.measure(0, 0);
+            titleColumn.setMinimumHeight(titleColumn.getMeasuredHeight() + 15);
             row.addView(titleColumn);
             // set the textview for the number of items
-            countColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.TextViewStyle), null);
+            countColumn = new TextView(getActivity());
             countColumn.setGravity(Gravity.CENTER);
             countColumn.setText(count.get(i).toString());
             row.addView(countColumn);
@@ -284,28 +313,43 @@ public class DataGridFragment extends Fragment {
             brokenColumn.setSelection(countBroken.get(i));
             row.addView(brokenColumn);
             // set checkbox for the answer old
-            oldColumn = new CheckBox(new ContextThemeWrapper(getActivity(), R.style.CheckBoxStyle), null);
+            oldColumn = new CheckBox(getActivity());
             row.addView(oldColumn);
+            // set editview for the comment
+            commentColumn = new TextView(getActivity());
+            commentColumn.setMaxWidth(200);
+            commentColumn.setMaxHeight(titleColumn.getMeasuredHeight());
+            commentColumn.setTextSize(getActivity().getResources().getDimension(R.dimen.textsize_table));
+            commentColumn.setGravity(Gravity.CENTER);
+            commentColumn.setText(comments.get(i));
+            row.addView(commentColumn);
+            // set textview for the camera or picture icon
+            pictureColumn = new TextView(getActivity());
+            pictureColumn.setTextSize(getActivity().getResources().getDimension(R.dimen.picture_size));
+            pictureColumn.setGravity(Gravity.CENTER);
+            pictureColumn.setTypeface(font);
+            row.addView(pictureColumn);
+            if (i % 2 == 0) {
+                row.setBackgroundColor(getActivity().getResources().getColor(R.color.grey_hell));
+                oldColumn.setBackgroundColor(getActivity().getResources().getColor(R.color.grey_hell));
+            } else {
+                row.setBackgroundColor(getActivity().getResources().getColor(R.color.white));
+                oldColumn.setBackgroundColor(getActivity().getResources().getColor(R.color.white));
+            }
+
             if (checkOld.get(i)) {
                 oldColumn.setChecked(true);
             }
             if (countBroken.get(i) == 0) {
                 oldColumn.setEnabled(false);
+                commentColumn.setEnabled(false);
             }
-            // set editview for the comment
-            commentColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.CommentStyle), null);
-            commentColumn.setText(comments.get(i));
-            row.addView(commentColumn);
-            // set textview for the camera or picture icon
-            pictureColumn = new TextView(new ContextThemeWrapper(getActivity(), R.style.PictureStyle), null);
 
             if (tableEntries.countPicturesOfLast5Years(i, tableEntries) > 0) {
                 pictureColumn.setText(getActivity().getResources().getText(R.string.picture_btn));
             } else {
                 pictureColumn.setText(getActivity().getResources().getText(R.string.camera_icon));
             }
-            pictureColumn.setTypeface(font);
-            row.addView(pictureColumn);
 
             setOnClickBroken();
             setOnClickComment();
@@ -315,9 +359,9 @@ public class DataGridFragment extends Fragment {
     }
 
     /**
-     *  checked the checkbox when yes is clicked
+     *  check the checkbox when yes is clicked
      *  set the checkbox yes disabled
-     *  unchecked the checkbox no
+     *  uncheck the checkbox no
      *  set the checkbox old disabled
      *  save the changes to the db
      */
@@ -340,9 +384,16 @@ public class DataGridFragment extends Fragment {
                     checkBox = (CheckBox) row.getChildAt(2);
                     checkBox.setChecked(false);
                     checkBox.setEnabled(true);
+                    // set comment disabled
+                    TextView comment = (TextView) row.getChildAt(4);
+                    comment.setEnabled(false);
+                    comment.setText("");
                     // save to DB
                     check.set(row.getId(), true);
                     tableEntries.saveCheckEntries(PersonalSerializer.convertBoolean(check));
+                    tableEntries.savePicture(row.getId(), null);
+                    comments.set(row.getId(), null);
+                    tableEntries.saveCommentsEntries(comments);
                     // exclamation
                     tableEntries.updateName(getActivity().getResources().getString(R.string.exclamation_mark_new), getActivity().getResources().getString(R.string.exclamation_mark_old));
                     hv_editActivity.updateSideView();
@@ -352,9 +403,9 @@ public class DataGridFragment extends Fragment {
     }
 
     /**
-     * checked the checkbox when no is clicked
+     * check the checkbox when no is clicked
      * set the checkbox no disabled
-     * unchecked the checkbox yes
+     * uncheck the checkbox yes
      * set the checkbox old enabled
      * save the changes to the db
      */
@@ -376,6 +427,9 @@ public class DataGridFragment extends Fragment {
                     checkBox = (CheckBox) row.getChildAt(1);
                     checkBox.setChecked(false);
                     checkBox.setEnabled(true);
+                    // set comment enabled
+                    TextView comment = (TextView) row.getChildAt(4);
+                    comment.setEnabled(true);
                     // save to DB
                     check.set(row.getId(), false);
                     tableEntries.saveCheckEntries(PersonalSerializer.convertBoolean(check));
@@ -398,12 +452,20 @@ public class DataGridFragment extends Fragment {
                 Spinner spinner = (Spinner) view.getParent();
                 TableRow row = (TableRow) spinner.getParent();
                 CheckBox checkBox = (CheckBox) row.getChildAt(3);
+                TextView comment = (TextView) row.getChildAt(4);
 
                 if (position == 0) {
                     checkBox.setEnabled(false);
                     checkBox.setChecked(false);
-                } else
+                    comment.setEnabled(false);
+                    comment.setText("");
+                    comments.set(row.getId(), null);
+                    tableEntries.saveCommentsEntries(comments);
+                    tableEntries.savePicture(row.getId(), null);
+                } else {
                     checkBox.setEnabled(true);
+                    comment.setEnabled(true);
+                }
                 // save to DB
                 countBroken.set(row.getId(), position);
                 tableEntries.saveCheckEntries(PersonalSerializer.convertInteger(countBroken));

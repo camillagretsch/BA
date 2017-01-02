@@ -11,7 +11,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
@@ -24,10 +23,7 @@ import com.example.woko_app.activity.SignatureActivity;
 import com.example.woko_app.constants.Account;
 import com.example.woko_app.models.AP;
 import com.example.woko_app.models.PersonalSerializer;
-import com.example.woko_app.models.TenantOld;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.example.woko_app.models.Tenant;
 
 public class PersonalDataFragment extends Fragment {
 
@@ -44,7 +40,9 @@ public class PersonalDataFragment extends Fragment {
     private EditText etSwift;
     private EditText etIban;
     private EditText etClearingNr;
-    private TextView etDate;
+    private TextView etDateOldTenant;
+    private TextView etDateNewTenant;
+    private TextView etDateWoko;
     private static ImageView ivOldTenant;
     private static ImageView ivTenant;
     private static ImageView ivWoko;
@@ -52,7 +50,7 @@ public class PersonalDataFragment extends Fragment {
     private Typeface font;
 
     private static AP currentAP;
-    private static TenantOld tenantOld;
+    private static Tenant tenant;
 
     public PersonalDataFragment() {
         // Required empty public constructor
@@ -83,7 +81,9 @@ public class PersonalDataFragment extends Fragment {
         etSwift = (EditText) view.findViewById(R.id.etSwift);
         etIban = (EditText) view.findViewById(R.id.etIban);
         etClearingNr = (EditText) view.findViewById(R.id.etClearingNr);
-        etDate = (TextView) view.findViewById(R.id.date);
+        etDateOldTenant = (TextView) view.findViewById(R.id.dateOldTenant);
+        etDateNewTenant = (TextView) view.findViewById(R.id.dateNewTenant);
+        etDateWoko = (TextView) view.findViewById(R.id.dateWoko);
         ivOldTenant = (ImageView) view.findViewById(R.id.ivOldTenant);
         ivTenant = (ImageView) view.findViewById(R.id.ivTenant);
         ivWoko = (ImageView) view.findViewById(R.id.ivWoko);
@@ -99,7 +99,7 @@ public class PersonalDataFragment extends Fragment {
 
         if (bundle != null) {
             currentAP = AP.findById(bundle.getLong("AP"));
-            tenantOld = currentAP.getTenantOld();
+            tenant = currentAP.getTenant();
         }
 
         fillInPersonalData();
@@ -109,12 +109,12 @@ public class PersonalDataFragment extends Fragment {
      * fill the data about the tenant from the db in edit views
      */
     private void fillInPersonalData() {
-        //Log.d("tenant with the name", tenantOld.getName());
-        etStreetNr.setText(tenantOld.getStreetAndNumber());
-        etPLZ.setText(tenantOld.getPlz_town_country());
-        etEmail.setText(tenantOld.getEmail());
+        //Log.d("tenant with the name", tenant.getName());
+        etStreetNr.setText(tenant.getStreetAndNumber());
+        etPLZ.setText(tenant.getPlz_town_country());
+        etEmail.setText(tenant.getEmail());
 
-        if (tenantOld.isRefunder()) {
+        if (tenant.isRefunder()) {
             checkTenant.setChecked(true);
             checkTenant.setEnabled(false);
             etOtherPerson.setEnabled(false);
@@ -122,13 +122,13 @@ public class PersonalDataFragment extends Fragment {
         } else {
             checkOtherPerson.setChecked(true);
             checkOtherPerson.setEnabled(false);
-            etOtherPerson.setText(tenantOld.getOtherRefunder());
+            etOtherPerson.setText(tenant.getOtherRefunder());
         }
 
-        if (Account.POST.equals(tenantOld.getAccount())) {
+        if (Account.POST.equals(tenant.getAccount())) {
             checkPost.setChecked(true);
             checkPost.setEnabled(false);
-            etAccNr.setText(tenantOld.getAccountNumber());
+            etAccNr.setText(tenant.getAccountNumber());
             etBankName.setEnabled(false);
             etSwift.setEnabled(false);
             etIban.setEnabled(false);
@@ -136,20 +136,22 @@ public class PersonalDataFragment extends Fragment {
         } else {
             checkBank.setChecked(true);
             checkBank.setEnabled(false);
-            etBankName.setText(tenantOld.getBankName());
-            etSwift.setText(tenantOld.getSwift());
-            etIban.setText(tenantOld.getIban());
-            etClearingNr.setText(tenantOld.getAccountNumber());
+            etBankName.setText(tenant.getBankName());
+            etSwift.setText(tenant.getSwift());
+            etIban.setText(tenant.getIban());
+            etClearingNr.setText(tenant.getAccountNumber());
             etAccNr.setEnabled(false);
         }
 
-        etDate.setText(tenantOld.getDate());
+        etDateOldTenant.setText(tenant.getDate());
+        etDateNewTenant.setText(currentAP.getDateNewTenant());
+        etDateWoko.setText(currentAP.getDateWoko());
 
-        if (null != tenantOld.getSignature()) {
-            ivOldTenant.setImageBitmap(PersonalSerializer.getImage(tenantOld.getSignature()));
+        if (null != tenant.getSignature()) {
+            ivOldTenant.setImageBitmap(PersonalSerializer.getImage(tenant.getSignature()));
         }
-        if (null != currentAP.getSignatureTenant()) {
-            ivTenant.setImageBitmap(PersonalSerializer.getImage(currentAP.getSignatureTenant()));
+        if (null != currentAP.getSignatureNewTenant()) {
+            ivTenant.setImageBitmap(PersonalSerializer.getImage(currentAP.getSignatureNewTenant()));
         }
         if (null != currentAP.getSignatureWoko()) {
             ivWoko.setImageBitmap(PersonalSerializer.getImage(currentAP.getSignatureWoko()));
@@ -169,7 +171,9 @@ public class PersonalDataFragment extends Fragment {
         setOnClickSwift();
         setOnClickIban();
         setOnClickClearingNr();
-        setOnClickDate();
+        setOnClickDateOldTenant();
+        setOnClickDateNewTenant();
+        setOnClickDateWoko();
         setOnClickOldTenantSignature();
         setOnClickTenantSignature();
         setOnClickWokoSignature();
@@ -192,8 +196,8 @@ public class PersonalDataFragment extends Fragment {
 
            @Override
            public void afterTextChanged(Editable s) {
-               tenantOld.setStreetAndNumber(s.toString());
-               tenantOld.save();
+               tenant.setStreetAndNumber(s.toString());
+               tenant.save();
            }
        });
     }
@@ -214,8 +218,8 @@ public class PersonalDataFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tenantOld.setPlz_town_country(s.toString());
-                tenantOld.save();
+                tenant.setPlz_town_country(s.toString());
+                tenant.save();
             }
         });
     }
@@ -237,8 +241,8 @@ public class PersonalDataFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tenantOld.setEmail(s.toString());
-                tenantOld.save();
+                tenant.setEmail(s.toString());
+                tenant.save();
             }
         });
     }
@@ -258,8 +262,8 @@ public class PersonalDataFragment extends Fragment {
                     etOtherPerson.setEnabled(false);
                     etOtherPerson.setText("");
 
-                    tenantOld.setRefunder(isChecked);
-                    tenantOld.save();
+                    tenant.setRefunder(isChecked);
+                    tenant.save();
                 }
             }
         });
@@ -279,8 +283,8 @@ public class PersonalDataFragment extends Fragment {
                     checkTenant.setChecked(false);
                     checkTenant.setEnabled(true);
 
-                    tenantOld.setRefunder(false);
-                    tenantOld.save();
+                    tenant.setRefunder(false);
+                    tenant.save();
                 }
             }
         });
@@ -303,8 +307,8 @@ public class PersonalDataFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tenantOld.setOtherRefunder(s.toString());
-                tenantOld.save();
+                tenant.setOtherRefunder(s.toString());
+                tenant.save();
             }
         });
     }
@@ -331,8 +335,8 @@ public class PersonalDataFragment extends Fragment {
                     etClearingNr.setEnabled(false);
                     etClearingNr.setText("");
 
-                    tenantOld.setAccount(Account.POST);
-                    tenantOld.save();
+                    tenant.setAccount(Account.POST);
+                    tenant.save();
                 }
             }
         });
@@ -355,8 +359,8 @@ public class PersonalDataFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tenantOld.setAccountNumber(s.toString());
-                tenantOld.save();
+                tenant.setAccountNumber(s.toString());
+                tenant.save();
             }
         });
     }
@@ -380,8 +384,8 @@ public class PersonalDataFragment extends Fragment {
                     etAccNr.setEnabled(false);
                     etAccNr.setText("");
 
-                    tenantOld.setAccount(Account.BANK);
-                    tenantOld.save();
+                    tenant.setAccount(Account.BANK);
+                    tenant.save();
                 }
             }
         });
@@ -404,8 +408,8 @@ public class PersonalDataFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tenantOld.setBankName(s.toString());
-                tenantOld.save();
+                tenant.setBankName(s.toString());
+                tenant.save();
             }
         });
     }
@@ -427,8 +431,8 @@ public class PersonalDataFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tenantOld.setSwift(s.toString());
-                tenantOld.save();
+                tenant.setSwift(s.toString());
+                tenant.save();
             }
         });
     }
@@ -450,8 +454,8 @@ public class PersonalDataFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tenantOld.setIban(s.toString());
-                tenantOld.save();
+                tenant.setIban(s.toString());
+                tenant.save();
             }
         });
     }
@@ -473,17 +477,17 @@ public class PersonalDataFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                tenantOld.setAccountClearingNumber(s.toString());
-                tenantOld.save();
+                tenant.setAccountClearingNumber(s.toString());
+                tenant.save();
             }
         });
     }
 
     /**
-     * save the change in the edit view for date to the db
+     * save the change in the text view for date to the db
      */
-    private void setOnClickDate() {
-        etDate.setOnClickListener(new View.OnClickListener() {
+    private void setOnClickDateOldTenant() {
+        etDateOldTenant.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -493,9 +497,9 @@ public class PersonalDataFragment extends Fragment {
                 alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        tenantOld.setDate(datePicker.getDayOfMonth() + "." + (datePicker.getMonth() + 1) + "." + datePicker.getYear());
-                        tenantOld.save();
-                        etDate.setText(tenantOld.getDate());
+                        tenant.setDate(datePicker.getDayOfMonth() + "." + (datePicker.getMonth() + 1) + "." + datePicker.getYear());
+                        tenant.save();
+                        etDateOldTenant.setText(tenant.getDate());
                         getActivity().closeContextMenu();
                     }
                 }).setNegativeButton("Schliessen", new DialogInterface.OnClickListener() {
@@ -511,15 +515,45 @@ public class PersonalDataFragment extends Fragment {
 
     /**
      * open the signatur activity
-     * give the tenantOld id to the signatur activity
+     * give the tenant id to the signatur activity
      */
     private void setOnClickOldTenantSignature() {
         ivOldTenant.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), SignatureActivity.class);
-                intent.putExtra("tenantOld id", tenantOld.getId());
+                intent.putExtra("tenant id", tenant.getId());
                 startActivity(intent);
+            }
+        });
+    }
+
+    /**
+     * save the change in the text view for date to the db
+     */
+    private void setOnClickDateNewTenant() {
+        etDateNewTenant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                final DatePicker datePicker = new DatePicker(getActivity());
+                datePicker.setCalendarViewShown(false);
+                alertDialogBuilder.setView(datePicker);
+                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        currentAP.setDateNewTenant(datePicker.getDayOfMonth() + "." + (datePicker.getMonth() + 1) + "." + datePicker.getYear());
+                        currentAP.save();
+                        etDateNewTenant.setText(currentAP.getDateNewTenant());
+                        getActivity().closeContextMenu();
+                    }
+                }).setNegativeButton("Schliessen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getActivity().closeContextMenu();
+                    }
+                });
+                alertDialogBuilder.create().show();
             }
         });
     }
@@ -536,6 +570,36 @@ public class PersonalDataFragment extends Fragment {
                 intent.putExtra("ap id", currentAP.getId());
                 intent.putExtra("name", "tenant");
                 startActivity(intent);
+            }
+        });
+    }
+
+    /**
+     * save the change in the text view for date to the db
+     */
+    private void setOnClickDateWoko() {
+        etDateWoko.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                final DatePicker datePicker = new DatePicker(getActivity());
+                datePicker.setCalendarViewShown(false);
+                alertDialogBuilder.setView(datePicker);
+                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        currentAP.setDateWoko(datePicker.getDayOfMonth() + "." + (datePicker.getMonth() + 1) + "." + datePicker.getYear());
+                        currentAP.save();
+                        etDateWoko.setText(currentAP.getDateWoko());
+                        getActivity().closeContextMenu();
+                    }
+                }).setNegativeButton("Schliessen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getActivity().closeContextMenu();
+                    }
+                });
+                alertDialogBuilder.create().show();
             }
         });
     }
@@ -561,12 +625,12 @@ public class PersonalDataFragment extends Fragment {
      * when signature activity is closed
      */
     public static void updateSignatureImage() {
-        if (null != tenantOld.getSignature()) {
-            ivOldTenant.setImageBitmap(PersonalSerializer.getImage(tenantOld.getSignature()));
+        if (null != tenant.getSignature()) {
+            ivOldTenant.setImageBitmap(PersonalSerializer.getImage(tenant.getSignature()));
         }
 
-        if (null != currentAP.getSignatureTenant()) {
-            ivTenant.setImageBitmap(PersonalSerializer.getImage(currentAP.getSignatureTenant()));
+        if (null != currentAP.getSignatureNewTenant()) {
+            ivTenant.setImageBitmap(PersonalSerializer.getImage(currentAP.getSignatureNewTenant()));
         }
 
         if (null != currentAP.getSignatureWoko()) {

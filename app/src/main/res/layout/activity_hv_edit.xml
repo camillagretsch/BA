@@ -56,6 +56,46 @@
                 android:textSize="40sp"
                 android:layout_centerInParent="true" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtStreet"
+                android:layout_toRightOf="@+id/hv_edit_title"
+                android:layout_marginLeft="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtStreetNr"
+                android:layout_toRightOf="@+id/txtStreet"
+                android:layout_marginLeft="5sp" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/hv_edit_title"
+                android:layout_below="@+id/txtStreet"
+                android:layout_marginLeft="20sp">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtPLZ" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtTown"
+                    android:layout_marginLeft="5sp" />
+            </LinearLayout>
+            </LinearLayout>
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

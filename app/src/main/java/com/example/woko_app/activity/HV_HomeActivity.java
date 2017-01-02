@@ -370,7 +370,7 @@ public class HV_HomeActivity extends Activity {
     }
 
     /**
-     *
+     * open the previous fragment
      * @param i
      */
     public void openPreviousFragment(int i) {
@@ -417,7 +417,7 @@ public class HV_HomeActivity extends Activity {
     }
 
     /**
-     * get the data form login activity
+     * get the data from login activity
      */
     private void intentReceiver() {
         Intent intent = getIntent();

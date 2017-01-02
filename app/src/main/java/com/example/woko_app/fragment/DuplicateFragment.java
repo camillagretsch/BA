@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.woko_app.R;
@@ -21,7 +20,7 @@ import com.example.woko_app.models.Bathroom;
 import com.example.woko_app.models.House;
 import com.example.woko_app.models.Kitchen;
 import com.example.woko_app.models.Room;
-import com.example.woko_app.models.TenantOld;
+import com.example.woko_app.models.Tenant;
 
 public class DuplicateFragment extends Fragment {
 
@@ -30,9 +29,9 @@ public class DuplicateFragment extends Fragment {
     private Button btnNext;
     private Button btnStop;
 
-    private EditText etAdress;
-    private EditText etApartmentNr;
-    private EditText etRoomNr;
+    private TextView etAdress;
+    private TextView etApartmentNr;
+    private TextView etRoomNr;
 
     private TextView txtRoom;
 
@@ -59,9 +58,9 @@ public class DuplicateFragment extends Fragment {
         //fontawesome
         font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/fontawesome-webfont.ttf");
 
-        etAdress = (EditText) view.findViewById(R.id.etAddress);
-        etApartmentNr = (EditText) view.findViewById(R.id.etApartmentNr);
-        etRoomNr = (EditText) view.findViewById(R.id.etRoomNr);
+        etAdress = (TextView) view.findViewById(R.id.etAddress);
+        etApartmentNr = (TextView) view.findViewById(R.id.etApartmentNr);
+        etRoomNr = (TextView) view.findViewById(R.id.etRoomNr);
 
         txtRoom = (TextView) view.findViewById(R.id.roomNr);
 
@@ -122,10 +121,10 @@ public class DuplicateFragment extends Fragment {
     private void setOnClickNext() {
         AP ap;
         if (ApartmentType.SHARED_APARTMENT.equals(currentApartment.getType())) {
-            ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentRoom, TenantOld.saveNewTenantOld());
+            ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentRoom, Tenant.saveNewTenant());
             ap.setSharedApartmentName(currentHouse.getStreet(), currentHouse.getStreetNumber(), currentApartment.getApartmentNumber(), currentRoom.getRoomNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
         } else {
-            ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentApartment.getRooms().get(0), Bathroom.findByApartment(currentApartment), Kitchen.findByApartment(currentApartment), TenantOld.saveNewTenantOld());
+            ap = new AP(datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear(), currentApartment, currentApartment.getRooms().get(0), Bathroom.findByApartment(currentApartment), Kitchen.findByApartment(currentApartment), Tenant.saveNewTenant());
             ap.setStudioName(currentHouse.getStreet(), currentHouse.getStreetNumber(), currentApartment.getApartmentNumber(), ap.getDay(), ap.getMonth(), ap.getYear());
 
         }

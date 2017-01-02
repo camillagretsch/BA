@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.woko_app.R;
 import com.example.woko_app.fragment.DataGridFragment;
@@ -77,21 +78,28 @@ public class HistoryActivity extends Activity{
         });
         btnCamera = (Button)findViewById(R.id.btnCamera);
         btnCamera.setTypeface(font);
+        //shows camera button only when the checkbox is on yes
         if (tableEntries.getClass().getName().equals(FurnitureState.class.getName())) {
             FurnitureState furniture = (FurnitureState) tableEntries;
             if (furniture.getCountBrokenAtPosition(pos) == 0 || tableEntries.getCheckOldAtPosition(pos) == true) {
                 btnCamera.setVisibility(View.INVISIBLE);
+                Toast.makeText(getBaseContext(), getResources().getString(R.string.no_picture), Toast.LENGTH_LONG).show();
+
             }
         } else if (tableEntries.getClass().getName().equals(CutleryState.class.getName())) {
             CutleryState cutlery = (CutleryState) tableEntries;
             if (cutlery.getCountBrokenAtPosition(pos) == 0 || tableEntries.getCheckOldAtPosition(pos) == true) {
                 btnCamera.setVisibility(View.INVISIBLE);
+                Toast.makeText(getBaseContext(), getResources().getString(R.string.no_picture), Toast.LENGTH_LONG).show();
             }
         } else {
             if (tableEntries.getCheckAtPosition(pos) == true || tableEntries.getCheckOldAtPosition(pos) == true) {
                 btnCamera.setVisibility(View.INVISIBLE);
+                Toast.makeText(getBaseContext(), getResources().getString(R.string.no_picture), Toast.LENGTH_LONG).show();
             }
         }
+
+        // changes to the camera
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,7 +112,7 @@ public class HistoryActivity extends Activity{
     }
 
     /**
-     *
+     * show the picture, comment and date of the last APs on the device
      */
     private void fillInDateAndComment() {
         int i = 1;
@@ -149,6 +157,10 @@ public class HistoryActivity extends Activity{
         }
     }
 
+    /**
+     * calls the setComment and setPicture functions for a specific entry
+     * @param ap
+     */
     private void setCommentAndPicture(AP ap) {
         if (tableEntries.getClass().getName().equals(MattressState.class.getName())) {
             setComment(MattressState.findByRoomAndAP(ap.getRoom(), ap));
@@ -201,11 +213,19 @@ public class HistoryActivity extends Activity{
         }
     }
 
+    /**
+     * gets the comment for this entry for a specific year
+     * @param tableEntries
+     */
     private void setComment(EntryStateInterface tableEntries) {
         comment = null;
         comment = tableEntries.getCommentAtPosition(pos);
     }
 
+    /**
+     * gets the picture for this entry for a specific year
+     * @param tableEntries
+     */
     private void setPicture(EntryStateInterface tableEntries) {
         picture = null;
         if (null != tableEntries.getPictureAtPosition(pos)) {
@@ -213,6 +233,10 @@ public class HistoryActivity extends Activity{
         }
     }
 
+    /**
+     * gets the date of the AP
+     * @param ap
+     */
     private void setDate(AP ap) {
         date = ap.getDay() + "." + ap.getMonth() + "." + ap.getYear();
     }
@@ -227,7 +251,8 @@ public class HistoryActivity extends Activity{
         // save picture to DB
         tableEntries.savePicture(pos, PersonalSerializer.getBytes(bmPicture));
         // show picture on device
-        ivPicture.setImageBitmap(bmPicture);
+        //ivPicture.setImageBitmap(bmPicture);
+        fillInDateAndComment();
     }
 
     @Override
@@ -235,6 +260,9 @@ public class HistoryActivity extends Activity{
 
     }
 
+    /**
+     * get the data from edit activity
+     */
     private void intentReceiver() {
         Intent intent = getIntent();
         currentAP = AP.findById(intent.getLongExtra("AP", 000000));

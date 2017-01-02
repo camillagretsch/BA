@@ -1019,7 +1019,6 @@ public class CutleryState extends Model implements EntryStateInterface {
     public static void initializeKitchenCutlery(List<AP> aps, byte[] image, String ex) {
         for (AP ap : aps) {
             CutleryState cutlery = new CutleryState(ap.getKitchen(), ap);
-            cutlery.setBrokenBigSpoon(2);
             cutlery.setBrokenFryingPan(1);
             cutlery.setFryingPanComment("Kratzer in der Pfanne");
             cutlery.setFryingPanPicture(image);

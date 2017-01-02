@@ -56,6 +56,10 @@ public class HV_EditActivity extends Activity {
     private TextView usericon;
     private TextView txtName;
     private TextView txtRole;
+    private TextView txtStreet;
+    private TextView txtStreetnr;
+    private TextView txtPLZ;
+    private TextView txtTown;
 
     private User currentUser;
     private AP currentAP;
@@ -105,9 +109,9 @@ public class HV_EditActivity extends Activity {
      *  set the header in the screen, it contains
      *  name of the user
      *  type of the user
-     *  logo
-     *  logout button
+     *  title
      *  address of the protocol
+     *  logo
      */
     private void setHeader() {
         usericon = (TextView)findViewById(R.id.usericon);
@@ -119,6 +123,17 @@ public class HV_EditActivity extends Activity {
         txtRole = (TextView)findViewById(R.id.txtRole);
         txtRole.setText(currentUser.getRole().toString().replace(currentUser.getRole().toString().substring(1), currentUser.getRole().toString().substring(1).toLowerCase()));
 
+        txtStreet = (TextView)findViewById(R.id.txtStreet);
+        txtStreet.setText(currentUser.getHousesHV().get(0).getStreet());
+
+        txtStreetnr = (TextView)findViewById(R.id.txtStreetNr);
+        txtStreetnr.setText(String.valueOf(currentUser.getHousesHV().get(0).getStreetNumber()));
+
+        txtPLZ = (TextView)findViewById(R.id.txtPLZ);
+        txtPLZ.setText(String.valueOf(currentUser.getHousesHV().get(0).getPLZ()));
+
+        txtTown = (TextView)findViewById(R.id.txtTown);
+        txtTown.setText(currentUser.getHousesHV().get(0).getTown());
     }
 
     /**
@@ -430,6 +445,9 @@ public class HV_EditActivity extends Activity {
         }
     }
 
+    /**
+     * open the previous fragment
+     */
     public void openPreviousFragment() {
         if (getFragmentManager().getBackStackEntryCount() == 0) {
 
@@ -453,7 +471,7 @@ public class HV_EditActivity extends Activity {
     }
 
     /**
-     * get the data form home activity
+     * get the data from home activity
      */
     private void intentReceiver() {
         Intent intent = getIntent();

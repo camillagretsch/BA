@@ -25,30 +25,6 @@ import java.util.List;
 @Table(name = "DoorState")
 public class DoorState extends Model implements EntryStateInterface{
 
-    @Column(name = "hasNoSpot")
-    private boolean hasNoSpot = true;
-
-    @Column(name = "isSpotOld")
-    private boolean isSpotOld = false;
-
-    @Column(name = "spot_comment")
-    private String spotComment = null;
-
-    @Column(name = "spot_picture")
-    private byte[] spotPicture = null;
-
-    @Column(name = "hasNoHole")
-    private boolean hasNoHole = true;
-
-    @Column(name = "isHoleOld")
-    private boolean isHoleOld = false;
-
-    @Column(name = "hole_comment")
-    private String holeComment = null;
-
-    @Column(name = "hole_picture")
-    private byte[] holePicture = null;
-
     @Column(name = "hasNoDamage")
     private boolean hasNoDamage = true;
 
@@ -78,7 +54,7 @@ public class DoorState extends Model implements EntryStateInterface{
 
     private final static String NAME = "Tür ";
 
-    private static final List<String> ROW_NAMES = Arrays.asList("Sind alle Flecken entfernt?", "Sind keine Löcher zusehen?", "Ist alles intakt?");
+    private static final List<String> ROW_NAMES = Arrays.asList("Ist alles intakt?");
 
     public DoorState() {
         super();
@@ -100,70 +76,6 @@ public class DoorState extends Model implements EntryStateInterface{
         super();
         this.kitchen = kitchen;
         this.ap = ap;
-    }
-
-    public void setHasNoSpot(boolean hasNoSpot) {
-        this.hasNoSpot = hasNoSpot;
-    }
-
-    public boolean hasNoSpot() {
-        return hasNoSpot;
-    }
-
-    public void setIsSpotOld(boolean isSpotOld) {
-        this.isSpotOld = isSpotOld;
-    }
-
-    public boolean isSpotOld() {
-        return isSpotOld;
-    }
-
-    public void setSpotComment(String spotComment) {
-        this.spotComment = spotComment;
-    }
-
-    public String getSpotComment() {
-        return spotComment;
-    }
-
-    public void setSpotPicture(byte[] spotPicture) {
-        this.spotPicture = spotPicture;
-    }
-
-    public byte[] getSpotPicture() {
-        return spotPicture;
-    }
-
-    public void setHasNoHole(boolean hasNoHole) {
-        this.hasNoHole = hasNoHole;
-    }
-
-    public boolean hasNoHole() {
-        return hasNoHole;
-    }
-
-    public void setIsHoleOld(boolean isHoleOld) {
-        this.isHoleOld = isHoleOld;
-    }
-
-    public boolean isHoleOld() {
-        return isHoleOld;
-    }
-
-    public void setHoleComment(String holeComment) {
-        this.holeComment = holeComment;
-    }
-
-    public String getHoleComment() {
-        return holeComment;
-    }
-
-    public void setHolePicture(byte[] holePicture) {
-        this.holePicture = holePicture;
-    }
-
-    public byte[] getHolePicture() {
-        return holePicture;
     }
 
     public void setHasNoDamage(boolean hasNoDamage) {
@@ -320,25 +232,19 @@ public class DoorState extends Model implements EntryStateInterface{
 
     @Override
     public void saveCheckEntries(List<String> check) {
-        this.setHasNoSpot(Boolean.parseBoolean(check.get(0)));
-        this.setHasNoHole(Boolean.parseBoolean(check.get(1)));
-        this.setHasNoDamage(Boolean.parseBoolean(check.get(2)));
+        this.setHasNoDamage(Boolean.parseBoolean(check.get(0)));
         this.save();
     }
 
     @Override
     public void saveCheckOldEntries(List<Boolean> checkOld) {
-        this.setIsSpotOld(checkOld.get(0));
-        this.setIsHoleOld(checkOld.get(1));
-        this.setIsDamageOld(checkOld.get(2));
+        this.setIsDamageOld(checkOld.get(0));
         this.save();
     }
 
     @Override
     public void saveCommentsEntries(List<String> comments) {
-        this.setSpotComment(comments.get(0));
-        this.setHoleComment(comments.get(1));
-        this.setDamageComment(comments.get(2));
+        this.setDamageComment(comments.get(0));
         this.save();
     }
 
@@ -346,12 +252,6 @@ public class DoorState extends Model implements EntryStateInterface{
     public void savePicture(int pos, byte[] picture) {
         switch (pos) {
             case 0:
-                this.setSpotPicture(picture);
-                break;
-            case 1:
-                this.setHolePicture(picture);
-                break;
-            case 2:
                 this.setDamagePicture(picture);
                 break;
         }
@@ -381,7 +281,7 @@ public class DoorState extends Model implements EntryStateInterface{
      * @return
      */
     private static List<Boolean> createCheckList(DoorState door) {
-        return new ArrayList<>(Arrays.asList(door.hasNoSpot(), door.hasNoHole(), door.hasNoDamage()));
+        return new ArrayList<>(Arrays.asList(door.hasNoDamage()));
     }
 
     /**
@@ -390,7 +290,7 @@ public class DoorState extends Model implements EntryStateInterface{
      * @return
      */
     private static List<String> createCommentsList(DoorState door) {
-        return new ArrayList<>(Arrays.asList(door.getSpotComment(), door.getHoleComment(), door.getDamageComment()));
+        return new ArrayList<>(Arrays.asList(door.getDamageComment()));
     }
 
     /**
@@ -401,7 +301,7 @@ public class DoorState extends Model implements EntryStateInterface{
      * @return
      */
     private static List<Boolean> createCheckOldList(DoorState door) {
-        return new ArrayList<>(Arrays.asList(door.isSpotOld(), door.isHoleOld(), door.isDamageOld()));
+        return new ArrayList<>(Arrays.asList(door.isDamageOld()));
     }
 
     /**
@@ -410,7 +310,7 @@ public class DoorState extends Model implements EntryStateInterface{
      * @return
      */
     private static List<byte[]> createPictureList(DoorState door) {
-        return new ArrayList<>(Arrays.asList(door.getSpotPicture(), door.getHolePicture(), door.getDamagePicture()));
+        return new ArrayList<>(Arrays.asList(door.getDamagePicture()));
     }
 
     /**
@@ -418,14 +318,6 @@ public class DoorState extends Model implements EntryStateInterface{
      * @param oldDoor
      */
     private void copyOldEntries(DoorState oldDoor) {
-        this.setHasNoSpot(oldDoor.hasNoSpot());
-        this.setIsSpotOld(oldDoor.isSpotOld());
-        this.setSpotComment(oldDoor.getSpotComment());
-        this.setSpotPicture(oldDoor.getSpotPicture());
-        this.setHasNoHole(oldDoor.hasNoHole());
-        this.setIsHoleOld(oldDoor.isHoleOld());
-        this.setHoleComment(oldDoor.getHoleComment());
-        this.setHolePicture(oldDoor.getHolePicture());
         this.setHasNoDamage(oldDoor.hasNoDamage());
         this.setIsDamageOld(oldDoor.isDamageOld());
         this.setDamageComment(oldDoor.getDamageComment());
@@ -486,8 +378,6 @@ public class DoorState extends Model implements EntryStateInterface{
     public static void initializeRoomDoor(List<AP> aps, String ex) {
         for (AP ap : aps) {
             DoorState door = new DoorState(ap.getRoom(), ap);
-            door.setHasNoSpot(true);
-            door.setHasNoHole(true);
             door.setHasNoDamage(false);
             door.setDamageComment("Klinke ist kaputt");
             door.setName(door.getName() + " " + ex);
@@ -502,8 +392,6 @@ public class DoorState extends Model implements EntryStateInterface{
     public static void initializeBathroomDoor(List<AP> aps) {
         for (AP ap : aps) {
             DoorState door = new DoorState(ap.getBathroom(), ap);
-            door.setHasNoSpot(true);
-            door.setHasNoHole(true);
             door.setHasNoDamage(true);
             door.save();
         }
@@ -517,9 +405,6 @@ public class DoorState extends Model implements EntryStateInterface{
     public static void initializeKitchenDoor(List<AP> aps, String ex) {
         for (AP ap : aps) {
             DoorState door = new DoorState(ap.getKitchen(), ap);
-            door.setHasNoSpot(true);
-            door.setHasNoHole(false);
-            door.setName(NAME + ex);
             door.setHasNoDamage(true);
             door.save();
         }

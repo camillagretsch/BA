@@ -24,9 +24,6 @@ public class Bathroom extends Model{
     @Column(name = "apartment", unique = true, notNull = true, onUpdate = Column.ForeignKeyAction.CASCADE)
     private Apartment apartment;
 
-    @Column(name = "APs", onUpdate = Column.ForeignKeyAction.CASCADE)
-    private List<AP> APs = new ArrayList<>();
-
     @Column(name = "name")
     private String name = "Badezimmer";
 

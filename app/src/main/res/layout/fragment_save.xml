@@ -4,52 +4,13 @@
     android:layout_height="match_parent"
     tools:context="com.example.woko_app.fragment.SaveFragment">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="150sp"
-            android:layout_marginLeft="30sp"
-            android:layout_marginTop="30sp">
-
-            <CheckBox
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/sendEmail"
-                android:textSize="25sp"
-                android:textStyle="bold"/>
-
-            <!--<LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="30sp">
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
-                    android:id="@+id/etEmail"
-                    android:hint="@string/hintEmail"/>
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:id="@+id/etMessage"
-                    android:hint="@string/hintMessage"/>
-            </LinearLayout>-->
-        </LinearLayout>
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30sp">
+            android:layout_height="match_parent"
+            android:layout_marginLeft="30sp"
+            android:layout_marginTop="30sp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -71,33 +32,60 @@
                 android:textSize="25sp"
                 android:id="@+id/check2" />
 
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="25sp"
+                    android:id="@+id/check3"
+                    android:text="@string/toOther"
+                    android:layout_marginRight="15sp"/>
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    android:hint="@string/hintEmail"
+                    android:textColorHint="@color/hint"
+                    android:id="@+id/etEmail"/>
+            </LinearLayout>
 
             <Button
                 style="@style/ButtonStyle"
                 android:text="@string/send_btn"
                 android:id="@+id/btnSend"
-                android:layout_centerHorizontal="true"/>
+                android:layout_marginTop="15sp"/>
 
             <Button
                 style="@style/ButtonStyle"
-                android:text="@string/close_btn"
-                android:id="@+id/btnClose"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"/>
+                android:layout_width="wrap_content"
+                android:text="@string/sendEmail"
+                android:id="@+id/btnEmail"
+                android:layout_marginTop="50sp"/>
+        </LinearLayout>
 
-            <Button
-                style="@style/ButtonStyle"
-                android:text="@string/logout_btn"
-                android:id="@+id/btnLogout"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        </RelativeLayout>
+        <Button
+            style="@style/ButtonStyle"
+            android:text="@string/close_btn"
+            android:id="@+id/btnClose"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"/>
 
-    </LinearLayout>
+        <Button
+            style="@style/ButtonStyle"
+            android:text="@string/logout_btn"
+            android:id="@+id/btnLogout"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
 </FrameLayout>

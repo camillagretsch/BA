@@ -31,14 +31,14 @@
 
     <Button
         style="@style/ButtonStyle"
-        android:text="@string/clear_btn"
-        android:id="@+id/btnClear"
+        android:text="@string/stop_btn"
+        android:id="@+id/btnStop"
         android:layout_alignParentBottom="true" />
 
     <Button
         style="@style/ButtonStyle"
-        android:text="@string/save_btn"
-        android:id="@+id/btnSave"
+        android:text="@string/clear_btn"
+        android:id="@+id/btnClear"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"/>
 
